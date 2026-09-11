@@ -1,0 +1,32 @@
+name: sih_inspector_app
+description: "Smart Real-Time Monitoring & Inspection Mobile App for Ministry of Social Justice and Empowerment (SIH26095)"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+  provider: ^6.1.2
+  http: ^1.2.1
+  geolocator: ^11.0.0
+  camera: ^0.10.5+9
+  flutter_webrtc: ^0.9.48
+  signature: ^5.4.1
+  encrypt: ^5.0.3
+  crypto: ^3.0.3
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  intl: ^0.19.0
+  cached_network_image: ^3.3.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true

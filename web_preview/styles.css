@@ -1,0 +1,163 @@
+/* Custom Styles for SIH26095 MoSJE Platform */
+
+.phone-frame {
+  box-shadow: 0 25px 60px -12px rgba(15, 23, 42, 0.45), 0 0 0 2px rgba(15, 23, 42, 0.1);
+  border: 10px solid #1e293b !important;
+  transition: all 0.3s ease;
+}
+
+/* Ensure Smartphone stands out sharply in Dark Mode (resolving dark mode color blending) */
+html.dark .phone-frame {
+  border: 11px solid #475569 !important; /* Premium brushed titanium bezel */
+  outline: 2px solid #94a3b8 !important; /* High-contrast silver accent ring */
+  box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.95), 0 0 35px 2px rgba(59, 130, 246, 0.25) !important; /* Ambient neon depth glow */
+  background-color: #0f172a !important;
+}
+
+html.dark .phone-notch-bar {
+  background-color: #475569 !important;
+}
+
+html.dark .phone-notch-cutout {
+  background-color: #0b0f19 !important;
+}
+
+.nav-btn.active {
+  background-color: #2563eb !important;
+  color: #ffffff !important;
+}
+
+/* Custom Leaflet Map styling */
+.leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  font-family: inherit;
+}
+
+.leaflet-popup-content {
+  margin: 12px 14px;
+  line-height: 1.4;
+}
+
+/* Pulse indicator animation */
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+
+.critical-pulse {
+  animation: pulse-ring 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+/* ============================================================================
+   DARK MODE COMPREHENSIVE OVERRIDES
+   ============================================================================ */
+html.dark {
+  color-scheme: dark;
+}
+
+html.dark body {
+  background-color: #0b0f19 !important;
+  color: #e2e8f0 !important;
+}
+
+html.dark .bg-white {
+  background-color: #131d31 !important;
+  border-color: #1e293b !important;
+  color: #f1f5f9 !important;
+}
+
+html.dark .bg-slate-50 {
+  background-color: #182339 !important;
+  border-color: #26354f !important;
+  color: #e2e8f0 !important;
+}
+
+html.dark .bg-slate-100 {
+  background-color: #1e293b !important;
+  color: #f1f5f9 !important;
+}
+
+html.dark .bg-slate-200 {
+  background-color: #334155 !important;
+}
+
+html.dark .text-slate-900 {
+  color: #ffffff !important;
+}
+
+html.dark .text-slate-800 {
+  color: #f8fafc !important;
+}
+
+html.dark .text-slate-700 {
+  color: #cbd5e1 !important;
+}
+
+html.dark .text-slate-600 {
+  color: #94a3b8 !important;
+}
+
+html.dark .text-slate-500 {
+  color: #64748b !important;
+}
+
+html.dark .border-slate-200 {
+  border-color: #24324a !important;
+}
+
+html.dark .border-slate-100 {
+  border-color: #1e293b !important;
+}
+
+html.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #1e293b !important;
+}
+
+html.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #24324a !important;
+}
+
+html.dark input,
+html.dark select,
+html.dark textarea {
+  background-color: #1e293b !important;
+  color: #ffffff !important;
+  border-color: #334155 !important;
+}
+
+html.dark .leaflet-popup-content-wrapper {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+  border: 1px solid #334155;
+}
+
+html.dark .leaflet-popup-tip {
+  background-color: #1e293b !important;
+}
+
+/* Dark mode Map Tiles inverted styling */
+html.dark .dark-map-tiles .leaflet-tile {
+  filter: brightness(0.65) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.75);
+}
+
+/* Tactical HUD Bounding Box Animation */
+@keyframes hud-scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(1000%); }
+}
+
+.tactical-hud-scan {
+  background: linear-gradient(180deg, rgba(16, 185, 129, 0) 0%, rgba(16, 185, 129, 0.25) 50%, rgba(16, 185, 129, 0) 100%);
+  animation: hud-scanline 3s linear infinite;
+}

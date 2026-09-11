@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  postgis:
+    image: postgis/postgis:15-3.3
+    container_name: dosje-postgis
+    environment:
+      POSTGRES_DB: dosje_monitoring
+      POSTGRES_USER: dosje_admin
+      POSTGRES_PASSWORD: GovSecurePassword2026#
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgis_data:/var/lib/postgresql/data
+      - ./database/postgis_schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
+      - ./database/seed_dosje_data.sql:/docker-entrypoint-initdb.d/02_seed.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dosje_admin -d dosje_monitoring"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dosje-drf-api
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      POSTGRES_HOST: postgis
+      POSTGRES_DB: dosje_monitoring
+      POSTGRES_USER: dosje_admin
+      POSTGRES_PASSWORD: GovSecurePassword2026#
+      DJANGO_SECRET_KEY: "gov_cloud_production_secret_key_dosje_sih26095"
+    depends_on:
+      postgis:
+        condition: service_healthy
+
+  webrtc-signaling:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: dosje-webrtc-signaling
+    command: python video_engine/webrtc_signaling.py
+    ports:
+      - "3478:3478/udp"
+      - "8080:8080"
+    depends_on:
+      - backend
+
+volumes:
+  postgis_data:

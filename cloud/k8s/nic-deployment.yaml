@@ -1,0 +1,109 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dosje-monitoring
+  labels:
+    project: sih26095
+    ministry: mosje
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dosje-app-config
+  namespace: dosje-monitoring
+data:
+  DJANGO_SETTINGS_MODULE: "config.settings"
+  POSTGRES_DB: "dosje_monitoring"
+  POSTGRES_HOST: "postgis-service"
+  POSTGRES_PORT: "5432"
+  ALLOWED_HOSTS: "*"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: dosje-app-secrets
+  namespace: dosje-monitoring
+type: Opaque
+stringData:
+  DJANGO_SECRET_KEY: "gov_cloud_production_secret_key_dosje_sih26095"
+  POSTGRES_USER: "dosje_admin"
+  POSTGRES_PASSWORD: "GovSecurePassword2026#"
+  AES_MASTER_KEY: "MoSJE_SIH26095_GOV_SECURE_KEY_2026_NIC_MEGHRAJ"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dosje-drf-backend
+  namespace: dosje-monitoring
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: dosje-backend
+  template:
+    metadata:
+      labels:
+        app: dosje-backend
+    spec:
+      containers:
+      - name: drf-api
+        image: registry.nic.gov.in/dosje/sih26095-backend:latest
+        command: ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "4"]
+        ports:
+        - containerPort: 8000
+        envFrom:
+        - configMapRef:
+            name: dosje-app-config
+        - secretRef:
+            name: dosje-app-secrets
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "2Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /api/v1/ai/national-stats
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dosje-backend-service
+  namespace: dosje-monitoring
+spec:
+  type: ClusterIP
+  selector:
+    app: dosje-backend
+  ports:
+  - port: 80
+    targetPort: 8000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dosje-monitoring-ingress
+  namespace: dosje-monitoring
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  tls:
+  - hosts:
+    - inspection.dosje.gov.in
+    secretName: dosje-tls-cert
+  rules:
+  - host: inspection.dosje.gov.in
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: dosje-backend-service
+            port:
+              number: 80
