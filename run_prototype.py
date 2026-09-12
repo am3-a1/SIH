@@ -189,8 +189,24 @@ class DoSJEUnifiedHandler(SimpleHTTPRequestHandler):
                 'encryption': 'AES-256-GCM Hardware-Backed Keystore',
                 'offline_sync': 'Encrypted SharedPreferences with Automated Flush on Network Reconnect',
                 'server_endpoint': 'http://10.0.2.2:8088/api/v1 (Emulator) / http://localhost:8088/api/v1',
-                'project_path': 'android/'
+                'project_path': 'android/',
+                'download_url': '/download/app-debug.apk'
             })
+
+        elif path in ("/download/app-debug.apk", "/app-debug.apk", "/api/v1/android/download-apk"):
+            apk_path = os.path.join(BASE_DIR, "android", "app", "build", "outputs", "apk", "debug", "app-debug.apk")
+            if os.path.exists(apk_path):
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/vnd.android.package-archive')
+                self.send_header('Content-Disposition', 'attachment; filename="DoSJE-Handheld-Inspector.apk"')
+                self.send_header('Content-Length', str(os.path.getsize(apk_path)))
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                with open(apk_path, 'rb') as f:
+                    self.wfile.write(f.read())
+                return
+            else:
+                return self.send_json({'status': 'ERROR', 'error': 'APK not yet built. Run ./gradlew assembleDebug in android/'}, status=404)
 
         elif path == "/api/v1/live-feed":
             feed = db_adapter.get_live_officer_feed()
