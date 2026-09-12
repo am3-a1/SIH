@@ -22,12 +22,63 @@ class TestBugFixes(unittest.TestCase):
         officers = data["officers"]
         self.assertEqual(len(officers), 52)
 
-        # Ensure every officer has at least one assignable facility in their jurisdiction
+        # Verify jurisdiction facilities are assigned to every officer
+        assigned_officers = [o for o in officers if o.get("has_pending_assignment")]
+        standby_officers = [o for o in officers if not o.get("has_pending_assignment")]
+
+        # In baseline state, only genuinely assigned officers have has_pending_assignment == True
+        self.assertGreaterEqual(len(assigned_officers), 1)
+        self.assertGreaterEqual(len(standby_officers), 40)
+
         for off in officers:
             self.assertIn("id", off)
             self.assertIn("full_name", off)
-            self.assertIn("assigned_facility_ids", off)
-            self.assertGreater(len(off["assigned_facility_ids"]), 0, f"Officer {off['full_name']} has 0 assigned facilities!")
+            self.assertIn("jurisdiction_facility_ids", off)
+            self.assertGreater(len(off["jurisdiction_facility_ids"]), 0, f"Officer {off['full_name']} has 0 jurisdiction facilities!")
+
+        for off in standby_officers:
+            self.assertFalse(off["has_pending_assignment"])
+            self.assertEqual(len(off.get("assigned_inspections", [])), 0)
+
+    def test_photos_evidence_watermarked_and_no_unsplash(self):
+        sample_data_url = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='640' height='480'><rect fill='%230f172a' width='640' height='480'/><text fill='%23ffffff' x='320' y='240'>Verified MoSJE Stamp</text></svg>"
+        payload = {
+            "facility_id": "DOSJE-DL-001",
+            "inspector_name": "Sunita Rao",
+            "inspector_latitude": 28.5672,
+            "inspector_longitude": 77.1734,
+            "is_simulated_onsite": True,
+            "scores": {"infrastructure": 90, "hygiene": 95, "food": 85, "medical": 90, "attendance": 90},
+            "photos_evidence": [
+                {
+                    "id": "EVID-TEST-001",
+                    "category": "Dining Hall & Kitchen",
+                    "description": "On-site statutory photo verification",
+                    "url": sample_data_url,
+                    "data_url": sample_data_url,
+                    "sha256_hash": "c8f921e48ba024097b24cf0cd34f9926",
+                    "watermark_text": "MoSJE AUDIT | 2026-09-12 UTC | 28.5672° N, 77.1734° E"
+                }
+            ]
+        }
+        status, data = call_handler("POST", "/api/v1/inspections/submit", payload)
+        self.assertEqual(status, 200)
+        self.assertEqual(data["status"], "SUCCESS")
+        insp_id = data["inspection_id"]
+
+        # Fetch specific inspection by ID to verify photo persistence
+        status_det, data_det = call_handler("GET", f"/api/v1/inspections/detail/{insp_id}")
+        self.assertEqual(status_det, 200)
+        detail = data_det.get("inspection")
+        self.assertIsNotNone(detail)
+        photos = detail.get("photos_evidence", [])
+        self.assertGreater(len(photos), 0)
+
+        # Verify photo has valid data URL and NO unsplash links
+        for photo in photos:
+            photo_url = photo.get("data_url") or photo.get("url") or ""
+            self.assertNotIn("unsplash.com", photo_url)
+            self.assertTrue(photo_url.startswith("data:image/") or photo_url.startswith("http"))
 
     def test_bug2_assets_seed_files_exist_and_valid(self):
         base_dir = os.path.dirname(os.path.abspath(__file__))

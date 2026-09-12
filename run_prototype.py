@@ -146,7 +146,7 @@ class DoSJEUnifiedHandler(SimpleHTTPRequestHandler):
             insp = db_adapter.get_inspection_by_id(insp_id)
             if not insp:
                 return self.send_json({'error': 'Inspection not found'}, 404)
-            return self.send_json({'status': 'SUCCESS', 'latest_audit': insp, 'audit': insp})
+            return self.send_json({'status': 'SUCCESS', 'latest_audit': insp, 'audit': insp, 'inspection': insp})
 
         elif path == "/api/v1/admin/db-overview":
             overview = db_adapter.get_database_overview()

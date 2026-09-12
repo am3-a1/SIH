@@ -95,7 +95,8 @@ class TestUnifiedAPIHandler(unittest.TestCase):
                 {
                     "category": "Main Gate & Geofence Verification",
                     "description": "Inspector verified at entry point within 35m of boundary.",
-                    "url": "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=600",
+                    "url": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='400'><rect width='600' height='400' fill='%230f172a'/><text x='300' y='200' fill='%23ffffff'>Main Gate Evidence</text></svg>",
+                    "data_url": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='400'><rect width='600' height='400' fill='%230f172a'/><text x='300' y='200' fill='%23ffffff'>Main Gate Evidence</text></svg>",
                     "captured_at": "2026-09-11 12:00:00 UTC",
                     "latitude": 28.5675,
                     "longitude": 77.1735,

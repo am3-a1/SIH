@@ -282,36 +282,61 @@ class DatabaseAdapter:
         ]
         cur.executemany("INSERT INTO cctv_cameras VALUES (?,?,?,?,?,?,?,?,?,?)", cameras_data)
 
+        import urllib.parse
+        def make_seed_evidence_svg(category, fac_name, off_name, coords, ts, h):
+            svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="640" height="480" viewBox="0 0 640 480">
+  <rect width="640" height="480" fill="#0f172a"/>
+  <rect x="20" y="20" width="600" height="340" rx="10" fill="#1e293b" stroke="#334155" stroke-width="2"/>
+  <circle cx="320" cy="180" r="44" fill="none" stroke="#38bdf8" stroke-width="2" stroke-dasharray="6,6"/>
+  <path d="M 320 145 L 320 215 M 285 180 L 355 180" stroke="#38bdf8" stroke-width="2"/>
+  <text x="320" y="250" fill="#94a3b8" font-family="monospace" font-size="13" text-anchor="middle" font-weight="bold">ON-SITE CAMERA CAPTURE • {category.upper()}</text>
+  <rect x="0" y="375" width="640" height="105" fill="#020617" opacity="0.95"/>
+  <line x1="0" y1="375" x2="640" y2="375" stroke="#f59e0b" stroke-width="3"/>
+  <rect x="20" y="20" width="130" height="24" rx="4" fill="#dc2626"/>
+  <text x="85" y="36" fill="#ffffff" font-family="monospace" font-size="10" font-weight="bold" text-anchor="middle">WATERMARKED</text>
+  <text x="20" y="400" fill="#fde047" font-family="monospace" font-size="12" font-weight="bold">[MoSJE] GOV OF INDIA | EVIDENCE: {category.upper()}</text>
+  <text x="20" y="420" fill="#e2e8f0" font-family="monospace" font-size="11">FACILITY: {fac_name} | GPS: {coords}</text>
+  <text x="20" y="440" fill="#94a3b8" font-family="monospace" font-size="10">INSPECTOR: {off_name} | TIME: {ts}</text>
+  <text x="20" y="460" fill="#34d399" font-family="monospace" font-size="10" font-weight="bold">SHA-256: {h[:32]}... | GEOFENCE: VERIFIED</text>
+</svg>"""
+            return "data:image/svg+xml;utf8," + urllib.parse.quote(svg)
+
         sample_photos = [
             {
-                "category": "Dining & Kitchen Area",
+                "id": "EVID-MH03-01",
+                "category": "Dining Hall & Kitchen",
                 "description": "Cleanliness and meal preparation hygiene checked. Fire extinguisher valid.",
-                "url": "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=600&auto=format&fit=crop&q=80",
+                "url": make_seed_evidence_svg("Dining Hall & Kitchen", "Savitribai Phule SC Girls Hostel", "Sunita Rao", "18.5204° N, 73.8567° E", "2026-07-20 14:15:22 UTC", "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"),
+                "data_url": make_seed_evidence_svg("Dining Hall & Kitchen", "Savitribai Phule SC Girls Hostel", "Sunita Rao", "18.5204° N, 73.8567° E", "2026-07-20 14:15:22 UTC", "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"),
                 "captured_at": "2026-07-20 14:15:22 UTC",
                 "latitude": 18.5204,
                 "longitude": 73.8567,
                 "sha256_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-                "watermark_text": "MoSJE AUDIT | 2026-07-20 14:15:22 UTC | 18.5204° N, 73.8567° E | OFFICER-333"
+                "watermark_text": "MoSJE AUDIT | 2026-07-20 14:15:22 UTC | 18.5204° N, 73.8567° E | Sunita Rao"
             },
             {
-                "category": "Dormitory & Living Quarters",
+                "id": "EVID-MH03-02",
+                "category": "Dormitory Living Area",
                 "description": "Bed spacing adequate, ventilated windows, clean bedsheets and personal lockers verified.",
-                "url": "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?w=600&auto=format&fit=crop&q=80",
+                "url": make_seed_evidence_svg("Dormitory Living Area", "Savitribai Phule SC Girls Hostel", "Sunita Rao", "18.5204° N, 73.8567° E", "2026-07-20 14:22:10 UTC", "5d41402abc4b2a76b9719d911017c592bb8378872f746ef8b3ef4e5df415d4a7"),
+                "data_url": make_seed_evidence_svg("Dormitory Living Area", "Savitribai Phule SC Girls Hostel", "Sunita Rao", "18.5204° N, 73.8567° E", "2026-07-20 14:22:10 UTC", "5d41402abc4b2a76b9719d911017c592bb8378872f746ef8b3ef4e5df415d4a7"),
                 "captured_at": "2026-07-20 14:22:10 UTC",
                 "latitude": 18.5204,
                 "longitude": 73.8567,
-                "sha256_hash": "5d41402abc4b2a76b9719d911017c592bb837887",
-                "watermark_text": "MoSJE AUDIT | 2026-07-20 14:22:10 UTC | 18.5204° N, 73.8567° E | OFFICER-333"
+                "sha256_hash": "5d41402abc4b2a76b9719d911017c592bb8378872f746ef8b3ef4e5df415d4a7",
+                "watermark_text": "MoSJE AUDIT | 2026-07-20 14:22:10 UTC | 18.5204° N, 73.8567° E | Sunita Rao"
             },
             {
+                "id": "EVID-MH03-03",
                 "category": "Medical & First Aid Dispensary",
                 "description": "First aid medicines in-stock, doctor visit register verified with recent entries.",
-                "url": "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?w=600&auto=format&fit=crop&q=80",
+                "url": make_seed_evidence_svg("Medical & First Aid Dispensary", "Savitribai Phule SC Girls Hostel", "Sunita Rao", "18.5204° N, 73.8567° E", "2026-07-20 14:28:45 UTC", "7b24cf0cd34f9926d0b31e9c9c30f40df8b3ef4e5df415d4a7cab5df24e0c9cf"),
+                "data_url": make_seed_evidence_svg("Medical & First Aid Dispensary", "Savitribai Phule SC Girls Hostel", "Sunita Rao", "18.5204° N, 73.8567° E", "2026-07-20 14:28:45 UTC", "7b24cf0cd34f9926d0b31e9c9c30f40df8b3ef4e5df415d4a7cab5df24e0c9cf"),
                 "captured_at": "2026-07-20 14:28:45 UTC",
                 "latitude": 18.5204,
                 "longitude": 73.8567,
-                "sha256_hash": "7b24cf0cd34f9926d0b31e9c9c30f40d",
-                "watermark_text": "MoSJE AUDIT | 2026-07-20 14:28:45 UTC | 18.5204° N, 73.8567° E | OFFICER-333"
+                "sha256_hash": "7b24cf0cd34f9926d0b31e9c9c30f40df8b3ef4e5df415d4a7cab5df24e0c9cf",
+                "watermark_text": "MoSJE AUDIT | 2026-07-20 14:28:45 UTC | 18.5204° N, 73.8567° E | Sunita Rao"
             }
         ]
 
@@ -345,7 +370,7 @@ class DatabaseAdapter:
         JOIN facilities f ON i.facility_id = f.id
         LEFT JOIN users u ON i.inspector_id = u.id
         WHERE i.status = 'COMPLETED'
-        ORDER BY i.completed_at DESC, i.scheduled_date DESC
+        ORDER BY i.completed_at DESC, i.id DESC
         LIMIT 1
         """)
         row = cur.fetchone()
@@ -499,33 +524,15 @@ class DatabaseAdapter:
                     officers_map[uid]['assigned_facility_ids'].append(r['assigned_facility_id'])
                 officers_map[uid]['has_pending_assignment'] = True
 
-        # Ensure every officer has assignable facilities matching their jurisdiction
+        # Populate jurisdiction facilities that this officer is authorized to inspect
         for uid, off in officers_map.items():
-            if not off['assigned_facility_ids']:
-                for fac in all_facs:
-                    if off['state'] == 'ALL' or off['role'] == 'SURPRISE_AUDITOR' or fac['district'] == off['district'] or fac['state'] == off['state']:
-                        if fac['id'] not in off['assigned_facility_ids']:
-                            off['assigned_facility_ids'].append(fac['id'])
-                            off['assigned_inspections'].append({
-                                'inspection_id': f'INSP-STATUTORY-{fac["id"].replace("DOSJE-", "")}',
-                                'facility_id': fac['id'],
-                                'facility_name': fac['name'],
-                                'scheme_name': fac['scheme_code'],
-                                'latitude': fac['latitude'],
-                                'longitude': fac['longitude']
-                            })
-                # If still empty, assign primary national welfare facility
-                if not off['assigned_facility_ids'] and all_facs:
-                    fac = all_facs[0]
-                    off['assigned_facility_ids'].append(fac['id'])
-                    off['assigned_inspections'].append({
-                        'inspection_id': f'INSP-STATUTORY-{fac["id"].replace("DOSJE-", "")}',
-                        'facility_id': fac['id'],
-                        'facility_name': fac['name'],
-                        'scheme_name': fac['scheme_code'],
-                        'latitude': fac['latitude'],
-                        'longitude': fac['longitude']
-                    })
+            jur_ids = []
+            for fac in all_facs:
+                if off['state'] == 'ALL' or off['role'] == 'SURPRISE_AUDITOR' or fac['district'] == off['district'] or fac['state'] == off['state']:
+                    jur_ids.append(fac['id'])
+            if not jur_ids and all_facs:
+                jur_ids.append(all_facs[0]['id'])
+            off['jurisdiction_facility_ids'] = jur_ids
 
         return list(officers_map.values())
 

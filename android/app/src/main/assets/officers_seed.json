@@ -3,32 +3,35 @@
   "count": 52,
   "officers": [
     {
-      "id": "OFFICER-ONSITE-033",
-      "username": "insp_jalandhar_balraj",
-      "full_name": "Balraj Sahni",
+      "id": "33333333-3333-3333-3333-333333333333",
+      "username": "inspector_delhi",
+      "full_name": "Sunita Rao",
       "role": "DISTRICT_INSPECTOR",
-      "designation": "Vigilance Monitoring Officer",
-      "district": "Jalandhar",
-      "state": "Punjab",
-      "email": "balraj.sahni@dosje.gov.in",
-      "phone": "+91-9860690133",
-      "assigned_facility_id": "DOSJE-PB-002",
-      "assigned_facility_name": "Nasha Mukti Punarvas Kendra (IRCA)",
-      "assigned_inspection_id": "TRUE-RANDOM-20260912112352-93E1F3",
+      "designation": "Senior Field Inspection Officer",
+      "district": "New Delhi",
+      "state": "Delhi",
+      "email": "inspector.delhi@dosje.gov.in",
+      "phone": "+91-9810123456",
+      "assigned_facility_id": "DOSJE-DL-001",
+      "assigned_facility_name": "Snehalaya Senior Citizens Home",
+      "assigned_inspection_id": "INSP-2026-001",
       "assigned_inspections": [
         {
-          "inspection_id": "TRUE-RANDOM-20260912112352-93E1F3",
-          "facility_id": "DOSJE-PB-002",
-          "facility_name": "Nasha Mukti Punarvas Kendra (IRCA)",
-          "scheme_name": "NAPDDR",
-          "latitude": 31.634,
-          "longitude": 74.8723
+          "inspection_id": "INSP-2026-001",
+          "facility_id": "DOSJE-DL-001",
+          "facility_name": "Snehalaya Senior Citizens Home",
+          "scheme_name": "AVYAY",
+          "latitude": 28.5672,
+          "longitude": 77.1734
         }
       ],
       "assigned_facility_ids": [
-        "DOSJE-PB-002"
+        "DOSJE-DL-001"
       ],
-      "has_pending_assignment": true
+      "has_pending_assignment": true,
+      "jurisdiction_facility_ids": [
+        "DOSJE-DL-001"
+      ]
     },
     {
       "id": "44444444-4444-4444-4444-444444444444",
@@ -56,7 +59,21 @@
       "assigned_facility_ids": [
         "DOSJE-PB-002"
       ],
-      "has_pending_assignment": true
+      "has_pending_assignment": true,
+      "jurisdiction_facility_ids": [
+        "DOSJE-DL-001",
+        "DOSJE-PB-002",
+        "DOSJE-MH-003",
+        "DOSJE-WB-004",
+        "DOSJE-UP-005",
+        "DOSJE-MN-006",
+        "DOSJE-RJ-007",
+        "DOSJE-KA-008",
+        "DOSJE-MP-009",
+        "DOSJE-MH-010",
+        "DOSJE-UP-011",
+        "DOSJE-TG-012"
+      ]
     },
     {
       "id": "OFFICER-ONSITE-006",
@@ -71,29 +88,13 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-UP-005",
-          "facility_id": "DOSJE-UP-005",
-          "facility_name": "Divyangjan Composite Regional Rehabilitation Hub",
-          "scheme_name": "DIVYANG",
-          "latitude": 26.8467,
-          "longitude": 80.9462
-        },
-        {
-          "inspection_id": "INSP-STATUTORY-UP-011",
-          "facility_id": "DOSJE-UP-011",
-          "facility_name": "Kashi Vridha Ashram Living Care",
-          "scheme_name": "AVYAY",
-          "latitude": 25.3176,
-          "longitude": 83.0064
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-UP-005",
         "DOSJE-UP-011"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-004",
@@ -108,20 +109,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-RJ-007",
-          "facility_id": "DOSJE-RJ-007",
-          "facility_name": "Atal Vayo Senior Care Sanctuary",
-          "scheme_name": "AVYAY",
-          "latitude": 26.9124,
-          "longitude": 75.7873
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-RJ-007"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-050",
@@ -136,20 +129,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-DL-001",
-          "facility_id": "DOSJE-DL-001",
-          "facility_name": "Snehalaya Senior Citizens Home",
-          "scheme_name": "AVYAY",
-          "latitude": 28.5672,
-          "longitude": 77.1734
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-DL-001"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-007",
@@ -164,20 +149,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-WB-004",
-          "facility_id": "DOSJE-WB-004",
-          "facility_name": "Garima Greh Shelter & Livelihood Center",
-          "scheme_name": "SMILE",
-          "latitude": 22.5726,
-          "longitude": 88.3639
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-WB-004"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-029",
@@ -192,29 +169,13 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-UP-005",
-          "facility_id": "DOSJE-UP-005",
-          "facility_name": "Divyangjan Composite Regional Rehabilitation Hub",
-          "scheme_name": "DIVYANG",
-          "latitude": 26.8467,
-          "longitude": 80.9462
-        },
-        {
-          "inspection_id": "INSP-STATUTORY-UP-011",
-          "facility_id": "DOSJE-UP-011",
-          "facility_name": "Kashi Vridha Ashram Living Care",
-          "scheme_name": "AVYAY",
-          "latitude": 25.3176,
-          "longitude": 83.0064
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-UP-005",
         "DOSJE-UP-011"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-040",
@@ -229,20 +190,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-DL-001",
-          "facility_id": "DOSJE-DL-001",
-          "facility_name": "Snehalaya Senior Citizens Home",
-          "scheme_name": "AVYAY",
-          "latitude": 28.5672,
-          "longitude": 77.1734
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-DL-001"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-025",
@@ -257,20 +210,32 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-DL-001",
-          "facility_id": "DOSJE-DL-001",
-          "facility_name": "Snehalaya Senior Citizens Home",
-          "scheme_name": "AVYAY",
-          "latitude": 28.5672,
-          "longitude": 77.1734
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-DL-001"
-      ],
-      "has_pending_assignment": false
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-033",
+      "username": "insp_jalandhar_balraj",
+      "full_name": "Balraj Sahni",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "Vigilance Monitoring Officer",
+      "district": "Jalandhar",
+      "state": "Punjab",
+      "email": "balraj.sahni@dosje.gov.in",
+      "phone": "+91-9860690133",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-PB-002"
+      ]
     },
     {
       "id": "OFFICER-ONSITE-015",
@@ -285,20 +250,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-DL-001",
-          "facility_id": "DOSJE-DL-001",
-          "facility_name": "Snehalaya Senior Citizens Home",
-          "scheme_name": "AVYAY",
-          "latitude": 28.5672,
-          "longitude": 77.1734
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-DL-001"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-044",
@@ -313,20 +270,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-DL-001",
-          "facility_id": "DOSJE-DL-001",
-          "facility_name": "Snehalaya Senior Citizens Home",
-          "scheme_name": "AVYAY",
-          "latitude": 28.5672,
-          "longitude": 77.1734
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-DL-001"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-020",
@@ -341,20 +290,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-DL-001",
-          "facility_id": "DOSJE-DL-001",
-          "facility_name": "Snehalaya Senior Citizens Home",
-          "scheme_name": "AVYAY",
-          "latitude": 28.5672,
-          "longitude": 77.1734
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-DL-001"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-016",
@@ -369,20 +310,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-DL-001",
-          "facility_id": "DOSJE-DL-001",
-          "facility_name": "Snehalaya Senior Citizens Home",
-          "scheme_name": "AVYAY",
-          "latitude": 28.5672,
-          "longitude": 77.1734
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-DL-001"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-041",
@@ -397,20 +330,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-DL-001",
-          "facility_id": "DOSJE-DL-001",
-          "facility_name": "Snehalaya Senior Citizens Home",
-          "scheme_name": "AVYAY",
-          "latitude": 28.5672,
-          "longitude": 77.1734
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-DL-001"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-003",
@@ -425,20 +350,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-PB-002",
-          "facility_id": "DOSJE-PB-002",
-          "facility_name": "Nasha Mukti Punarvas Kendra (IRCA)",
-          "scheme_name": "NAPDDR",
-          "latitude": 31.634,
-          "longitude": 74.8723
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-PB-002"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-026",
@@ -453,20 +370,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-DL-001",
-          "facility_id": "DOSJE-DL-001",
-          "facility_name": "Snehalaya Senior Citizens Home",
-          "scheme_name": "AVYAY",
-          "latitude": 28.5672,
-          "longitude": 77.1734
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-DL-001"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-019",
@@ -481,20 +390,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-PB-002",
-          "facility_id": "DOSJE-PB-002",
-          "facility_name": "Nasha Mukti Punarvas Kendra (IRCA)",
-          "scheme_name": "NAPDDR",
-          "latitude": 31.634,
-          "longitude": 74.8723
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-PB-002"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-011",
@@ -509,20 +410,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-TG-012",
-          "facility_id": "DOSJE-TG-012",
-          "facility_name": "NIEPID National Disability Hub",
-          "scheme_name": "DIVYANG",
-          "latitude": 17.385,
-          "longitude": 78.4867
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-TG-012"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-036",
@@ -537,20 +430,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-DL-001",
-          "facility_id": "DOSJE-DL-001",
-          "facility_name": "Snehalaya Senior Citizens Home",
-          "scheme_name": "AVYAY",
-          "latitude": 28.5672,
-          "longitude": 77.1734
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-DL-001"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-005",
@@ -565,20 +450,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-KA-008",
-          "facility_id": "DOSJE-KA-008",
-          "facility_name": "Dr. B.R. Ambedkar SC/ST Hostel",
-          "scheme_name": "PM-AJAY",
-          "latitude": 12.9716,
-          "longitude": 77.5946
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-KA-008"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-039",
@@ -593,20 +470,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-DL-001",
-          "facility_id": "DOSJE-DL-001",
-          "facility_name": "Snehalaya Senior Citizens Home",
-          "scheme_name": "AVYAY",
-          "latitude": 28.5672,
-          "longitude": 77.1734
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-DL-001"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-046",
@@ -621,20 +490,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-DL-001",
-          "facility_id": "DOSJE-DL-001",
-          "facility_name": "Snehalaya Senior Citizens Home",
-          "scheme_name": "AVYAY",
-          "latitude": 28.5672,
-          "longitude": 77.1734
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-DL-001"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-024",
@@ -649,20 +510,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-DL-001",
-          "facility_id": "DOSJE-DL-001",
-          "facility_name": "Snehalaya Senior Citizens Home",
-          "scheme_name": "AVYAY",
-          "latitude": 28.5672,
-          "longitude": 77.1734
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-DL-001"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-032",
@@ -677,20 +530,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-PB-002",
-          "facility_id": "DOSJE-PB-002",
-          "facility_name": "Nasha Mukti Punarvas Kendra (IRCA)",
-          "scheme_name": "NAPDDR",
-          "latitude": 31.634,
-          "longitude": 74.8723
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-PB-002"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-013",
@@ -705,20 +550,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-DL-001",
-          "facility_id": "DOSJE-DL-001",
-          "facility_name": "Snehalaya Senior Citizens Home",
-          "scheme_name": "AVYAY",
-          "latitude": 28.5672,
-          "longitude": 77.1734
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-DL-001"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-008",
@@ -733,20 +570,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-MP-009",
-          "facility_id": "DOSJE-MP-009",
-          "facility_name": "Nasha Mukt Bharat Rehabilitation Clinic",
-          "scheme_name": "NAPDDR",
-          "latitude": 23.2599,
-          "longitude": 77.4126
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-MP-009"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-035",
@@ -761,20 +590,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-KA-008",
-          "facility_id": "DOSJE-KA-008",
-          "facility_name": "Dr. B.R. Ambedkar SC/ST Hostel",
-          "scheme_name": "PM-AJAY",
-          "latitude": 12.9716,
-          "longitude": 77.5946
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-KA-008"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-010",
@@ -789,29 +610,13 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-UP-005",
-          "facility_id": "DOSJE-UP-005",
-          "facility_name": "Divyangjan Composite Regional Rehabilitation Hub",
-          "scheme_name": "DIVYANG",
-          "latitude": 26.8467,
-          "longitude": 80.9462
-        },
-        {
-          "inspection_id": "INSP-STATUTORY-UP-011",
-          "facility_id": "DOSJE-UP-011",
-          "facility_name": "Kashi Vridha Ashram Living Care",
-          "scheme_name": "AVYAY",
-          "latitude": 25.3176,
-          "longitude": 83.0064
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-UP-005",
         "DOSJE-UP-011"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-027",
@@ -826,29 +631,13 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-MH-003",
-          "facility_id": "DOSJE-MH-003",
-          "facility_name": "Savitribai Phule SC Girls Hostel",
-          "scheme_name": "PM-AJAY",
-          "latitude": 18.5204,
-          "longitude": 73.8567
-        },
-        {
-          "inspection_id": "INSP-STATUTORY-MH-010",
-          "facility_id": "DOSJE-MH-010",
-          "facility_name": "Garima Greh Transgender Safe Haven",
-          "scheme_name": "SMILE",
-          "latitude": 19.076,
-          "longitude": 72.8777
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-MH-003",
         "DOSJE-MH-010"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-021",
@@ -863,20 +652,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-DL-001",
-          "facility_id": "DOSJE-DL-001",
-          "facility_name": "Snehalaya Senior Citizens Home",
-          "scheme_name": "AVYAY",
-          "latitude": 28.5672,
-          "longitude": 77.1734
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-DL-001"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-018",
@@ -891,20 +672,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-DL-001",
-          "facility_id": "DOSJE-DL-001",
-          "facility_name": "Snehalaya Senior Citizens Home",
-          "scheme_name": "AVYAY",
-          "latitude": 28.5672,
-          "longitude": 77.1734
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-DL-001"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-002",
@@ -919,29 +692,13 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-MH-003",
-          "facility_id": "DOSJE-MH-003",
-          "facility_name": "Savitribai Phule SC Girls Hostel",
-          "scheme_name": "PM-AJAY",
-          "latitude": 18.5204,
-          "longitude": 73.8567
-        },
-        {
-          "inspection_id": "INSP-STATUTORY-MH-010",
-          "facility_id": "DOSJE-MH-010",
-          "facility_name": "Garima Greh Transgender Safe Haven",
-          "scheme_name": "SMILE",
-          "latitude": 19.076,
-          "longitude": 72.8777
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-MH-003",
         "DOSJE-MH-010"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-001",
@@ -956,20 +713,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-DL-001",
-          "facility_id": "DOSJE-DL-001",
-          "facility_name": "Snehalaya Senior Citizens Home",
-          "scheme_name": "AVYAY",
-          "latitude": 28.5672,
-          "longitude": 77.1734
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-DL-001"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-014",
@@ -984,20 +733,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-DL-001",
-          "facility_id": "DOSJE-DL-001",
-          "facility_name": "Snehalaya Senior Citizens Home",
-          "scheme_name": "AVYAY",
-          "latitude": 28.5672,
-          "longitude": 77.1734
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-DL-001"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-030",
@@ -1012,29 +753,13 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-UP-005",
-          "facility_id": "DOSJE-UP-005",
-          "facility_name": "Divyangjan Composite Regional Rehabilitation Hub",
-          "scheme_name": "DIVYANG",
-          "latitude": 26.8467,
-          "longitude": 80.9462
-        },
-        {
-          "inspection_id": "INSP-STATUTORY-UP-011",
-          "facility_id": "DOSJE-UP-011",
-          "facility_name": "Kashi Vridha Ashram Living Care",
-          "scheme_name": "AVYAY",
-          "latitude": 25.3176,
-          "longitude": 83.0064
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-UP-005",
         "DOSJE-UP-011"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-037",
@@ -1049,20 +774,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-DL-001",
-          "facility_id": "DOSJE-DL-001",
-          "facility_name": "Snehalaya Senior Citizens Home",
-          "scheme_name": "AVYAY",
-          "latitude": 28.5672,
-          "longitude": 77.1734
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-DL-001"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-022",
@@ -1077,20 +794,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-DL-001",
-          "facility_id": "DOSJE-DL-001",
-          "facility_name": "Snehalaya Senior Citizens Home",
-          "scheme_name": "AVYAY",
-          "latitude": 28.5672,
-          "longitude": 77.1734
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-DL-001"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-017",
@@ -1105,20 +814,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-DL-001",
-          "facility_id": "DOSJE-DL-001",
-          "facility_name": "Snehalaya Senior Citizens Home",
-          "scheme_name": "AVYAY",
-          "latitude": 28.5672,
-          "longitude": 77.1734
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-DL-001"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-034",
@@ -1133,20 +834,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-KA-008",
-          "facility_id": "DOSJE-KA-008",
-          "facility_name": "Dr. B.R. Ambedkar SC/ST Hostel",
-          "scheme_name": "PM-AJAY",
-          "latitude": 12.9716,
-          "longitude": 77.5946
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-KA-008"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-042",
@@ -1161,20 +854,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-DL-001",
-          "facility_id": "DOSJE-DL-001",
-          "facility_name": "Snehalaya Senior Citizens Home",
-          "scheme_name": "AVYAY",
-          "latitude": 28.5672,
-          "longitude": 77.1734
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-DL-001"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-043",
@@ -1189,48 +874,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-DL-001",
-          "facility_id": "DOSJE-DL-001",
-          "facility_name": "Snehalaya Senior Citizens Home",
-          "scheme_name": "AVYAY",
-          "latitude": 28.5672,
-          "longitude": 77.1734
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-DL-001"
-      ],
-      "has_pending_assignment": false
-    },
-    {
-      "id": "33333333-3333-3333-3333-333333333333",
-      "username": "inspector_delhi",
-      "full_name": "Sunita Rao",
-      "role": "DISTRICT_INSPECTOR",
-      "designation": "Senior Field Inspection Officer",
-      "district": "New Delhi",
-      "state": "Delhi",
-      "email": "inspector.delhi@dosje.gov.in",
-      "phone": "+91-9810123456",
-      "assigned_facility_id": null,
-      "assigned_facility_name": null,
-      "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-DL-001",
-          "facility_id": "DOSJE-DL-001",
-          "facility_name": "Snehalaya Senior Citizens Home",
-          "scheme_name": "AVYAY",
-          "latitude": 28.5672,
-          "longitude": 77.1734
-        }
-      ],
-      "assigned_facility_ids": [
-        "DOSJE-DL-001"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-009",
@@ -1245,29 +894,13 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-MH-003",
-          "facility_id": "DOSJE-MH-003",
-          "facility_name": "Savitribai Phule SC Girls Hostel",
-          "scheme_name": "PM-AJAY",
-          "latitude": 18.5204,
-          "longitude": 73.8567
-        },
-        {
-          "inspection_id": "INSP-STATUTORY-MH-010",
-          "facility_id": "DOSJE-MH-010",
-          "facility_name": "Garima Greh Transgender Safe Haven",
-          "scheme_name": "SMILE",
-          "latitude": 19.076,
-          "longitude": 72.8777
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-MH-003",
         "DOSJE-MH-010"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-028",
@@ -1282,20 +915,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-MP-009",
-          "facility_id": "DOSJE-MP-009",
-          "facility_name": "Nasha Mukt Bharat Rehabilitation Clinic",
-          "scheme_name": "NAPDDR",
-          "latitude": 23.2599,
-          "longitude": 77.4126
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-MP-009"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-049",
@@ -1310,20 +935,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-DL-001",
-          "facility_id": "DOSJE-DL-001",
-          "facility_name": "Snehalaya Senior Citizens Home",
-          "scheme_name": "AVYAY",
-          "latitude": 28.5672,
-          "longitude": 77.1734
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-DL-001"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-023",
@@ -1338,20 +955,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-DL-001",
-          "facility_id": "DOSJE-DL-001",
-          "facility_name": "Snehalaya Senior Citizens Home",
-          "scheme_name": "AVYAY",
-          "latitude": 28.5672,
-          "longitude": 77.1734
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-DL-001"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-047",
@@ -1366,20 +975,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-DL-001",
-          "facility_id": "DOSJE-DL-001",
-          "facility_name": "Snehalaya Senior Citizens Home",
-          "scheme_name": "AVYAY",
-          "latitude": 28.5672,
-          "longitude": 77.1734
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-DL-001"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-012",
@@ -1394,20 +995,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-MN-006",
-          "facility_id": "DOSJE-MN-006",
-          "facility_name": "Youth De-addiction & Hope Center",
-          "scheme_name": "NAPDDR",
-          "latitude": 24.817,
-          "longitude": 93.9368
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-MN-006"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-048",
@@ -1422,20 +1015,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-DL-001",
-          "facility_id": "DOSJE-DL-001",
-          "facility_name": "Snehalaya Senior Citizens Home",
-          "scheme_name": "AVYAY",
-          "latitude": 28.5672,
-          "longitude": 77.1734
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-DL-001"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-038",
@@ -1450,20 +1035,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-DL-001",
-          "facility_id": "DOSJE-DL-001",
-          "facility_name": "Snehalaya Senior Citizens Home",
-          "scheme_name": "AVYAY",
-          "latitude": 28.5672,
-          "longitude": 77.1734
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-DL-001"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-031",
@@ -1478,20 +1055,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-RJ-007",
-          "facility_id": "DOSJE-RJ-007",
-          "facility_name": "Atal Vayo Senior Care Sanctuary",
-          "scheme_name": "AVYAY",
-          "latitude": 26.9124,
-          "longitude": 75.7873
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-RJ-007"
-      ],
-      "has_pending_assignment": false
+      ]
     },
     {
       "id": "OFFICER-ONSITE-045",
@@ -1506,20 +1075,12 @@
       "assigned_facility_id": null,
       "assigned_facility_name": null,
       "assigned_inspection_id": null,
-      "assigned_inspections": [
-        {
-          "inspection_id": "INSP-STATUTORY-DL-001",
-          "facility_id": "DOSJE-DL-001",
-          "facility_name": "Snehalaya Senior Citizens Home",
-          "scheme_name": "AVYAY",
-          "latitude": 28.5672,
-          "longitude": 77.1734
-        }
-      ],
-      "assigned_facility_ids": [
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
         "DOSJE-DL-001"
-      ],
-      "has_pending_assignment": false
+      ]
     }
   ]
 }
