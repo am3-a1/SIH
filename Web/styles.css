@@ -1,52 +1,222 @@
-/* Custom Styles for SIH26095 MoSJE Platform */
+/* ============================================================================
+   SIH26095: Ministry of Social Justice & Empowerment (DoSJE)
+   Advanced Real-Time National Monitoring & Inspection Command Platform
+   Next-Generation GovTech Design System (2026 Edition)
+   ============================================================================ */
 
-.phone-frame {
-  box-shadow: 0 25px 60px -12px rgba(15, 23, 42, 0.45), 0 0 0 2px rgba(15, 23, 42, 0.1);
-  border: 10px solid #1e293b !important;
-  transition: all 0.3s ease;
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* Theme tokens - Light Mode Defaults */
+  --bg-app: #f4f6fb;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #ffffff;
+  --bg-surface-muted: #f8fafc;
+  --border-subtle: rgba(203, 213, 225, 0.6);
+  --border-highlight: rgba(59, 130, 246, 0.3);
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --text-subtle: #94a3b8;
+
+  /* Brand Accents */
+  --gov-navy: #0d2346;
+  --gov-blue: #2563eb;
+  --gov-saffron: #f59e0b;
+  --gov-emerald: #10b981;
+  --gov-rose: #f43f5e;
+  --gov-purple: #8b5cf6;
+
+  /* Glassmorphism */
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(226, 232, 240, 0.8);
+  --glass-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.05), 0 8px 10px -6px rgba(15, 23, 42, 0.02);
 }
 
-/* Ensure Smartphone stands out sharply in Dark Mode (resolving dark mode color blending) */
-html.dark .phone-frame {
-  border: 11px solid #475569 !important; /* Premium brushed titanium bezel */
-  outline: 2px solid #94a3b8 !important; /* High-contrast silver accent ring */
-  box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.95), 0 0 35px 2px rgba(59, 130, 246, 0.25) !important; /* Ambient neon depth glow */
-  background-color: #0f172a !important;
+/* Dark Mode Tokens (Command Center Cyber Aesthetics) */
+html.dark {
+  --bg-app: #080c15;
+  --bg-surface: #0f172a;
+  --bg-surface-elevated: #151f38;
+  --bg-surface-muted: #0b1120;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-highlight: rgba(59, 130, 246, 0.35);
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-subtle: #64748b;
+
+  --glass-bg: rgba(15, 23, 42, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.09);
+  --glass-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.7), 0 0 25px 2px rgba(37, 99, 235, 0.1);
 }
 
-html.dark .phone-notch-bar {
-  background-color: #475569 !important;
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-app);
+  color: var(--text-main);
+  transition: background-color 0.25s ease, color 0.25s ease;
+  overflow-x: hidden;
 }
 
-html.dark .phone-notch-cutout {
-  background-color: #0b0f19 !important;
+code, kbd, samp, pre, .font-mono {
+  font-family: var(--font-mono) !important;
 }
 
-.nav-btn.active {
-  background-color: #2563eb !important;
+/* Glass Panels & Surfaces */
+.gov-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border-radius: 1rem;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.gov-card:hover {
+  border-color: var(--border-highlight);
+}
+
+/* Modern Top Navigation Bar */
+.gov-nav-blur {
+  background: rgba(13, 35, 70, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+html.dark .gov-nav-blur {
+  background: rgba(8, 14, 28, 0.92);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Navigation Buttons */
+.nav-tab-btn {
+  position: relative;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+.nav-tab-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.nav-tab-btn.active {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
   color: #ffffff !important;
+  box-shadow: 0 4px 12px -2px rgba(37, 99, 235, 0.5);
 }
 
-/* Custom Leaflet Map styling */
+/* Flagship Smartphone Bezel Mockup (Centered and Clean) */
+.phone-mockup-frame {
+  width: 100%;
+  max-width: 390px;
+  height: 790px;
+  background: #ffffff;
+  border-radius: 46px;
+  border: 11px solid #1e293b;
+  box-shadow: 0 25px 60px -10px rgba(15, 23, 42, 0.45), 0 0 0 2px rgba(15, 23, 42, 0.15);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html.dark .phone-mockup-frame {
+  background: #0f172a;
+  border: 11px solid #334155;
+  outline: 2px solid #64748b;
+  box-shadow: 0 30px 70px -10px rgba(0, 0, 0, 0.95), 0 0 35px 2px rgba(59, 130, 246, 0.25);
+}
+
+/* Dynamic Island / Speaker Pill */
+.phone-island {
+  width: 108px;
+  height: 22px;
+  background: #000000;
+  border-radius: 9999px;
+  margin: 8px auto 4px auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.15);
+  z-index: 40;
+}
+
+.phone-island-cam {
+  width: 9px;
+  height: 9px;
+  background: #111827;
+  border-radius: 50%;
+  border: 1px solid #1f2937;
+}
+
+.phone-island-sensor {
+  width: 4px;
+  height: 4px;
+  background: #1e3a8a;
+  border-radius: 50%;
+}
+
+/* Metric KPI Card Gradients */
+.metric-glow-blue {
+  background: radial-gradient(circle at top right, rgba(59, 130, 246, 0.12), transparent 70%);
+}
+.metric-glow-emerald {
+  background: radial-gradient(circle at top right, rgba(16, 185, 129, 0.12), transparent 70%);
+}
+.metric-glow-amber {
+  background: radial-gradient(circle at top right, rgba(245, 158, 11, 0.12), transparent 70%);
+}
+.metric-glow-purple {
+  background: radial-gradient(circle at top right, rgba(168, 85, 247, 0.12), transparent 70%);
+}
+
+/* Leaflet Map Customizations */
 .leaflet-popup-content-wrapper {
-  border-radius: 12px;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  font-family: inherit;
+  background: var(--bg-surface) !important;
+  color: var(--text-main) !important;
+  border-radius: 14px !important;
+  border: 1px solid var(--border-subtle) !important;
+  box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.3) !important;
+  padding: 2px !important;
+  font-family: inherit !important;
+}
+
+.leaflet-popup-tip {
+  background: var(--bg-surface) !important;
 }
 
 .leaflet-popup-content {
-  margin: 12px 14px;
-  line-height: 1.4;
+  margin: 10px 14px !important;
+  line-height: 1.4 !important;
 }
 
-/* Pulse indicator animation */
-@keyframes pulse-ring {
+/* Tactical HUD Scan line */
+@keyframes tactical-scan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(800%); }
+}
+
+.tactical-scan-beam {
+  background: linear-gradient(180deg, rgba(16, 185, 129, 0) 0%, rgba(16, 185, 129, 0.25) 50%, rgba(16, 185, 129, 0) 100%);
+  animation: tactical-scan 3s linear infinite;
+}
+
+/* Radar & Pulse Animations */
+@keyframes ring-pulse {
   0% {
     transform: scale(0.95);
     box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
   }
   70% {
-    transform: scale(1);
+    transform: scale(1.05);
     box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
   }
   100% {
@@ -55,109 +225,48 @@ html.dark .phone-notch-cutout {
   }
 }
 
-.critical-pulse {
-  animation: pulse-ring 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+.alert-ring-pulse {
+  animation: ring-pulse 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
 }
 
-/* ============================================================================
-   DARK MODE COMPREHENSIVE OVERRIDES
-   ============================================================================ */
-html.dark {
-  color-scheme: dark;
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
 
-html.dark body {
-  background-color: #0b0f19 !important;
-  color: #e2e8f0 !important;
+::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-html.dark .bg-white {
-  background-color: #131d31 !important;
-  border-color: #1e293b !important;
-  color: #f1f5f9 !important;
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 9999px;
 }
 
-html.dark .bg-slate-50 {
-  background-color: #182339 !important;
-  border-color: #26354f !important;
-  color: #e2e8f0 !important;
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.6);
 }
 
-html.dark .bg-slate-100 {
-  background-color: #1e293b !important;
-  color: #f1f5f9 !important;
+/* High-tech Table Styling */
+.gov-table th {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 10px 14px;
 }
 
-html.dark .bg-slate-200 {
-  background-color: #334155 !important;
+.gov-table td {
+  padding: 12px 14px;
+  font-size: 12px;
 }
 
-html.dark .text-slate-900 {
-  color: #ffffff !important;
+.gov-table tr {
+  border-bottom: 1px solid var(--border-subtle);
+  transition: background-color 0.15s ease;
 }
 
-html.dark .text-slate-800 {
-  color: #f8fafc !important;
-}
-
-html.dark .text-slate-700 {
-  color: #cbd5e1 !important;
-}
-
-html.dark .text-slate-600 {
-  color: #94a3b8 !important;
-}
-
-html.dark .text-slate-500 {
-  color: #64748b !important;
-}
-
-html.dark .border-slate-200 {
-  border-color: #24324a !important;
-}
-
-html.dark .border-slate-100 {
-  border-color: #1e293b !important;
-}
-
-html.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]) {
-  border-color: #1e293b !important;
-}
-
-html.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
-  border-color: #24324a !important;
-}
-
-html.dark input,
-html.dark select,
-html.dark textarea {
-  background-color: #1e293b !important;
-  color: #ffffff !important;
-  border-color: #334155 !important;
-}
-
-html.dark .leaflet-popup-content-wrapper {
-  background-color: #1e293b !important;
-  color: #f8fafc !important;
-  border: 1px solid #334155;
-}
-
-html.dark .leaflet-popup-tip {
-  background-color: #1e293b !important;
-}
-
-/* Dark mode Map Tiles inverted styling */
-html.dark .dark-map-tiles .leaflet-tile {
-  filter: brightness(0.65) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.75);
-}
-
-/* Tactical HUD Bounding Box Animation */
-@keyframes hud-scanline {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(1000%); }
-}
-
-.tactical-hud-scan {
-  background: linear-gradient(180deg, rgba(16, 185, 129, 0) 0%, rgba(16, 185, 129, 0.25) 50%, rgba(16, 185, 129, 0) 100%);
-  animation: hud-scanline 3s linear infinite;
+.gov-table tr:hover {
+  background-color: rgba(59, 130, 246, 0.04);
 }

@@ -3,6 +3,8 @@
 // Frontend Controller Logic
 // ============================================================================
 
+const API_BASE = '/api/v1';
+
 let map = null;
 let facilityMarkers = [];
 let cachedFacilities = [];

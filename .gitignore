@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+
+# Android & Gradle
+android/.gradle/
+android/app/build/
+android/.idea/
+android/local.properties
+*.apk
+*.ap_
+*.aab
+
+# IDEs & System
+.idea/
+.DS_Store
+Thumbs.db
