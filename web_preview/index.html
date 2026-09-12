@@ -64,9 +64,9 @@
             <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
             <span> Dashboard </span>
           </button>
-          <button id="btnNavFlutter" onclick="switchView('flutter')" class="nav-btn px-3 py-1.5 rounded-md font-medium transition flex items-center gap-1.5 text-slate-300 hover:text-white">
+          <button id="btnNavAndroid" onclick="switchView('android')" class="nav-btn px-3 py-1.5 rounded-md font-medium transition flex items-center gap-1.5 text-slate-300 hover:text-white">
             <i data-lucide="smartphone" class="w-3.5 h-3.5"></i>
-            <span>Mobile App</span>
+            <span>Android App</span>
           </button>
           <button id="btnNavCCTV" onclick="switchView('cctv')" class="nav-btn px-3 py-1.5 rounded-md font-medium transition flex items-center gap-1.5 text-slate-300 hover:text-white">
             <i data-lucide="cctv" class="w-3.5 h-3.5"></i>
@@ -78,7 +78,7 @@
           </button>
           <button id="btnNavAdmin" onclick="switchView('admin')" class="nav-btn px-3 py-1.5 rounded-md font-medium transition flex items-center gap-1.5 text-slate-300 hover:text-white">
             <i data-lucide="database" class="w-3.5 h-3.5"></i>
-            <span>Admin DB Console</span>
+            <span>Admin Console</span>
           </button>
         </div>
 
@@ -193,9 +193,13 @@
             <p class="text-xs text-slate-500">Real-time facility locations with geofence radius buffers & risk status</p>
           </div>
           <div class="flex flex-wrap items-center gap-2">
+            <button onclick="openAssignAuditModal()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm transition" title="Manually assign an audit to a specific officer">
+              <i data-lucide="user-check" class="w-3.5 h-3.5"></i>
+              Assign Audit
+            </button>
             <button onclick="triggerTrueRandomDispatch()" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm transition" title="Truly random assignment from 50 onsite field officers">
               <i data-lucide="shuffle" class="w-3.5 h-3.5"></i>
-              True Random Dispatch (50 Officers)
+              Random Dispatch
             </button>
             <button onclick="triggerAIRandomDispatch()" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm transition">
               <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
@@ -292,37 +296,63 @@
   </main>
 
   <!-- =========================================================================
-       VIEW 2: FLUTTER INSPECTOR MOBILE APP SIMULATOR
+       VIEW 2: NATIVE ANDROID INSPECTOR APP STATION & HANDHELD HUB
   ========================================================================== -->
-  <div id="viewFlutterSimulator" class="hidden flex-1 max-w-7xl w-full mx-auto p-4 flex flex-col items-center justify-center">
-    <div class="mb-4 text-center">
-      <div class="inline-flex items-center gap-2 bg-blue-50 text-blue-900 border border-blue-200 px-3 py-1 rounded-full text-xs font-medium">
-        <i data-lucide="smartphone" class="w-3.5 h-3.5 text-blue-600"></i>
-        Interactive Flutter Mobile Runtime (Android / iOS) Simulator
+  <div id="viewFlutterSimulator" class="hidden flex-1 max-w-7xl w-full mx-auto p-4 flex flex-col space-y-4">
+    <!-- Top Station Header & Build Badges -->
+    <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+      <div>
+        <div class="inline-flex items-center gap-2 bg-emerald-50 text-emerald-900 border border-emerald-200 px-3 py-1 rounded-full text-xs font-semibold mb-1">
+          <i data-lucide="smartphone" class="w-3.5 h-3.5 text-emerald-600"></i>
+          Native Android Handheld Station • Kotlin / Android SDK 34
+        </div>
+        <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+          Field Inspection Officer Handheld Station & APK Hub
+        </h2>
+        <p class="text-xs text-slate-500">
+          Directly synchronizing with the Native Android Project in <code class="bg-slate-100 px-1 py-0.5 rounded text-blue-700 font-mono">android/</code> (Package: <span class="font-mono text-slate-800 font-bold">gov.mosje.sih26095</span>)
+        </p>
       </div>
-      <h2 class="text-lg font-bold text-slate-900 mt-1">Field Inspection Officer Handheld Portal</h2>
-      <p class="text-xs text-slate-500">Testing GPS geofencing, watermarked camera capture, dual digital signatures & offline queue</p>
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="bg-blue-50 text-blue-800 border border-blue-200 px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5">
+          <i data-lucide="camera" class="w-3.5 h-3.5 text-blue-600"></i> CameraX 1.3.1
+        </span>
+        <span class="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5">
+          <i data-lucide="map-pin" class="w-3.5 h-3.5 text-emerald-600"></i> Geofence Radar
+        </span>
+        <span class="bg-purple-50 text-purple-800 border border-purple-200 px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5 text-purple-600"></i> AES-256-GCM
+        </span>
+        <button onclick="fetchApkInfoModal()" class="bg-blue-900 hover:bg-blue-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition shadow">
+          <i data-lucide="info" class="w-3.5 h-3.5 text-amber-400"></i>
+          <span>APK Details</span>
+        </button>
+      </div>
     </div>
 
-    <!-- Smartphone Frame -->
-    <div class="phone-frame w-full max-w-[390px] h-[780px] bg-white rounded-[40px] shadow-2xl flex flex-col overflow-hidden relative">
-      <!-- Phone Speaker Notch -->
-      <div class="phone-notch-bar w-full bg-slate-800 flex justify-center py-1">
-        <div class="phone-notch-cutout w-24 h-4 bg-black rounded-b-xl flex items-center justify-center">
-          <div class="w-3 h-3 rounded-full bg-slate-900 mr-2"></div>
-          <div class="w-10 h-1 bg-slate-700 rounded-full"></div>
-        </div>
-      </div>
-
-      <!-- Mobile App Header -->
-      <div class="bg-blue-900 text-white px-4 py-3 flex items-center justify-between shadow-md">
-        <div class="flex items-center space-x-2">
-          <i data-lucide="shield" class="w-5 h-5 text-amber-400"></i>
-          <div>
-            <div class="text-xs font-bold leading-none" id="mobileAppHeaderTitle">DoSJE Inspector App</div>
-            <div class="text-[9px] text-blue-200" id="mobileAppHeaderOfficer">Officer Authentication</div>
+    <!-- Dual-Column Grid: Device Simulator & Native Android Hardware Hub -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <!-- Column 1: Smartphone Frame (5 cols on lg) -->
+      <div class="lg:col-span-5 flex flex-col items-center justify-center">
+        <!-- Smartphone Frame -->
+        <div class="phone-frame w-full max-w-[390px] h-[780px] bg-white rounded-[40px] shadow-2xl flex flex-col overflow-hidden relative">
+          <!-- Phone Speaker Notch -->
+          <div class="phone-notch-bar w-full bg-slate-800 flex justify-center py-1">
+            <div class="phone-notch-cutout w-24 h-4 bg-black rounded-b-xl flex items-center justify-center">
+              <div class="w-3 h-3 rounded-full bg-slate-900 mr-2"></div>
+              <div class="w-10 h-1 bg-slate-700 rounded-full"></div>
+            </div>
           </div>
-        </div>
+
+          <!-- Mobile App Header -->
+          <div class="bg-blue-900 text-white px-4 py-3 flex items-center justify-between shadow-md">
+            <div class="flex items-center space-x-2">
+              <i data-lucide="shield" class="w-5 h-5 text-amber-400"></i>
+              <div>
+                <div class="text-xs font-bold leading-none" id="mobileAppHeaderTitle">DoSJE Android Handheld</div>
+                <div class="text-[9px] text-blue-200" id="mobileAppHeaderOfficer">gov.mosje.sih26095 • Native App</div>
+              </div>
+            </div>
         <div class="flex items-center space-x-1.5 text-[10px]">
           <span id="mobileSyncBadge" class="bg-emerald-800 text-emerald-200 px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
             <i data-lucide="wifi" class="w-2.5 h-2.5"></i> Online
@@ -520,11 +550,17 @@
           </div>
 
           <div class="grid grid-cols-2 gap-2">
-            <button onclick="simulatePhotoCapture('Dining Hall & Kitchen')" class="py-1.5 px-2 bg-slate-100 hover:bg-slate-200 rounded-lg font-medium flex items-center justify-center gap-1 text-[10px] border border-slate-200">
+            <button onclick="simulatePhotoCapture('Dining Hall & Kitchen')" class="py-1.5 px-2 bg-slate-100 hover:bg-slate-200 rounded-lg font-medium flex items-center justify-center gap-1 text-[10px] border border-slate-200 transition">
               <i data-lucide="camera" class="w-3 h-3 text-slate-700"></i> Capture Kitchen
             </button>
-            <button onclick="simulatePhotoCapture('Dormitory Living Area')" class="py-1.5 px-2 bg-slate-100 hover:bg-slate-200 rounded-lg font-medium flex items-center justify-center gap-1 text-[10px] border border-slate-200">
+            <button onclick="simulatePhotoCapture('Dormitory Living Area')" class="py-1.5 px-2 bg-slate-100 hover:bg-slate-200 rounded-lg font-medium flex items-center justify-center gap-1 text-[10px] border border-slate-200 transition">
               <i data-lucide="camera" class="w-3 h-3 text-slate-700"></i> Capture Dorms
+            </button>
+            <button onclick="simulatePhotoCapture('Sanitation & Hygiene')" class="py-1.5 px-2 bg-slate-100 hover:bg-slate-200 rounded-lg font-medium flex items-center justify-center gap-1 text-[10px] border border-slate-200 transition">
+              <i data-lucide="camera" class="w-3 h-3 text-slate-700"></i> Capture Hygiene
+            </button>
+            <button onclick="simulatePhotoCapture('Facility Main Entrance')" class="py-1.5 px-2 bg-slate-100 hover:bg-slate-200 rounded-lg font-medium flex items-center justify-center gap-1 text-[10px] border border-slate-200 transition">
+              <i data-lucide="camera" class="w-3 h-3 text-slate-700"></i> Capture Entrance
             </button>
           </div>
         </div>
@@ -556,6 +592,117 @@
       </div>
     </div>
   </div>
+
+  <!-- Column 2: Native Android Subsystem Hub & Telemetry Stream (7 cols on lg) -->
+  <div class="lg:col-span-7 space-y-4">
+    <!-- Card 1: Native Android Architecture Specifications -->
+    <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+        <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="cpu" class="w-4 h-4 text-blue-600"></i>
+          Native Android Project Architecture (<code class="text-xs font-mono text-blue-700">android/</code>)
+        </h3>
+        <span class="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-mono font-bold">READY / TEST VERIFIED</span>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+        <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+          <span class="text-[10px] text-slate-500 font-semibold block">Application ID</span>
+          <span class="font-mono font-bold text-slate-900 text-[11px]">gov.mosje.sih26095</span>
+        </div>
+        <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+          <span class="text-[10px] text-slate-500 font-semibold block">SDK Targets</span>
+          <span class="font-bold text-slate-900 text-[11px]">Target 34 (MinSdk 26)</span>
+        </div>
+        <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+          <span class="text-[10px] text-slate-500 font-semibold block">Language / UI</span>
+          <span class="font-bold text-slate-900 text-[11px]">Kotlin + ViewBinding</span>
+        </div>
+        <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+          <span class="text-[10px] text-slate-500 font-semibold block">Camera Engine</span>
+          <span class="font-bold text-blue-700 text-[11px]">AndroidX CameraX 1.3.1</span>
+        </div>
+        <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+          <span class="text-[10px] text-slate-500 font-semibold block">Geofence Radar</span>
+          <span class="font-bold text-emerald-700 text-[11px]">Haversine ST_DWithin</span>
+        </div>
+        <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+          <span class="text-[10px] text-slate-500 font-semibold block">Cryptographic Vault</span>
+          <span class="font-bold text-purple-700 text-[11px]">AES-256-GCM + SHA-256</span>
+        </div>
+      </div>
+
+      <div class="bg-blue-50/70 border border-blue-200 rounded-xl p-3 text-xs text-blue-900 space-y-1">
+        <div class="font-bold flex items-center gap-1.5 text-blue-950">
+          <i data-lucide="layers" class="w-3.5 h-3.5 text-blue-700"></i>
+          Core Native Android Modules in <code class="font-mono text-[11px]">android/app/src/main/java</code>:
+        </div>
+        <ul class="list-disc pl-5 text-[11px] text-slate-700 space-y-0.5">
+          <li><span class="font-mono font-semibold">ui.login.LoginActivity</span>: 50 field inspector pool, PIN authentication, assignment lock.</li>
+          <li><span class="font-mono font-semibold">ui.audit.AuditActivity</span>: Real-time GPS geofencing radar, 5-rubric compliance sliders, dual digital signatures.</li>
+          <li><span class="font-mono font-semibold">camera.NativeCameraCaptureActivity</span>: Android CameraX hardware capture & FileProvider integration.</li>
+          <li><span class="font-mono font-semibold">camera.CameraWatermarkProcessor</span>: Hardware Canvas stamping of GPS, ISO timestamp, inspector name & SHA-256 tamper hash.</li>
+          <li><span class="font-mono font-semibold">security.AesCipherUtil & HashUtil</span>: Hardware keystore AES-256-GCM encryption and SHA-256 digest computation.</li>
+          <li><span class="font-mono font-semibold">data.OfflineQueueManager</span>: Encrypted on-device queue for disconnected zero-network field audits.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Card 2: CameraX Tamper-Proof Watermark HUD Engine -->
+    <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+        <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="camera" class="w-4 h-4 text-emerald-600"></i>
+          CameraX Cryptographic Watermark Pipeline (<code class="text-xs font-mono text-emerald-700">CameraWatermarkProcessor.kt</code>)
+        </h3>
+        <span class="text-[10px] bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded font-mono font-bold">HARDWARE STAMP</span>
+      </div>
+
+      <p class="text-xs text-slate-600">
+        When the inspector takes a site picture using the phone camera, Android CameraX passes the raw sensor bitmap directly to <code class="bg-slate-100 px-1 py-0.5 rounded text-slate-800 font-mono">CameraWatermarkProcessor.kt</code>, which dynamically draws the high-contrast tamper-evident HUD overlay banner with SHA-256 checksum onto the image pixels before saving to disk.
+      </p>
+
+      <!-- Watermark Banner Simulator Box -->
+      <div class="bg-slate-900 text-white rounded-xl p-3 font-mono text-[11px] border border-slate-800 space-y-1.5 shadow-inner">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-1 text-amber-400 font-bold text-[10px]">
+          <span>[MoSJE] GOV OF INDIA | EVIDENCE: <span id="watermarkCategoryDisplay">DINING HALL & KITCHEN</span></span>
+          <span class="bg-emerald-900/80 text-emerald-300 px-1.5 py-0.5 rounded text-[9px]">GEOFENCE: VERIFIED</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-1 text-[10px] text-slate-300">
+          <div><span class="text-slate-500">FACILITY:</span> <span id="watermarkFacDisplay">Snehalaya Senior Citizens Home (DOSJE-DL-001)</span></div>
+          <div><span class="text-slate-500">GPS:</span> <span id="watermarkCoordsDisplay" class="text-emerald-400 font-bold">28.5672° N, 77.1734° E (±4.2m)</span></div>
+          <div><span class="text-slate-500">INSPECTOR:</span> <span id="watermarkOfficerDisplay">Sunita Rao (ID: OFFICER-ONSITE-001)</span></div>
+          <div><span class="text-slate-500">TIME:</span> <span id="watermarkTimestampDisplay" class="text-blue-300">2026-09-12 03:00:00 UTC</span></div>
+        </div>
+        <div class="border-t border-slate-800 pt-1 text-[9px] text-slate-400 flex items-center justify-between">
+          <span>SHA-256: <span id="watermarkHashDisplay" class="text-amber-300 font-mono font-bold">c8f921e48ba02409...</span></span>
+          <span class="text-slate-500">EXIF + Pixel Authenticity Signed</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3: Live Android Field Sync Bridge (Telemetry Stream) -->
+    <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+        <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="radio" class="w-4 h-4 text-blue-600 animate-pulse"></i>
+          Live Android Field Device Telemetry & Sync Bridge
+        </h3>
+        <button onclick="simulateAndroidFieldSync()" class="bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 shadow transition">
+          <i data-lucide="refresh-cw" class="w-3 h-3"></i> Simulate Android Sync
+        </button>
+      </div>
+
+      <div id="androidSyncLog" class="bg-slate-950 text-slate-300 rounded-xl p-3 font-mono text-[10px] space-y-1 max-h-48 overflow-y-auto border border-slate-800">
+        <div class="text-emerald-400 font-semibold">[READY] Android Handheld Sync Bridge Listening on /api/v1/inspections/submit...</div>
+        <div class="text-slate-400">[03:00:15 UTC] Handheld Device Pixel-8 (ID: ANDROID-OFFICER-001) connected via TLS 1.3</div>
+        <div class="text-blue-400">[03:00:18 UTC] Geofence Heartbeat: Lat 28.5672, Lon 77.1734 • Within 500m radius of DOSJE-DL-001 (OK)</div>
+        <div class="text-amber-300">[03:00:20 UTC] AES-256-GCM package verified • Cryptographic watermark SHA-256 matched</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
 
   <!-- =========================================================================
        VIEW 3: ONVIF & RTSP LIVE CCTV MATRIX
@@ -680,8 +827,8 @@
           <span id="btnCameraText">Start Local Webcam Feed</span>
         </button>
         <button id="btnHeadcountToggle" onclick="toggleHeadcountTracker()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow transition">
-          <i data-lucide="scan" class="w-3.5 h-3.5"></i>
-          <span id="btnTrackerText">AI Tracker: ON</span>
+          <i data-lucide="scan-face" class="w-3.5 h-3.5"></i>
+          <span id="btnTrackerText">Face Count AI: ON</span>
         </button>
         <button onclick="startVCSession()" class="px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow transition">
           <i data-lucide="phone-call" class="w-3.5 h-3.5"></i>
@@ -709,7 +856,7 @@
         <!-- Real Local Webcam Video Element -->
         <video id="localCameraVideo" autoplay playsinline muted class="w-full h-full object-cover hidden"></video>
 
-        <!-- Canvas Overlay for Real-Time Headcount Bounding Boxes -->
+        <!-- Canvas Overlay for Real-Time Face Count Bounding Boxes -->
         <canvas id="headcountOverlayCanvas" class="absolute inset-0 w-full h-full pointer-events-none z-10"></canvas>
 
         <!-- Simulated Stream Fallback Container -->
@@ -719,7 +866,7 @@
           </div>
           <div id="cameraPlaceholderTitle" class="text-sm font-semibold text-white">Live Remote Feed: Common Hall & Beneficiary Verification</div>
           <div class="text-xs text-teal-400 font-mono">WebRTC P2P Stream Established (Bandwidth: 1.8 Mbps, Latency: 32ms)</div>
-          <p class="text-[11px] text-slate-400 max-w-md mx-auto">Click "Start Local Webcam Feed" to use your real camera with working live AI bounding boxes!</p>
+          <p class="text-[11px] text-slate-400 max-w-md mx-auto">Click "Start Local Webcam Feed" to use your real camera with accurate AI Face Verification!</p>
         </div>
 
         <!-- Live Watermark Overlay -->
@@ -727,10 +874,10 @@
           MoSJE SPOT CHECK | <span id="webrtcWatermarkCoords">28.5672° N, 77.1734° E</span> | <span class="cctv-clock">16:31:02 UTC</span>
         </div>
 
-        <!-- Live Headcount Tracker HUD Pill -->
+        <!-- Live Face Count Tracker HUD Pill -->
         <div class="absolute top-4 right-4 z-20 bg-slate-900/80 border border-emerald-500/60 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-bold text-white flex items-center gap-2 shadow-lg">
           <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span>Verified Present: <b id="webrtcLiveHeadcountVal" class="text-emerald-300 font-mono text-sm">1</b></span>
+          <span>Verified Faces: <b id="webrtcLiveHeadcountVal" class="text-emerald-300 font-mono text-sm">0</b></span>
         </div>
 
         <!-- PIP Local Camera (Auditor) -->
@@ -754,9 +901,9 @@
         <div class="flex items-center space-x-3">
           <div class="flex items-center gap-2 bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-lg text-slate-300">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>Live AI Headcount:</span>
+            <span>Live AI Face Count:</span>
             <b id="displayVerifiedLiveCount" class="text-emerald-400 font-mono text-sm">0</b>
-            <span class="text-[10px] text-slate-400">(Autonomous)</span>
+            <span class="text-[10px] text-slate-400">(Face Verified)</span>
           </div>
           <button onclick="completeVCAudit()" class="px-3 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg font-semibold flex items-center gap-1.5 transition">
             <i data-lucide="check-square" class="w-4 h-4"></i>
@@ -917,6 +1064,66 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL: ASSIGN STATUTORY AUDIT TO FIELD INSPECTOR
+  ========================================================================== -->
+  <div id="assignAuditModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 w-full max-w-lg rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col">
+      <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between border-b border-slate-800">
+        <div class="flex items-center space-x-3">
+          <div class="w-9 h-9 rounded-full bg-blue-500/20 border border-blue-400/40 flex items-center justify-center">
+            <i data-lucide="user-check" class="w-5 h-5 text-blue-400"></i>
+          </div>
+          <div>
+            <div class="text-[10px] text-blue-400 font-bold uppercase tracking-wider">MoSJE Central Dispatch Engine</div>
+            <h2 class="text-base font-bold text-white">Assign Field Audit to Officer</h2>
+          </div>
+        </div>
+        <button onclick="closeAssignAuditModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form onsubmit="submitAssignAuditForm(event)" class="p-6 space-y-4 text-xs">
+        <div>
+          <label class="block text-slate-700 dark:text-slate-300 font-bold mb-1">Select Field Inspector (50 Officers):</label>
+          <select id="assignOfficerSelect" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-xl px-3 py-2.5 font-semibold text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-slate-700 dark:text-slate-300 font-bold mb-1">Select Target Facility (Welfare Institutions):</label>
+          <select id="assignFacilitySelect" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-xl px-3 py-2.5 font-semibold text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-slate-700 dark:text-slate-300 font-bold mb-1">Inspection Type:</label>
+          <select id="assignInspectionType" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-xl px-3 py-2.5 font-semibold text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+            <option value="SURPRISE_AUDIT">Surprise Audit (Unannounced)</option>
+            <option value="ROUTINE_PERIODIC">Routine Periodic Statutory Inspection</option>
+            <option value="SPECIAL_VIGILANCE">Special Vigilance Spot-Check</option>
+          </select>
+        </div>
+
+        <div class="bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800/60 rounded-xl p-3 text-[11px] text-amber-800 dark:text-amber-300 flex items-start gap-2">
+          <i data-lucide="info" class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5"></i>
+          <span>Once assigned, the database records the dispatch and the officer's Android app will instantly lock to this facility upon syncing.</span>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+          <button type="button" onclick="closeAssignAuditModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl font-bold transition">
+            Cancel
+          </button>
+          <button type="submit" id="btnSubmitAssignAudit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-md transition flex items-center gap-1.5">
+            <i data-lucide="send" class="w-3.5 h-3.5"></i>
+            Assign & Dispatch Audit
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 

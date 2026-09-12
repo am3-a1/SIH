@@ -4,11 +4,15 @@
         "source": "gov.mosje.sih26095.app-main-47:/layout/activity_login.xml"
     },
     {
-        "merged": "gov.mosje.sih26095.app-mergeDebugResources-44:/layout/activity_audit.xml",
-        "source": "gov.mosje.sih26095.app-main-47:/layout/activity_audit.xml"
+        "merged": "/Users/a1.am3/.gradle/daemon/8.4/gov.mosje.sih26095.app-mergeDebugResources-44:/layout/item_evidence_photo.xml",
+        "source": "/Users/a1.am3/.gradle/daemon/8.4/gov.mosje.sih26095.app-main-47:/layout/item_evidence_photo.xml"
     },
     {
-        "merged": "gov.mosje.sih26095.app-mergeDebugResources-44:/layout/item_evidence_photo.xml",
-        "source": "gov.mosje.sih26095.app-main-47:/layout/item_evidence_photo.xml"
+        "merged": "/Users/a1.am3/.gradle/daemon/8.4/gov.mosje.sih26095.app-mergeDebugResources-44:/layout/activity_audit.xml",
+        "source": "/Users/a1.am3/.gradle/daemon/8.4/gov.mosje.sih26095.app-main-47:/layout/activity_audit.xml"
+    },
+    {
+        "merged": "/Users/a1.am3/.gradle/daemon/8.4/gov.mosje.sih26095.app-mergeDebugResources-44:/layout/activity_login.xml",
+        "source": "/Users/a1.am3/.gradle/daemon/8.4/gov.mosje.sih26095.app-main-47:/layout/activity_login.xml"
     }
 ]

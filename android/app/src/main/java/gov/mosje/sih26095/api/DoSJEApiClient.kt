@@ -68,6 +68,48 @@ class DoSJEApiClient(context: Context) {
         }
     }
 
+    suspend fun getOfficerAssignments(officerId: String): Result<List<Facility>> = withContext(Dispatchers.IO) {
+        try {
+            val url = "${prefs.serverBaseUrl}/api/v1/officers/$officerId/assignments"
+            val request = Request.Builder().url(url).get().build()
+            client.newCall(request).execute().use { response ->
+                if (!response.isSuccessful) {
+                    return@withContext Result.failure(Exception("HTTP Error ${response.code}"))
+                }
+                val bodyStr = response.body?.string() ?: return@withContext Result.failure(Exception("Empty body"))
+                val json = JSONObject(bodyStr)
+                val array = json.optJSONArray("assignments") ?: return@withContext Result.success(emptyList())
+                val list = mutableListOf<Facility>()
+                for (i in 0 until array.length()) {
+                    val obj = array.getJSONObject(i)
+                    list.add(Facility(
+                        id = obj.optString("facility_id"),
+                        name = obj.optString("facility_name"),
+                        schemeCode = obj.optString("scheme_code", "DoSJE"),
+                        schemeName = obj.optString("scheme_code", "MoSJE Welfare Scheme"),
+                        organizationName = "DoSJE Registered Institution",
+                        address = "${obj.optString("district")}, ${obj.optString("state")}",
+                        district = obj.optString("district"),
+                        state = obj.optString("state"),
+                        pincode = "110001",
+                        latitude = obj.optDouble("latitude", 28.5672),
+                        longitude = obj.optDouble("longitude", 77.1734),
+                        geofenceRadiusMeters = obj.optDouble("geofence_radius_meters", 500.0),
+                        sanctionedCapacity = 100,
+                        enrolledBeneficiaries = 80,
+                        complianceGrade = "A",
+                        riskScore = 15.0,
+                        inChargeName = "Facility Head",
+                        contactPhone = "+91-9811000000"
+                    ))
+                }
+                Result.success(list)
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     suspend fun submitInspection(submission: InspectionSubmission): Result<SubmissionResponse> = withContext(Dispatchers.IO) {
         try {
             val url = "${prefs.serverBaseUrl}/api/v1/inspections/submit"

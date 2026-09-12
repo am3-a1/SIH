@@ -57,33 +57,56 @@ class LoginActivity : AppCompatActivity() {
         btnLogin = findViewById(R.id.btnLogin)
 
         val txtServerConfig: TextView = findViewById(R.id.txtServerConfig)
+        val btnTestConnection: Button = findViewById(R.id.btnTestConnection)
+        val txtConnectionStatus: TextView = findViewById(R.id.txtConnectionStatus)
         val app = DoSJEApplication.instance
-        txtServerConfig.text = "🌐 Server: ${app.preferences.serverBaseUrl} (Tap to change)"
+
+        // Detect if running on a physical phone with 10.0.2.2 configured
+        val isEmulator = android.os.Build.FINGERPRINT.contains("generic") ||
+                android.os.Build.HARDWARE.contains("goldfish") ||
+                android.os.Build.HARDWARE.contains("ranchu")
+        if (!isEmulator && app.preferences.serverBaseUrl.contains("10.0.2.2")) {
+            app.preferences.serverBaseUrl = "http://localhost:8000"
+        }
+
+        txtServerConfig.text = "🌐 ${app.preferences.serverBaseUrl}"
         txtServerConfig.setOnClickListener {
             val input = EditText(this)
             input.setText(app.preferences.serverBaseUrl)
             AlertDialog.Builder(this)
                 .setTitle("DoSJE Central Server URL")
-                .setMessage("Select or enter server URL:\n\n" +
-                        "• Emulator: http://10.0.2.2:8000\n" +
-                        "• USB Tether (adb reverse tcp:8000 tcp:8000): http://localhost:8000\n" +
-                        "• Physical Wi-Fi LAN: http://<YOUR_PC_IP>:8000")
+                .setMessage("Select connection mode or enter custom URL:\n\n" +
+                        "• USB Tether: http://localhost:8000\n" +
+                        "  (Requires: adb reverse tcp:8000 tcp:8000)\n\n" +
+                        "• Wi-Fi LAN: http://10.254.3.98:8000\n" +
+                        "  (Requires phone and Mac on same Wi-Fi)\n\n" +
+                        "• Android Emulator: http://10.0.2.2:8000")
                 .setView(input)
                 .setPositiveButton("Save & Connect") { _, _ ->
                     val newUrl = input.text.toString().trim().removeSuffix("/")
                     if (newUrl.isNotEmpty()) {
                         app.preferences.serverBaseUrl = newUrl
-                        txtServerConfig.text = "🌐 Server: $newUrl (Tap to change)"
+                        txtServerConfig.text = "🌐 $newUrl"
                         loadOfficers()
                     }
                 }
-                .setNeutralButton("Use Localhost (8000)") { _, _ ->
-                    app.preferences.serverBaseUrl = "http://localhost:8000"
-                    txtServerConfig.text = "🌐 Server: http://localhost:8000 (Tap to change)"
+                .setNeutralButton("Wi-Fi (10.254.3.98)") { _, _ ->
+                    app.preferences.serverBaseUrl = "http://10.254.3.98:8000"
+                    txtServerConfig.text = "🌐 http://10.254.3.98:8000"
                     loadOfficers()
                 }
-                .setNegativeButton("Cancel", null)
+                .setNegativeButton("USB Localhost") { _, _ ->
+                    app.preferences.serverBaseUrl = "http://localhost:8000"
+                    txtServerConfig.text = "🌐 http://localhost:8000"
+                    loadOfficers()
+                }
                 .show()
+        }
+
+        btnTestConnection.setOnClickListener {
+            txtConnectionStatus.text = "● Pinging ${app.preferences.serverBaseUrl}..."
+            txtConnectionStatus.setTextColor(getColor(R.color.slate_500))
+            loadOfficers()
         }
 
         btnLogin.setOnClickListener {
@@ -92,14 +115,23 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun loadOfficers() {
+        val txtConnectionStatus: TextView? = findViewById(R.id.txtConnectionStatus)
         lifecycleScope.launch {
             val app = DoSJEApplication.instance
             val result = app.apiClient.getOfficers()
             result.onSuccess { officers ->
                 officerList = officers
                 setupSpinner(officers)
+                txtConnectionStatus?.text = "🟢 Online • Connected (${officers.size} Officers)"
+                txtConnectionStatus?.setTextColor(getColor(R.color.emerald_dark))
+                Toast.makeText(this@LoginActivity, "Connected to DoSJE Server (${officers.size} officers synced)", Toast.LENGTH_SHORT).show()
             }.onFailure { err ->
-                Toast.makeText(this@LoginActivity, "Offline mode: Loading cached officers (${err.message})", Toast.LENGTH_SHORT).show()
+                val errSummary = err.message?.let {
+                    if (it.contains("failed to connect") || it.contains("timeout")) "Connection refused/timeout" else it
+                } ?: "Server unreachable"
+                txtConnectionStatus?.text = "🔴 Disconnected: $errSummary"
+                txtConnectionStatus?.setTextColor(getColor(R.color.rose_error))
+                Toast.makeText(this@LoginActivity, "Offline mode: Loading cached officers ($errSummary)", Toast.LENGTH_LONG).show()
                 setupFallbackOfficers()
             }
         }

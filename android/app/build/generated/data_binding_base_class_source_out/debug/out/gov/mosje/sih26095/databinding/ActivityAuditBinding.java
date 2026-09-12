@@ -57,6 +57,9 @@ public final class ActivityAuditBinding implements ViewBinding {
   public final Button btnSubmitCloud;
 
   @NonNull
+  public final TextView btnSyncAssignments;
+
+  @NonNull
   public final CardView cardGeofenceBanner;
 
   @NonNull
@@ -145,19 +148,19 @@ public final class ActivityAuditBinding implements ViewBinding {
       @NonNull Button btnCaptureSanitation, @NonNull Button btnLogout,
       @NonNull Button btnRefreshGps, @NonNull Button btnSaveOffline, @NonNull Button btnSignHead,
       @NonNull Button btnSignInsp, @NonNull Button btnSubmitCloud,
-      @NonNull CardView cardGeofenceBanner, @NonNull CheckBox chkSimulateOnsite,
-      @NonNull ImageView imgGeofenceIcon, @NonNull RecyclerView recyclerEvidenceGallery,
-      @NonNull SeekBar seekAttendance, @NonNull SeekBar seekFood, @NonNull SeekBar seekHygiene,
-      @NonNull SeekBar seekInfra, @NonNull SeekBar seekMedical,
-      @NonNull Spinner spinnerAuditFacility, @NonNull TextView txtAuditId,
-      @NonNull TextView txtAuditTypeBadge, @NonNull TextView txtDeviceCoords,
-      @NonNull TextView txtFacilityCountBadge, @NonNull TextView txtFacilityLocation,
-      @NonNull TextView txtFacilityName, @NonNull TextView txtFacilityScheme,
-      @NonNull TextView txtGeofenceTitle, @NonNull TextView txtHeaderOfficer,
-      @NonNull TextView txtPhotoCount, @NonNull TextView txtRadarStatus,
-      @NonNull TextView txtSyncBadge, @NonNull TextView txtTotalScore,
-      @NonNull TextView valAttendance, @NonNull TextView valFood, @NonNull TextView valHygiene,
-      @NonNull TextView valInfra, @NonNull TextView valMedical) {
+      @NonNull TextView btnSyncAssignments, @NonNull CardView cardGeofenceBanner,
+      @NonNull CheckBox chkSimulateOnsite, @NonNull ImageView imgGeofenceIcon,
+      @NonNull RecyclerView recyclerEvidenceGallery, @NonNull SeekBar seekAttendance,
+      @NonNull SeekBar seekFood, @NonNull SeekBar seekHygiene, @NonNull SeekBar seekInfra,
+      @NonNull SeekBar seekMedical, @NonNull Spinner spinnerAuditFacility,
+      @NonNull TextView txtAuditId, @NonNull TextView txtAuditTypeBadge,
+      @NonNull TextView txtDeviceCoords, @NonNull TextView txtFacilityCountBadge,
+      @NonNull TextView txtFacilityLocation, @NonNull TextView txtFacilityName,
+      @NonNull TextView txtFacilityScheme, @NonNull TextView txtGeofenceTitle,
+      @NonNull TextView txtHeaderOfficer, @NonNull TextView txtPhotoCount,
+      @NonNull TextView txtRadarStatus, @NonNull TextView txtSyncBadge,
+      @NonNull TextView txtTotalScore, @NonNull TextView valAttendance, @NonNull TextView valFood,
+      @NonNull TextView valHygiene, @NonNull TextView valInfra, @NonNull TextView valMedical) {
     this.rootView = rootView;
     this.btnCaptureDorms = btnCaptureDorms;
     this.btnCaptureKitchen = btnCaptureKitchen;
@@ -169,6 +172,7 @@ public final class ActivityAuditBinding implements ViewBinding {
     this.btnSignHead = btnSignHead;
     this.btnSignInsp = btnSignInsp;
     this.btnSubmitCloud = btnSubmitCloud;
+    this.btnSyncAssignments = btnSyncAssignments;
     this.cardGeofenceBanner = cardGeofenceBanner;
     this.chkSimulateOnsite = chkSimulateOnsite;
     this.imgGeofenceIcon = imgGeofenceIcon;
@@ -283,6 +287,12 @@ public final class ActivityAuditBinding implements ViewBinding {
       id = R.id.btnSubmitCloud;
       Button btnSubmitCloud = ViewBindings.findChildViewById(rootView, id);
       if (btnSubmitCloud == null) {
+        break missingId;
+      }
+
+      id = R.id.btnSyncAssignments;
+      TextView btnSyncAssignments = ViewBindings.findChildViewById(rootView, id);
+      if (btnSyncAssignments == null) {
         break missingId;
       }
 
@@ -456,9 +466,9 @@ public final class ActivityAuditBinding implements ViewBinding {
 
       return new ActivityAuditBinding((LinearLayout) rootView, btnCaptureDorms, btnCaptureKitchen,
           btnCaptureMedical, btnCaptureSanitation, btnLogout, btnRefreshGps, btnSaveOffline,
-          btnSignHead, btnSignInsp, btnSubmitCloud, cardGeofenceBanner, chkSimulateOnsite,
-          imgGeofenceIcon, recyclerEvidenceGallery, seekAttendance, seekFood, seekHygiene,
-          seekInfra, seekMedical, spinnerAuditFacility, txtAuditId, txtAuditTypeBadge,
+          btnSignHead, btnSignInsp, btnSubmitCloud, btnSyncAssignments, cardGeofenceBanner,
+          chkSimulateOnsite, imgGeofenceIcon, recyclerEvidenceGallery, seekAttendance, seekFood,
+          seekHygiene, seekInfra, seekMedical, spinnerAuditFacility, txtAuditId, txtAuditTypeBadge,
           txtDeviceCoords, txtFacilityCountBadge, txtFacilityLocation, txtFacilityName,
           txtFacilityScheme, txtGeofenceTitle, txtHeaderOfficer, txtPhotoCount, txtRadarStatus,
           txtSyncBadge, txtTotalScore, valAttendance, valFood, valHygiene, valInfra, valMedical);

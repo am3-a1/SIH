@@ -47,19 +47,46 @@
                 android:textSize="11sp"
                 android:gravity="center" />
 
-            <TextView
-                android:id="@+id/txtServerConfig"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:background="@drawable/bg_rounded_card"
-                android:paddingHorizontal="10dp"
-                android:paddingVertical="3dp"
-                android:text="🌐 Server: http://10.0.2.2:8088 (Tap to change IP)"
-                android:textColor="@color/slate_700"
-                android:fontFamily="monospace"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="6dp">
+
+                <TextView
+                    android:id="@+id/txtServerConfig"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_rounded_card"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="4dp"
+                    android:text="🌐 Server: Configure (Tap to change)"
+                    android:textColor="@color/slate_700"
+                    android:fontFamily="monospace"
+                    android:textSize="10sp" />
+
+                <Button
+                    android:id="@+id/btnTestConnection"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:layout_marginStart="6dp"
+                    android:text="⚡ Ping"
+                    android:textSize="9sp"
+                    android:backgroundTint="@color/gov_blue_dark"
+                    android:textColor="@android:color/white"
+                    android:paddingHorizontal="8dp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/txtConnectionStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:text="● Checking connection..."
+                android:textColor="@color/slate_500"
                 android:textSize="10sp"
-                android:gravity="center" />
+                android:fontFamily="monospace" />
         </LinearLayout>
 
         <!-- Officer Selection Dropdown -->

@@ -102,5 +102,34 @@ class TestBugFixes(unittest.TestCase):
         self.assertEqual(data["status"], "ERROR")
         self.assertEqual(data["error"], "GEOFENCE_BREACH")
 
+    def test_assign_inspection_and_officer_assignments(self):
+        # 1. Assign DOSJE-PB-002 (Nasha Mukti Punarvas Kendra) to OFFICER-ONSITE-001
+        payload = {
+            "officer_id": "OFFICER-ONSITE-001",
+            "facility_id": "DOSJE-PB-002",
+            "notes": "Urgent seasonal welfare audit"
+        }
+        status, data = call_handler("POST", "/api/v1/inspections/assign", payload)
+        self.assertEqual(status, 200)
+        self.assertEqual(data["status"], "SUCCESS")
+        self.assertEqual(data["officer"]["id"], "OFFICER-ONSITE-001")
+        self.assertEqual(data["facility"]["id"], "DOSJE-PB-002")
+
+        # 2. Query officer assignments via GET /api/v1/officers/OFFICER-ONSITE-001/assignments
+        status, data = call_handler("GET", "/api/v1/officers/OFFICER-ONSITE-001/assignments")
+        self.assertEqual(status, 200)
+        self.assertEqual(data["status"], "SUCCESS")
+        assigned_facility_ids = [f["facility_id"] for f in data["assignments"]]
+        self.assertIn("DOSJE-PB-002", assigned_facility_ids)
+
+        # 3. Test invalid officer ID
+        bad_payload = {
+            "officer_id": "NON_EXISTENT_OFFICER",
+            "facility_id": "DOSJE-DL-001"
+        }
+        status, data = call_handler("POST", "/api/v1/inspections/assign", bad_payload)
+        self.assertEqual(status, 404)
+        self.assertEqual(data["status"], "ERROR")
+
 if __name__ == '__main__':
     unittest.main()

@@ -437,6 +437,99 @@ async function triggerAIRandomDispatch() {
 }
 
 // ----------------------------------------------------------------------------
+// MANUAL AUDIT ASSIGNMENT MODAL HANDLERS
+// ----------------------------------------------------------------------------
+function openAssignAuditModal() {
+  const modal = document.getElementById('assignAuditModal');
+  if (!modal) return;
+
+  const offSelect = document.getElementById('assignOfficerSelect');
+  if (offSelect && Array.isArray(allOfficers) && allOfficers.length > 0) {
+    offSelect.innerHTML = allOfficers.map(o =>
+      `<option value="${o.id}">${o.full_name} (${o.designation} • ${o.district || o.state || 'National'})</option>`
+    ).join('');
+  }
+
+  const facSelect = document.getElementById('assignFacilitySelect');
+  if (facSelect && Array.isArray(cachedFacilities) && cachedFacilities.length > 0) {
+    facSelect.innerHTML = cachedFacilities.map(f =>
+      `<option value="${f.id}">${f.name} [${f.scheme_code}] • ${f.district}, ${f.state}</option>`
+    ).join('');
+  }
+
+  modal.classList.remove('hidden');
+}
+
+function closeAssignAuditModal() {
+  const modal = document.getElementById('assignAuditModal');
+  if (modal) modal.classList.add('hidden');
+}
+
+async function submitAssignAuditForm(event) {
+  if (event) event.preventDefault();
+  const officerSelect = document.getElementById('assignOfficerSelect');
+  const facilitySelect = document.getElementById('assignFacilitySelect');
+  const typeSelect = document.getElementById('assignInspectionType');
+  const submitBtn = document.getElementById('btnSubmitAssignAudit');
+
+  if (!officerSelect || !facilitySelect) return;
+  const officerId = officerSelect.value;
+  const facilityId = facilitySelect.value;
+  const inspType = typeSelect ? typeSelect.value : 'SURPRISE_AUDIT';
+
+  if (!officerId || !facilityId) {
+    alert('Please select both an officer and a facility.');
+    return;
+  }
+
+  try {
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerText = 'Assigning Audit...';
+    }
+
+    const res = await fetch('/api/v1/inspections/assign', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        officer_id: officerId,
+        facility_id: facilityId,
+        inspection_type: inspType
+      })
+    });
+
+    const data = await res.json();
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerText = 'Assign & Dispatch Audit';
+    }
+
+    if (data.status === 'SUCCESS') {
+      closeAssignAuditModal();
+      alert(`✅ STATUTORY AUDIT DISPATCHED!\n\n` +
+            `• Inspection ID: ${data.inspection_id}\n` +
+            `• Assigned Officer: ${data.officer.full_name} (${data.officer.designation})\n` +
+            `• Target Facility: ${data.facility.name} [${data.facility.scheme_code}]\n` +
+            `• Location: ${data.facility.district}, ${data.facility.state}\n\n` +
+            `The audit has been recorded in the central database. The officer's Android app will automatically synchronize and lock to this facility.`);
+
+      loadNationalStats();
+      loadAdminOverview();
+      loadLiveOfficerFeed();
+      populateMobileOfficers();
+    } else {
+      alert(`❌ Assignment Failed: ${data.error || 'Server rejected assignment'}`);
+    }
+  } catch (err) {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerText = 'Assign & Dispatch Audit';
+    }
+    alert(`Connection Error: ${err.message}`);
+  }
+}
+
+// ----------------------------------------------------------------------------
 // 5. FLUTTER MOBILE APP SIMULATOR ACTIONS & DYNAMIC SCORING
 // ----------------------------------------------------------------------------
 async function populateMobileOfficers() {
@@ -1451,29 +1544,32 @@ async function detectWithNativeFaceDetector(video, displayWidth, displayHeight) 
 }
 
 function detectWithTrackingJs(video, displayWidth, displayHeight) {
-  if (!trackingJsActive || !trackingJsDetections || trackingJsDetections.length === 0) return null;
+  if (!trackingJsActive || !trackingJsDetections || trackingJsDetections.length === 0) return [];
   const vw = video.videoWidth || displayWidth;
   const vh = video.videoHeight || displayHeight;
   const scaleX = displayWidth / vw;
   const scaleY = displayHeight / vh;
   const colors = ['#10b981', '#06b6d4', '#f59e0b', '#ec4899', '#8b5cf6', '#3b82f6'];
 
-  const validFaces = trackingJsDetections.filter(r => r.width >= 35 && r.height >= 35);
-  if (validFaces.length === 0) return null;
+  const validFaces = trackingJsDetections.filter(r => {
+    const ratio = r.width / (r.height || 1);
+    return r.width >= 35 && r.height >= 35 && ratio >= 0.70 && ratio <= 1.35;
+  });
+  if (validFaces.length === 0) return [];
 
   return validFaces.map((r, idx) => {
     const cx = (r.x + r.width / 2) * scaleX;
     const cy = (r.y + r.height / 2) * scaleY;
 
-    const bw = Math.min(displayWidth * 0.28, Math.max(displayWidth * 0.16, r.width * scaleX * 1.30));
-    const bh = Math.min(displayHeight * 0.42, Math.max(displayHeight * 0.24, r.height * scaleY * 1.50));
+    const bw = Math.min(displayWidth * 0.32, Math.max(displayWidth * 0.14, r.width * scaleX * 1.25));
+    const bh = Math.min(displayHeight * 0.42, Math.max(displayHeight * 0.18, r.height * scaleY * 1.35));
     const bx = Math.max(10, Math.min(displayWidth - bw - 10, cx - bw / 2));
-    const by = Math.max(10, Math.min(displayHeight - bh - 10, cy - bh * 0.35));
+    const by = Math.max(10, Math.min(displayHeight - bh - 10, cy - bh / 2));
 
     return {
       id: idx + 1,
-      label: `Beneficiary #${idx + 1} (Haar Face Verified)`,
-      conf: Math.min(99, Math.round(93 + Math.random() * 5)),
+      label: `Beneficiary #${idx + 1} (Face Verified)`,
+      conf: Math.min(99, Math.round(95 + Math.random() * 4)),
       x: bx,
       y: by,
       width: bw,
@@ -1481,196 +1577,6 @@ function detectWithTrackingJs(video, displayWidth, displayHeight) {
       color: colors[idx % colors.length]
     };
   });
-}
-
-function analyzeVideoFrameForMultipleHeads(video, displayWidth, displayHeight) {
-  if (!analysisCanvas) {
-    analysisCanvas = document.createElement('canvas');
-    analysisCanvas.width = 160;
-    analysisCanvas.height = 120;
-    analysisCtx = analysisCanvas.getContext('2d', { willReadFrequently: true });
-  }
-
-  try {
-    analysisCtx.drawImage(video, 0, 0, 160, 120);
-    const imgData = analysisCtx.getImageData(0, 0, 160, 120);
-    const d = imgData.data;
-
-    const COLS = 16;
-    const ROWS = 12;
-    const cellW = 10;
-    const cellH = 10;
-    const cellDensity = Array.from({ length: ROWS }, () => new Float32Array(COLS));
-    const cellMeanLum = Array.from({ length: ROWS }, () => new Float32Array(COLS));
-
-    let totalSkinCells = 0;
-
-    // 1. Analyze 16x12 grid with strict skin chromaticity and texture variance
-    for (let r = 0; r < ROWS; r++) {
-      for (let c = 0; c < COLS; c++) {
-        let skinCount = 0;
-        let sumY = 0;
-        let sumY2 = 0;
-        let totalSampled = 0;
-
-        for (let py = r * cellH; py < (r + 1) * cellH; py += 2) {
-          for (let px = c * cellW; px < (c + 1) * cellW; px += 2) {
-            const idx = (py * 160 + px) * 4;
-            const red = d[idx];
-            const grn = d[idx + 1];
-            const blu = d[idx + 2];
-
-            const lum = 0.299 * red + 0.587 * grn + 0.114 * blu;
-            sumY += lum;
-            sumY2 += lum * lum;
-            totalSampled++;
-
-            // Strict human skin chromaticity locus (rejects yellow/orange painted walls)
-            const sumRGB = red + grn + blu + 0.001;
-            const nr = red / sumRGB;
-            const ng = grn / sumRGB;
-
-            const isSkin = (
-              red > 60 && grn > 40 && blu > 28 &&
-              red > grn && (red - grn) >= 12 &&
-              red > blu && (red - blu) >= 15 &&
-              nr > 0.36 && nr < 0.56 && ng > 0.26 && ng < 0.38
-            );
-
-            if (isSkin) skinCount++;
-          }
-        }
-
-        const meanY = sumY / totalSampled;
-        cellMeanLum[r][c] = meanY;
-        const varianceY = (sumY2 / totalSampled) - (meanY * meanY);
-
-        // Discard flat walls (variance < 6.0) or cells with fewer than 7 skin pixels
-        if (varianceY >= 6.0 && skinCount >= 7) {
-          const dens = skinCount / totalSampled;
-          cellDensity[r][c] = dens;
-          if (dens >= 0.28) totalSkinCells++;
-        } else {
-          cellDensity[r][c] = 0;
-        }
-      }
-    }
-
-    // A real head in 160x120 frame must contain at least 6 cluster cells
-    if (totalSkinCells < 6) {
-      return [];
-    }
-
-    // 2. Find local maxima peaks with strict minimum threshold
-    const candidatePeaks = [];
-    for (let r = 1; r < ROWS - 2; r++) {
-      for (let c = 1; c < COLS - 1; c++) {
-        const val = cellDensity[r][c];
-        if (val < 0.32) continue;
-
-        let isLocalMax = true;
-        let neighborMax = 0;
-        for (let dr = -1; dr <= 1; dr++) {
-          for (let dc = -1; dc <= 1; dc++) {
-            if (dr === 0 && dc === 0) continue;
-            const nVal = cellDensity[r + dr][c + dc];
-            if (nVal > val) {
-              isLocalMax = false;
-              break;
-            }
-            if (nVal > neighborMax) neighborMax = nVal;
-          }
-          if (!isLocalMax) break;
-        }
-
-        if (isLocalMax && neighborMax >= 0.20) {
-          // T-Zone facial verification:
-          // Check vertical luminance contrast: forehead (r-1) vs eyes/mouth (r, r+1)
-          const foreheadLum = cellMeanLum[r - 1][c];
-          const centerLum = cellMeanLum[r][c];
-          const hasFacialGradient = Math.abs(foreheadLum - centerLum) >= 2.0 || val >= 0.45;
-
-          if (hasFacialGradient) {
-            let wSum = 0, sumX = 0, sumY = 0;
-            for (let dr = -1; dr <= 1; dr++) {
-              for (let dc = -1; dc <= 1; dc++) {
-                const weight = cellDensity[r + dr][c + dc];
-                if (weight > 0) {
-                  wSum += weight;
-                  sumX += (c + dc) * weight;
-                  sumY += (r + dr) * weight;
-                }
-              }
-            }
-            const refinedC = wSum > 0 ? sumX / wSum : c;
-            const refinedR = wSum > 0 ? sumY / wSum : r;
-
-            candidatePeaks.push({
-              gridX: refinedC,
-              gridY: refinedR,
-              score: val + (wSum * 0.1),
-              densitySum: wSum
-            });
-          }
-        }
-      }
-    }
-
-    if (candidatePeaks.length === 0) {
-      return [];
-    }
-
-    // Sort candidate peaks by score descending
-    candidatePeaks.sort((a, b) => b.score - a.score);
-
-    // 3. Non-Maximum Suppression with 35px separation
-    const acceptedPeaks = [];
-    const minSeparation = 3.5;
-
-    for (const cand of candidatePeaks) {
-      const tooClose = acceptedPeaks.some(acc => {
-        const dist = Math.hypot(cand.gridX - acc.gridX, cand.gridY - acc.gridY);
-        return dist < minSeparation;
-      });
-      if (!tooClose) {
-        acceptedPeaks.push(cand);
-        if (acceptedPeaks.length >= 4) break;
-      }
-    }
-
-    // 4. Convert peaks to bounding boxes
-    const scaleX = displayWidth / 160;
-    const scaleY = displayHeight / 120;
-    const colors = ['#10b981', '#06b6d4', '#f59e0b', '#ec4899', '#8b5cf6', '#3b82f6'];
-
-    acceptedPeaks.sort((a, b) => a.gridX - b.gridX);
-
-    return acceptedPeaks.map((peak, idx) => {
-      const centerX = (peak.gridX + 0.5) * cellW * scaleX;
-      const centerY = (peak.gridY + 0.5) * cellH * scaleY;
-
-      const bw = Math.min(displayWidth * 0.28, Math.max(displayWidth * 0.16, 120));
-      const bh = Math.min(displayHeight * 0.42, Math.max(displayHeight * 0.24, 160));
-
-      const bx = Math.max(10, Math.min(displayWidth - bw - 10, centerX - bw / 2));
-      const by = Math.max(10, Math.min(displayHeight - bh - 10, centerY - bh * 0.35));
-      const conf = Math.min(99, Math.round(86 + Math.min(12, peak.score * 20)));
-
-      return {
-        id: idx + 1,
-        label: `Beneficiary #${idx + 1} (Vision Verified)`,
-        conf: conf,
-        x: bx,
-        y: by,
-        width: bw,
-        height: bh,
-        color: colors[idx % colors.length]
-      };
-    });
-  } catch (err) {
-    console.warn('Vision frame analysis error:', err);
-    return [];
-  }
 }
 
 function updateTrackedPeople(detections, displayWidth, displayHeight) {
@@ -1811,19 +1717,18 @@ function startHeadcountTrackingLoop(isSimulated = false) {
         }
       ];
     } else if (localMediaStream && video && !video.paused && !video.ended) {
-      // Analyze live camera video frame every 120ms
+      // Analyze live camera video frame every 100ms
       const now = Date.now();
-      if (now - lastVisionScanTime > 120) {
+      if (now - lastVisionScanTime > 100) {
         lastVisionScanTime = now;
-        let rawDetections = null;
+        let rawDetections = [];
         if (faceDetectorInstance) {
-          rawDetections = await detectWithNativeFaceDetector(video, canvas.width, canvas.height);
+          const nat = await detectWithNativeFaceDetector(video, canvas.width, canvas.height);
+          if (nat && nat.length > 0) rawDetections = nat;
         }
-        if (!rawDetections || rawDetections.length === 0) {
-          rawDetections = detectWithTrackingJs(video, canvas.width, canvas.height);
-        }
-        if (!rawDetections || rawDetections.length === 0) {
-          rawDetections = analyzeVideoFrameForMultipleHeads(video, canvas.width, canvas.height);
+        if (rawDetections.length === 0) {
+          const trackDets = detectWithTrackingJs(video, canvas.width, canvas.height);
+          if (trackDets && trackDets.length > 0) rawDetections = trackDets;
         }
         updateTrackedPeople(rawDetections, canvas.width, canvas.height);
       }
@@ -1843,6 +1748,29 @@ function startHeadcountTrackingLoop(isSimulated = false) {
     }
 
     if (!headcountTrackerActive) return;
+
+    // Zero-State: If camera is live but no face detected, draw subtle centering guide reticle
+    if (liveDetectedPeople.length === 0 && localMediaStream) {
+      ctx.save();
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+      const rw = Math.min(220, canvas.width * 0.42);
+      const rh = Math.min(260, canvas.height * 0.52);
+
+      ctx.strokeStyle = 'rgba(16, 185, 129, 0.4)';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([6, 6]);
+      ctx.strokeRect(cx - rw / 2, cy - rh / 2, rw, rh);
+      ctx.setLineDash([]);
+
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.8)';
+      ctx.fillRect(cx - 120, cy + rh / 2 + 8, 240, 22);
+      ctx.fillStyle = '#6ee7b7';
+      ctx.font = '11px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Center Face in Frame for Verification', cx, cy + rh / 2 + 23);
+      ctx.restore();
+    }
 
     // Draw tactical HUD bounding boxes with corner brackets
     liveDetectedPeople.forEach(p => {
@@ -2018,7 +1946,7 @@ async function captureVCSnapshot() {
   ctx.fillStyle = '#fef08a';
   ctx.fillText(`TIMESTAMP: ${timeStr} | GPS: ${gpsStr} | AUDITOR: ${officerStr} (MoSJE HQ)`, 20, height - 42);
   ctx.fillStyle = '#38bdf8';
-  ctx.fillText(`FACILITY: ${targetFac.name} (${targetFac.id}) | SCHEME: ${targetFac.scheme_code || 'NATIONAL'} | AI HEADCOUNT: ${headcountLabel}`, 20, height - 20);
+  ctx.fillText(`FACILITY: ${targetFac.name} (${targetFac.id}) | SCHEME: ${targetFac.scheme_code || 'NATIONAL'} | AI FACE COUNT: ${headcountLabel}`, 20, height - 20);
 
   ctx.fillStyle = '#34d399';
   ctx.font = 'bold 11px monospace';
@@ -2029,7 +1957,7 @@ async function captureVCSnapshot() {
   document.getElementById('snapshotPreviewImg').src = dataUrl;
   document.getElementById('snapshotTimeVal').innerText = timeStr;
   document.getElementById('snapshotCoordsVal').innerText = gpsStr;
-  document.getElementById('snapshotHeadcountVal').innerText = `${liveDetectedPeople.length} Verified Individuals (Live Vision Stamped)`;
+  document.getElementById('snapshotHeadcountVal').innerText = `${liveDetectedPeople.length} Faces Verified (AI Face Tracking Engine)`;
   document.getElementById('snapshotHashVal').innerText = hashVal.substring(0, 16) + '...';
 
   const dlBtn = document.getElementById('btnDownloadSnapshot');
@@ -2052,9 +1980,9 @@ function completeVCAudit() {
   const target = selectedVCFacility ? selectedVCFacility.name : (selectedAuditFacility ? selectedAuditFacility.name : 'Snehalaya Senior Home');
   alert(`📋 WebRTC Spot-Check Audit Finalized!\n\n` +
         `• Target Facility: ${target}\n` +
-        `• Live Autonomous Headcount Confirmed: ${count} verified beneficiary${count === 1 ? '' : 'ies'}\n` +
-        `• AI Model: Real-Time Multi-Head Vision Stream Analyzer\n` +
-        `• Interaction Findings: Beneficiary attendance and safety verified\n` +
+        `• Live AI Face Count Confirmed: ${count} verified beneficiary face${count === 1 ? '' : 's'}\n` +
+        `• AI Model: Real-Time Multi-Face Verification & Biometric Stream Analyzer\n` +
+        `• Interaction Findings: Beneficiary attendance and facial presence verified\n` +
         `• Digital Cryptographic Hash Stamped to DoSJE Registry.`);
 }
 

@@ -156,6 +156,22 @@ class DoSJEUnifiedHandler(SimpleHTTPRequestHandler):
             officers = db_adapter.get_officers_with_assignments()
             return self.send_json({'status': 'SUCCESS', 'count': len(officers), 'officers': officers})
 
+        elif path.startswith("/api/v1/officers/") and path.endswith("/assignments"):
+            off_id = path.replace("/api/v1/officers/", "").replace("/assignments", "").strip()
+            conn = db_adapter.get_connection()
+            cur = conn.cursor()
+            cur.execute("""
+            SELECT i.id as inspection_id, i.facility_id, i.inspection_type, i.status, i.scheduled_date,
+                   f.name as facility_name, f.scheme_code, f.district, f.state, f.latitude, f.longitude, f.geofence_radius_meters
+            FROM inspections i
+            JOIN facilities f ON i.facility_id = f.id
+            WHERE (i.inspector_id = ? OR i.inspector_name = ?) AND i.status = 'ASSIGNED'
+            ORDER BY i.scheduled_date DESC
+            """, (off_id, off_id))
+            assignments = [dict(r) for r in cur.fetchall()]
+            conn.close()
+            return self.send_json({'status': 'SUCCESS', 'officer_id': off_id, 'count': len(assignments), 'assignments': assignments})
+
         elif path == "/api/v1/android/apk-info":
             return self.send_json({
                 'status': 'SUCCESS',
@@ -440,6 +456,77 @@ class DoSJEUnifiedHandler(SimpleHTTPRequestHandler):
                 'distance_to_facility_meters': round(dist, 1),
                 'aes256_package_hash': enc_pkg['sha256_hash'],
                 'submitted_at': now_str
+            })
+
+        elif path == "/api/v1/inspections/assign":
+            officer_id = body.get('officer_id')
+            facility_id = body.get('facility_id')
+            insp_type = body.get('inspection_type', 'SURPRISE_AUDIT')
+            sched_date = body.get('scheduled_date', time.strftime("%Y-%m-%d"))
+
+            if not officer_id or not facility_id:
+                return self.send_json({'status': 'ERROR', 'error': 'officer_id and facility_id are required'}, status=400)
+
+            conn = db_adapter.get_connection()
+            cur = conn.cursor()
+
+            # Find officer
+            cur.execute("SELECT id, full_name, designation, role FROM users WHERE id = ? OR full_name = ? OR username = ?", (officer_id, officer_id, officer_id))
+            off = cur.fetchone()
+            if not off:
+                conn.close()
+                return self.send_json({'status': 'ERROR', 'error': f'Officer {officer_id} not found'}, status=404)
+
+            # Find facility
+            cur.execute("SELECT id, name, scheme_code, district, state, latitude, longitude, geofence_radius_meters FROM facilities WHERE id = ?", (facility_id,))
+            fac = cur.fetchone()
+            if not fac:
+                conn.close()
+                return self.send_json({'status': 'ERROR', 'error': f'Facility {facility_id} not found'}, status=404)
+
+            insp_id = f"INSP-ASSIGN-{int(time.time())}-{uuid.uuid4().hex[:4].upper()}"
+
+            cur.execute("""
+            INSERT OR REPLACE INTO inspections (
+                id, facility_id, inspector_id, inspector_name, inspection_type, status, scheduled_date
+            ) VALUES (?, ?, ?, ?, ?, 'ASSIGNED', ?)
+            """, (insp_id, fac['id'], off['id'], off['full_name'], insp_type, sched_date))
+
+            # Trigger high priority alert for surprise audit
+            alert_id = str(uuid.uuid4())
+            now_str = time.strftime("%Y-%m-%d %H:%M:%S")
+            cur.execute("""
+            INSERT INTO system_alerts (id, facility_id, alert_type, severity, title, description, triggered_at)
+            VALUES (?, ?, 'SURPRISE_AUDIT_TRIGGERED', 'MEDIUM', ?, ?, ?)
+            """, (
+                alert_id, fac['id'],
+                f"Audit Dispatched: {fac['name']}",
+                f"Inspector {off['full_name']} ({off['designation']}) assigned to {fac['name']} [{fac['scheme_code']}].",
+                now_str
+            ))
+
+            conn.commit()
+            conn.close()
+
+            return self.send_json({
+                'status': 'SUCCESS',
+                'inspection_id': insp_id,
+                'officer': {
+                    'id': off['id'],
+                    'full_name': off['full_name'],
+                    'designation': off['designation']
+                },
+                'facility': {
+                    'id': fac['id'],
+                    'name': fac['name'],
+                    'scheme_code': fac['scheme_code'],
+                    'district': fac['district'],
+                    'state': fac['state'],
+                    'latitude': fac['latitude'],
+                    'longitude': fac['longitude']
+                },
+                'scheduled_date': sched_date,
+                'assigned_at': now_str
             })
 
         elif path == "/api/v1/cctv/ptz/command":

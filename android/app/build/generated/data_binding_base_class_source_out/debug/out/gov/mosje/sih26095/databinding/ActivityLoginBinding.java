@@ -28,6 +28,9 @@ public final class ActivityLoginBinding implements ViewBinding {
   public final Button btnLogin;
 
   @NonNull
+  public final Button btnTestConnection;
+
+  @NonNull
   public final EditText editSsoPin;
 
   @NonNull
@@ -46,6 +49,9 @@ public final class ActivityLoginBinding implements ViewBinding {
   public final TextView txtAssignedFacilityScheme;
 
   @NonNull
+  public final TextView txtConnectionStatus;
+
+  @NonNull
   public final TextView txtOfficerDesignation;
 
   @NonNull
@@ -58,19 +64,22 @@ public final class ActivityLoginBinding implements ViewBinding {
   public final TextView txtServerConfig;
 
   private ActivityLoginBinding(@NonNull ScrollView rootView, @NonNull Button btnLogin,
-      @NonNull EditText editSsoPin, @NonNull ImageView imgHeaderEmblem,
-      @NonNull LinearLayout layoutAssignmentNotice, @NonNull Spinner spinnerOfficerSelect,
-      @NonNull TextView txtAssignedFacilityName, @NonNull TextView txtAssignedFacilityScheme,
+      @NonNull Button btnTestConnection, @NonNull EditText editSsoPin,
+      @NonNull ImageView imgHeaderEmblem, @NonNull LinearLayout layoutAssignmentNotice,
+      @NonNull Spinner spinnerOfficerSelect, @NonNull TextView txtAssignedFacilityName,
+      @NonNull TextView txtAssignedFacilityScheme, @NonNull TextView txtConnectionStatus,
       @NonNull TextView txtOfficerDesignation, @NonNull TextView txtOfficerName,
       @NonNull TextView txtOfficerStatusBadge, @NonNull TextView txtServerConfig) {
     this.rootView = rootView;
     this.btnLogin = btnLogin;
+    this.btnTestConnection = btnTestConnection;
     this.editSsoPin = editSsoPin;
     this.imgHeaderEmblem = imgHeaderEmblem;
     this.layoutAssignmentNotice = layoutAssignmentNotice;
     this.spinnerOfficerSelect = spinnerOfficerSelect;
     this.txtAssignedFacilityName = txtAssignedFacilityName;
     this.txtAssignedFacilityScheme = txtAssignedFacilityScheme;
+    this.txtConnectionStatus = txtConnectionStatus;
     this.txtOfficerDesignation = txtOfficerDesignation;
     this.txtOfficerName = txtOfficerName;
     this.txtOfficerStatusBadge = txtOfficerStatusBadge;
@@ -110,6 +119,12 @@ public final class ActivityLoginBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.btnTestConnection;
+      Button btnTestConnection = ViewBindings.findChildViewById(rootView, id);
+      if (btnTestConnection == null) {
+        break missingId;
+      }
+
       id = R.id.editSsoPin;
       EditText editSsoPin = ViewBindings.findChildViewById(rootView, id);
       if (editSsoPin == null) {
@@ -146,6 +161,12 @@ public final class ActivityLoginBinding implements ViewBinding {
         break missingId;
       }
 
+      id = R.id.txtConnectionStatus;
+      TextView txtConnectionStatus = ViewBindings.findChildViewById(rootView, id);
+      if (txtConnectionStatus == null) {
+        break missingId;
+      }
+
       id = R.id.txtOfficerDesignation;
       TextView txtOfficerDesignation = ViewBindings.findChildViewById(rootView, id);
       if (txtOfficerDesignation == null) {
@@ -170,10 +191,10 @@ public final class ActivityLoginBinding implements ViewBinding {
         break missingId;
       }
 
-      return new ActivityLoginBinding((ScrollView) rootView, btnLogin, editSsoPin, imgHeaderEmblem,
-          layoutAssignmentNotice, spinnerOfficerSelect, txtAssignedFacilityName,
-          txtAssignedFacilityScheme, txtOfficerDesignation, txtOfficerName, txtOfficerStatusBadge,
-          txtServerConfig);
+      return new ActivityLoginBinding((ScrollView) rootView, btnLogin, btnTestConnection,
+          editSsoPin, imgHeaderEmblem, layoutAssignmentNotice, spinnerOfficerSelect,
+          txtAssignedFacilityName, txtAssignedFacilityScheme, txtConnectionStatus,
+          txtOfficerDesignation, txtOfficerName, txtOfficerStatusBadge, txtServerConfig);
     }
     String missingId = rootView.getResources().getResourceName(id);
     throw new NullPointerException("Missing required view with ID: ".concat(missingId));

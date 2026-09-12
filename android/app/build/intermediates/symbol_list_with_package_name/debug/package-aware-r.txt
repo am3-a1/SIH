@@ -3255,6 +3255,8 @@ id btnSaveOffline
 id btnSignHead
 id btnSignInsp
 id btnSubmitCloud
+id btnSyncAssignments
+id btnTestConnection
 id buttonPanel
 id cache_measures
 id callMeasure
@@ -3659,6 +3661,7 @@ id txtAssignedFacilityName
 id txtAssignedFacilityScheme
 id txtAuditId
 id txtAuditTypeBadge
+id txtConnectionStatus
 id txtDeviceCoords
 id txtEvidenceCategory
 id txtEvidenceHash

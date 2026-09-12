@@ -195,6 +195,12 @@ class AuditActivity : AppCompatActivity() {
         chkSimulateOnsite = findViewById(R.id.chkSimulateOnsite)
 
         txtFacilityCountBadge = findViewById(R.id.txtFacilityCountBadge)
+        val btnSyncAssignments: TextView? = findViewById(R.id.btnSyncAssignments)
+        btnSyncAssignments?.setOnClickListener {
+            Toast.makeText(this, "🔄 Syncing assignments with Central Server...", Toast.LENGTH_SHORT).show()
+            loadFacilitiesAndLock(isSilent = false)
+        }
+
         spinnerAuditFacility = findViewById(R.id.spinnerAuditFacility)
         txtAuditTypeBadge = findViewById(R.id.txtAuditTypeBadge)
         txtAuditId = findViewById(R.id.txtAuditId)
@@ -319,14 +325,47 @@ class AuditActivity : AppCompatActivity() {
         txtDeviceCoords.text = String.format(Locale.US, "DEVICE: %.4f° %s, %.4f° %s (±%dm)%s", Math.abs(lat), latDir, Math.abs(lon), lonDir, Math.round(acc), mode)
     }
 
-    private fun loadFacilitiesAndLock() {
+    override fun onResume() {
+        super.onResume()
+        loadFacilitiesAndLock(isSilent = true)
+    }
+
+    private fun loadFacilitiesAndLock(isSilent: Boolean = false) {
         lifecycleScope.launch {
             val app = DoSJEApplication.instance
+
+            // 1. Fetch live assigned facilities specifically for this officer from central server
+            val assignResult = app.apiClient.getOfficerAssignments(officerId)
+            val liveAssigned = assignResult.getOrNull()
+
+            if (!liveAssigned.isNullOrEmpty()) {
+                val liveIds = liveAssigned.map { it.id }
+                val isNew = assignedFacilityIds.isNotEmpty() && liveIds != assignedFacilityIds
+                assignedFacilityIds = liveIds
+                assignedFacilities = liveAssigned
+
+                if (isNew && !isSilent) {
+                    val targetFac = liveAssigned.first()
+                    AlertDialog.Builder(this@AuditActivity)
+                        .setTitle("⚡ New Audit Assigned from Web Portal")
+                        .setMessage("A new statutory inspection has been assigned:\n\n" +
+                                "• Facility: ${targetFac.name}\n" +
+                                "• Scheme: ${targetFac.schemeName} (${targetFac.schemeCode})\n" +
+                                "• Jurisdiction: ${targetFac.district}, ${targetFac.state}\n\n" +
+                                "The app has locked to this facility and updated geofence coordinates.")
+                        .setPositiveButton("Proceed", null)
+                        .show()
+                }
+            }
+
+            // 2. Fetch all facilities or fallback
             val result = app.apiClient.getFacilities()
             val allFacilities = result.getOrDefault(getDefaultFacilities())
 
             // STRICT FACILITY LOCK: Filter to only facilities assigned to this officer
-            assignedFacilities = allFacilities.filter { assignedFacilityIds.contains(it.id) }
+            if (liveAssigned.isNullOrEmpty()) {
+                assignedFacilities = allFacilities.filter { assignedFacilityIds.contains(it.id) }
+            }
 
             if (assignedFacilities.isEmpty()) {
                 // Officer on Standby - 0 Assigned
@@ -377,6 +416,9 @@ class AuditActivity : AppCompatActivity() {
             }
 
             selectFacility(assignedFacilities[0])
+            if (!isSilent) {
+                Toast.makeText(this@AuditActivity, "✅ Synced with Web: ${assignedFacilities.size} assigned audit(s) active", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -550,11 +592,29 @@ class AuditActivity : AppCompatActivity() {
                     }
                     .show()
             }.onFailure { err ->
-                AlertDialog.Builder(this@AuditActivity)
-                    .setTitle("❌ Submission Failed")
-                    .setMessage("Server rejected the audit package:\n\n${err.message}\n\nCheck geofence perimeter or server connection.")
-                    .setPositiveButton("OK", null)
-                    .show()
+                val msg = err.message ?: "Unknown error"
+                val isConnError = msg.contains("failed to connect") ||
+                        msg.contains("timeout") ||
+                        msg.contains("ConnectException") ||
+                        msg.contains("SocketTimeoutException")
+
+                if (isConnError) {
+                    AlertDialog.Builder(this@AuditActivity)
+                        .setTitle("❌ Server Connection Failed")
+                        .setMessage("Cannot reach Central Server at:\n${app.preferences.serverBaseUrl}\n\n" +
+                                "Troubleshooting Steps:\n" +
+                                "• Wi-Fi: Ensure phone is on same Wi-Fi and use http://10.254.3.98:8000\n" +
+                                "• USB: Run 'adb reverse tcp:8000 tcp:8000' and use http://localhost:8000\n\n" +
+                                "Tip: You can also tap 'Save Offline Package (AES-256-GCM)' below to save this audit locally until reconnected.")
+                        .setPositiveButton("OK", null)
+                        .show()
+                } else {
+                    AlertDialog.Builder(this@AuditActivity)
+                        .setTitle("❌ Submission Rejected by Server")
+                        .setMessage("Server response error:\n\n$msg\n\nVerify that you are within the facility geofence or check 'Simulate On-Site'.")
+                        .setPositiveButton("OK", null)
+                        .show()
+                }
             }
         }
     }
