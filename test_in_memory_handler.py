@@ -281,6 +281,17 @@ class TestUnifiedAPIHandler(unittest.TestCase):
         self.assertEqual(data["error"], "GEOFENCE_BREACH")
         self.assertIn("Geofence Breach Error", data["message"])
 
+    def test_20_android_apk_info_endpoint(self):
+        status, data = call_handler("GET", "/api/v1/android/apk-info")
+        self.assertEqual(status, 200)
+        self.assertEqual(data["status"], "SUCCESS")
+        self.assertEqual(data["package_name"], "gov.mosje.sih26095")
+        self.assertEqual(data["language"], "Kotlin")
+        self.assertEqual(data["min_sdk"], 26)
+        self.assertEqual(data["target_sdk"], 34)
+        self.assertIn("CameraX", data["camera_subsystem"])
+        self.assertIn("AES-256", data["encryption"])
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIH26095: Smart Real-Time Monitoring & Inspection Platform | MoSJE</title>
+  
+  <!-- Tailwind CSS & Lucide Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            darkbg: '#0b0f19',
+            darkcard: '#131d31',
+            darkborder: '#1e293b'
+          }
+        }
+      }
+    };
+  </script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Leaflet GIS Map CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Tracking.js Haar Cascade Face Detector -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tracking.js/1.1.3/tracking-min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tracking.js/1.1.3/data/face-min.js"></script>
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen flex flex-col transition-colors duration-200">
+
+  <!-- =========================================================================
+       TOP GOVERNMENT HEADER & ROLE CONTROLLER
+  ========================================================================== -->
+  <header class="bg-slate-900 text-white shadow-md border-b-4 border-amber-500 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-2.5 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center border border-amber-500/50">
+          <i data-lucide="shield-check" class="w-6 h-6 text-amber-400"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="text-xs font-semibold uppercase tracking-wider text-amber-400">GeoCheck • Government of India</span>
+            <span class="text-[10px] bg-blue-900/80 text-blue-200 px-1.5 py-0.5 rounded font-mono">NIC MeghRaj Cloud</span>
+          </div>
+          <h1 class="text-base font-bold tracking-tight text-white flex items-center gap-2">
+            Ministry of Social Justice & Empowerment
+            <span class="text-xs font-normal text-slate-400 hidden sm:inline">| Department of Social Justice & Empowerment (DoSJE)</span>
+          </h1>
+        </div>
+      </div>
+
+      <!-- Live Role Switcher & Mode Navigator -->
+      <div class="flex items-center space-x-2">
+        <div class="bg-slate-800 border border-slate-700 rounded-lg p-1 flex space-x-1 text-xs">
+          <button id="btnNavCommand" onclick="switchView('command')" class="nav-btn active px-3 py-1.5 rounded-md font-medium transition flex items-center gap-1.5 bg-blue-600 text-white shadow">
+            <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
+            <span> Dashboard </span>
+          </button>
+          <button id="btnNavAndroid" onclick="switchView('android')" class="nav-btn px-3 py-1.5 rounded-md font-medium transition flex items-center gap-1.5 text-slate-300 hover:text-white">
+            <i data-lucide="smartphone" class="w-3.5 h-3.5"></i>
+            <span>Android App</span>
+          </button>
+          <button id="btnNavCCTV" onclick="switchView('cctv')" class="nav-btn px-3 py-1.5 rounded-md font-medium transition flex items-center gap-1.5 text-slate-300 hover:text-white">
+            <i data-lucide="cctv" class="w-3.5 h-3.5"></i>
+            <span>ONVIF / RTSP Matrix</span>
+          </button>
+          <button id="btnNavVC" onclick="switchView('vc')" class="nav-btn px-3 py-1.5 rounded-md font-medium transition flex items-center gap-1.5 text-slate-300 hover:text-white">
+            <i data-lucide="video" class="w-3.5 h-3.5"></i>
+            <span>WebRTC Spot-Check</span>
+          </button>
+          <button id="btnNavAdmin" onclick="switchView('admin')" class="nav-btn px-3 py-1.5 rounded-md font-medium transition flex items-center gap-1.5 text-slate-300 hover:text-white">
+            <i data-lucide="database" class="w-3.5 h-3.5"></i>
+            <span>Admin Console</span>
+          </button>
+        </div>
+
+        <div class="hidden md:flex items-center pl-2 space-x-2 border-l border-slate-700 text-xs">
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-950/60 text-emerald-400 border border-emerald-800">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            AES-256 • PostGIS
+          </span>
+
+          <!-- Light / Dark Mode Toggle Switch -->
+          <button id="btnThemeToggle" onclick="toggleTheme()" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 hover:text-amber-200 border border-slate-700 transition flex items-center gap-1" title="Toggle Light / Dark Mode">
+            <i id="themeIcon" data-lucide="moon" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- =========================================================================
+       VIEW 1: MoSJE CENTRAL COMMAND CENTER (EXECUTIVE DASHBOARD & GIS MAP)
+  ========================================================================== -->
+  <main id="viewCommandCenter" class="flex-1 max-w-7xl w-full mx-auto p-4 space-y-5">
+    <!-- True Random Dispatch Notification Toast Banner -->
+    <div id="trueRandomDispatchBanner" class="hidden bg-gradient-to-r from-purple-900 to-indigo-900 border border-purple-500/50 text-white rounded-2xl p-4 shadow-xl flex items-center justify-between transition-all duration-300">
+      <div class="flex items-center space-x-3.5">
+        <div class="w-10 h-10 rounded-xl bg-purple-500/30 border border-purple-400/40 flex items-center justify-center shrink-0">
+          <i data-lucide="shuffle" class="w-5 h-5 text-purple-300"></i>
+        </div>
+        <div>
+          <div class="text-[10px] uppercase font-bold tracking-wider text-purple-300 flex items-center gap-2">
+            <span>Official True Random Unannounced Dispatch</span>
+            <span class="bg-purple-500/40 text-purple-200 px-2 py-0.2 rounded-full font-mono text-[9px]">50-Officer Pool</span>
+          </div>
+          <div id="dispatchBannerText" class="text-sm font-bold text-white mt-0.5">
+            Officer Assigned: <span id="dispatchOfficerName" class="text-amber-300">--</span> for <span id="dispatchFacilityName" class="text-white">--</span>
+          </div>
+          <div id="dispatchBannerSub" class="text-xs text-purple-200">Immediate unannounced surprise inspection issued with zero prior notice.</div>
+        </div>
+      </div>
+      <button onclick="document.getElementById('trueRandomDispatchBanner').classList.add('hidden')" class="p-1.5 rounded-lg hover:bg-purple-800 text-purple-300 hover:text-white transition">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+
+    <!-- National Metrics Bar -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
+        <div class="flex items-center justify-between text-slate-500 text-xs mb-1">
+          <span>Active Facilities</span>
+          <i data-lucide="building-2" class="w-4 h-4 text-blue-600"></i>
+        </div>
+        <div class="text-xl font-bold text-slate-900" id="statTotalFacilities">12</div>
+        <div class="text-[10px] text-emerald-600 font-medium mt-0.5">Across 8 States/UTs</div>
+      </div>
+
+      <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
+        <div class="flex items-center justify-between text-slate-500 text-xs mb-1">
+          <span>Enrolled Beneficiaries</span>
+          <i data-lucide="users" class="w-4 h-4 text-indigo-600"></i>
+        </div>
+        <div class="text-xl font-bold text-slate-900" id="statEnrolled">904</div>
+        <div class="text-[10px] text-slate-500 mt-0.5">Cap: 1,320 (68.5%)</div>
+      </div>
+
+      <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
+        <div class="flex items-center justify-between text-slate-500 text-xs mb-1">
+          <span>CCTV Stream Uptime</span>
+          <i data-lucide="radio" class="w-4 h-4 text-teal-600"></i>
+        </div>
+        <div class="text-xl font-bold text-slate-900" id="statCctvUptime">85.7%</div>
+        <div class="text-[10px] text-emerald-600 font-medium mt-0.5">ONVIF / RTSP Active</div>
+      </div>
+
+      <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
+        <div class="flex items-center justify-between text-slate-500 text-xs mb-1">
+          <span>Inspections Done</span>
+          <i data-lucide="clipboard-check" class="w-4 h-4 text-emerald-600"></i>
+        </div>
+        <div class="text-xl font-bold text-slate-900" id="statCompletedInspections">1</div>
+        <div class="text-[10px] text-blue-600 font-medium mt-0.5">2 Surprise In-Flight</div>
+      </div>
+
+      <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
+        <div class="flex items-center justify-between text-slate-500 text-xs mb-1">
+          <span>Compliance Index</span>
+          <i data-lucide="award" class="w-4 h-4 text-amber-600"></i>
+        </div>
+        <div class="text-xl font-bold text-emerald-600">88.4%</div>
+        <div class="text-[10px] text-slate-500 mt-0.5">Grade A Certified</div>
+      </div>
+
+      <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm bg-rose-50/40 border-rose-200">
+        <div class="flex items-center justify-between text-rose-700 text-xs mb-1">
+          <span>Urgent Anomalies</span>
+          <i data-lucide="alert-triangle" class="w-4 h-4 text-rose-600"></i>
+        </div>
+        <div class="text-xl font-bold text-rose-600" id="statAlerts">3</div>
+        <div class="text-[10px] text-rose-700 font-medium mt-0.5">Surprise Audit Required</div>
+      </div>
+    </div>
+
+    <!-- GIS Map & Live Facility Explorer -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <!-- GIS India Spatial Map (PostGIS visualizer) -->
+      <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div>
+            <h2 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <i data-lucide="map-pin" class="w-4 h-4 text-blue-600"></i>
+              National GIS Surveillance & Geofence Map (PostGIS / SRID 4326)
+            </h2>
+            <p class="text-xs text-slate-500">Real-time facility locations with geofence radius buffers & risk status</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="triggerTrueRandomDispatch()" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm transition" title="Truly random assignment from 50 onsite field officers">
+              <i data-lucide="shuffle" class="w-3.5 h-3.5"></i>
+              Random Dispatch
+            </button>
+            <button onclick="triggerAIRandomDispatch()" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm transition">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+              Risk-Weighted Dispatch
+            </button>
+          </div>
+        </div>
+
+        <div id="gisMap" class="w-full h-96 rounded-xl border border-slate-200 bg-slate-50 z-0"></div>
+
+        <!-- Scheme Legend -->
+        <div class="flex flex-wrap items-center gap-4 mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400">
+          <span class="font-semibold text-slate-700 dark:text-slate-300">Welfare Schemes:</span>
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> AVYAY (Senior Care)</span>
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> NAPDDR (De-addiction)</span>
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> PM-AJAY (Hostels)</span>
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span> SMILE (Garima Greh)</span>
+          <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> DIVYANG (Rehabilitation)</span>
+        </div>
+
+        <!-- Live Officer Actions Feed (Pulls DB changes every 90-120 seconds) -->
+        <div class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800">
+          <div class="flex items-center justify-between mb-2.5">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <h3 class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider flex items-center gap-1.5">
+                <i data-lucide="radio" class="w-3.5 h-3.5 text-emerald-600"></i>
+                Live Officer Activity Feed
+              </h3>
+              <span class="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-2 py-0.5 rounded-full font-mono border border-slate-200 dark:border-slate-700">
+                Auto-Sync: <span id="feedCountdown" class="font-bold text-emerald-600 dark:text-emerald-400">90s</span>
+              </span>
+            </div>
+            <div class="flex items-center gap-2 text-[10px] text-slate-500">
+              <span id="feedLastUpdatedText" class="font-mono">Syncing...</span>
+              <button onclick="fetchLiveOfficerFeed(true)" class="p-1 hover:text-blue-600 dark:hover:text-blue-400 transition" title="Refresh Feed Now">
+                <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Feed Table -->
+          <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-xs">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 dark:bg-slate-800/80 text-[10px] text-slate-500 uppercase font-semibold border-b border-slate-200 dark:border-slate-800">
+                <tr>
+                  <th class="px-3 py-2 whitespace-nowrap">&lt;Time&gt;&lt;Timezone&gt;</th>
+                  <th class="px-3 py-2 whitespace-nowrap">&lt;Action&gt;</th>
+                  <th class="px-3 py-2 whitespace-nowrap">&lt;Officer Name&gt;</th>
+                  <th class="px-3 py-2 whitespace-nowrap">&lt;Facility Audited&gt;</th>
+                  <th class="px-3 py-2 whitespace-nowrap">&lt;Location/City&gt;</th>
+                  <th class="px-3 py-2 whitespace-nowrap text-center">&lt;View Report Button&gt;</th>
+                </tr>
+              </thead>
+              <tbody id="liveOfficerFeedBody" class="divide-y divide-slate-100 dark:divide-slate-800/60 font-mono text-[11px]">
+                <!-- Populated dynamically via JS every 90 seconds -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Facility Inspection Queue & Anomaly Alerts -->
+      <div class="space-y-4">
+        <!-- AI Alert Monitor -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-4">
+          <div class="flex items-center justify-between mb-2.5">
+            <h3 class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider flex items-center gap-1.5">
+              <i data-lucide="bell-ring" class="w-3.5 h-3.5 text-rose-500"></i>
+              Live AI Anomaly Flags
+            </h3>
+            <span class="text-[10px] bg-rose-100 text-rose-800 font-bold px-2 py-0.5 rounded-full">Active</span>
+          </div>
+          <div id="alertContainer" class="space-y-2.5 text-xs">
+            <!-- Injected via JS -->
+          </div>
+        </div>
+
+        <!-- Facility List by Risk Rank -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
+          <div class="flex items-center justify-between mb-2.5">
+            <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+              <i data-lucide="activity" class="w-3.5 h-3.5 text-blue-600"></i>
+              Risk Priority Ranking
+            </h3>
+            <span class="text-[10px] text-slate-500">Sorted by AI Risk Metric</span>
+          </div>
+          <div id="facilityRiskList" class="space-y-2 max-h-56 overflow-y-auto pr-1">
+            <!-- Injected via JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- =========================================================================
+       VIEW 2: NATIVE ANDROID INSPECTOR APP STATION & HANDHELD HUB
+  ========================================================================== -->
+  <div id="viewFlutterSimulator" class="hidden flex-1 max-w-7xl w-full mx-auto p-4 flex flex-col space-y-4">
+    <!-- Top Station Header & Build Badges -->
+    <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+      <div>
+        <div class="inline-flex items-center gap-2 bg-emerald-50 text-emerald-900 border border-emerald-200 px-3 py-1 rounded-full text-xs font-semibold mb-1">
+          <i data-lucide="smartphone" class="w-3.5 h-3.5 text-emerald-600"></i>
+          Native Android Handheld Station • Kotlin / Android SDK 34
+        </div>
+        <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+          Field Inspection Officer Handheld Station & APK Hub
+        </h2>
+        <p class="text-xs text-slate-500">
+          Directly synchronizing with the Native Android Project in <code class="bg-slate-100 px-1 py-0.5 rounded text-blue-700 font-mono">android/</code> (Package: <span class="font-mono text-slate-800 font-bold">gov.mosje.sih26095</span>)
+        </p>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="bg-blue-50 text-blue-800 border border-blue-200 px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5">
+          <i data-lucide="camera" class="w-3.5 h-3.5 text-blue-600"></i> CameraX 1.3.1
+        </span>
+        <span class="bg-emerald-50 text-emerald-800 border border-emerald-200 px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5">
+          <i data-lucide="map-pin" class="w-3.5 h-3.5 text-emerald-600"></i> Geofence Radar
+        </span>
+        <span class="bg-purple-50 text-purple-800 border border-purple-200 px-2.5 py-1 rounded-lg text-xs font-medium flex items-center gap-1.5">
+          <i data-lucide="shield-check" class="w-3.5 h-3.5 text-purple-600"></i> AES-256-GCM
+        </span>
+        <button onclick="fetchApkInfoModal()" class="bg-blue-900 hover:bg-blue-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition shadow">
+          <i data-lucide="info" class="w-3.5 h-3.5 text-amber-400"></i>
+          <span>APK Details</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Dual-Column Grid: Device Simulator & Native Android Hardware Hub -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <!-- Column 1: Smartphone Frame (5 cols on lg) -->
+      <div class="lg:col-span-5 flex flex-col items-center justify-center">
+        <!-- Smartphone Frame -->
+        <div class="phone-frame w-full max-w-[390px] h-[780px] bg-white rounded-[40px] shadow-2xl flex flex-col overflow-hidden relative">
+          <!-- Phone Speaker Notch -->
+          <div class="phone-notch-bar w-full bg-slate-800 flex justify-center py-1">
+            <div class="phone-notch-cutout w-24 h-4 bg-black rounded-b-xl flex items-center justify-center">
+              <div class="w-3 h-3 rounded-full bg-slate-900 mr-2"></div>
+              <div class="w-10 h-1 bg-slate-700 rounded-full"></div>
+            </div>
+          </div>
+
+          <!-- Mobile App Header -->
+          <div class="bg-blue-900 text-white px-4 py-3 flex items-center justify-between shadow-md">
+            <div class="flex items-center space-x-2">
+              <i data-lucide="shield" class="w-5 h-5 text-amber-400"></i>
+              <div>
+                <div class="text-xs font-bold leading-none" id="mobileAppHeaderTitle">DoSJE Android Handheld</div>
+                <div class="text-[9px] text-blue-200" id="mobileAppHeaderOfficer">gov.mosje.sih26095 • Native App</div>
+              </div>
+            </div>
+        <div class="flex items-center space-x-1.5 text-[10px]">
+          <span id="mobileSyncBadge" class="bg-emerald-800 text-emerald-200 px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
+            <i data-lucide="wifi" class="w-2.5 h-2.5"></i> Online
+          </span>
+          <button id="btnMobileLogout" onclick="toggleMobileScreen('login')" class="hidden bg-blue-800 hover:bg-blue-700 text-white px-2 py-0.5 rounded text-[10px] font-medium flex items-center gap-1 transition">
+            <i data-lucide="log-out" class="w-2.5 h-2.5"></i> Switch
+          </button>
+        </div>
+      </div>
+
+      <!-- =====================================================================
+           SUB-SCREEN 1: OFFICER LOGIN SCREEN (OAUTH2 GOVCLOUD SSO)
+      ====================================================================== -->
+      <div id="mobileScreenLogin" class="flex-1 overflow-y-auto p-4 flex flex-col justify-between bg-slate-50 text-xs">
+        <div class="text-center pt-2 space-y-1.5">
+          <div class="w-12 h-12 rounded-full bg-blue-900 text-amber-400 mx-auto flex items-center justify-center shadow-md border-2 border-amber-400/50">
+            <i data-lucide="shield-check" class="w-7 h-7"></i>
+          </div>
+          <h3 class="font-bold text-slate-900 text-sm">Official Inspector Portal</h3>
+          <p class="text-[10px] text-slate-500">Ministry of Social Justice & Empowerment • GovCloud SSO</p>
+        </div>
+
+        <div class="space-y-3 my-auto py-2">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 mb-1 flex items-center justify-between">
+              <span>Select Onsite Field Inspector:</span>
+              <span class="text-[9px] text-blue-600 font-mono font-bold">50 Active Inspectors</span>
+            </label>
+            <select id="mobileOfficerSelect" onchange="onMobileOfficerChange(this.value)" class="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-xs text-slate-900 font-medium focus:ring-2 focus:ring-blue-600 focus:outline-none">
+              <option value="">-- Choose Field Inspector --</option>
+            </select>
+          </div>
+
+          <!-- Selected Officer Profile & Audit Assignment Preview -->
+          <div id="mobileOfficerCard" class="bg-white border border-slate-200 rounded-2xl p-3 shadow-sm space-y-2">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center space-x-2.5">
+                <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-900 flex items-center justify-center font-bold text-xs">
+                  <i data-lucide="user" class="w-4 h-4 text-blue-700"></i>
+                </div>
+                <div>
+                  <div id="loginCardName" class="font-bold text-slate-900 text-xs">--</div>
+                  <div id="loginCardDesignation" class="text-[10px] text-slate-500">Senior Field Inspection Officer</div>
+                </div>
+              </div>
+              <span id="loginCardStatusBadge" class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-slate-100 text-slate-600">Standing by</span>
+            </div>
+
+            <div id="loginCardAssignmentBox" class="p-2 rounded-xl bg-amber-50 border border-amber-200 text-[11px] text-amber-900 space-y-1">
+              <div class="font-bold flex items-center gap-1 text-[10px] uppercase text-rose-700">
+                <i data-lucide="alert-circle" class="w-3 h-3 text-rose-600"></i>
+                Assigned Unannounced Audit:
+              </div>
+              <div id="loginCardFacilityName" class="font-semibold text-slate-900 text-xs">Snehalaya Senior Citizens Home</div>
+              <div id="loginCardFacilityScheme" class="text-[10px] text-blue-700">AVYAY (Atal Vayo Abhyuday Yojana) • New Delhi</div>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-[11px] font-semibold text-slate-600 mb-1">OAuth2 GovCloud Access Token / PIN:</label>
+            <input type="password" value="••••••••" readonly class="w-full bg-slate-100 border border-slate-200 rounded-xl p-2.5 text-xs text-slate-700 font-mono">
+          </div>
+
+          <button onclick="loginMobileOfficer()" class="w-full py-2.5 px-4 bg-blue-900 hover:bg-blue-800 text-white rounded-xl font-bold text-xs shadow-lg flex items-center justify-center gap-2 transition">
+            <i data-lucide="log-in" class="w-4 h-4 text-amber-400"></i>
+            <span>Sign In to Handheld Inspection Portal</span>
+          </button>
+        </div>
+
+        <div class="text-center text-[10px] text-slate-400 pt-2 border-t border-slate-200">
+          Enforced with PostGIS Geofence, AES-256-GCM & RBAC
+        </div>
+      </div>
+
+      <!-- =====================================================================
+           SUB-SCREEN 2: HANDHELD AUDIT PORTAL
+      ====================================================================== -->
+      <div id="mobileScreenAudit" class="hidden flex-1 overflow-y-auto p-3.5 space-y-3 bg-slate-50 text-xs">
+        <!-- Geofence Radar Status with Device Location -->
+        <div id="flutterGeofenceBanner" class="bg-emerald-50 border border-emerald-300 rounded-xl p-2.5 flex flex-col space-y-1.5 text-emerald-950 transition-all">
+          <div class="flex items-start justify-between">
+            <div class="flex items-start space-x-2">
+              <i id="geofenceIcon" data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600 shrink-0 mt-0.5"></i>
+              <div>
+                <div class="font-bold text-[11px] text-emerald-900 uppercase" id="geofenceStatusTitle">GPS Geofence Verified</div>
+                <div id="mobileRadarText" class="text-[10px] text-emerald-700">Acquiring live GPS location...</div>
+              </div>
+            </div>
+            <button onclick="acquireLiveDeviceGPS(true)" class="px-2 py-1 bg-emerald-700 hover:bg-emerald-800 text-white rounded text-[9px] font-semibold flex items-center gap-1 transition shadow-xs" title="Refresh Live Device GPS">
+              <i data-lucide="crosshair" class="w-3 h-3"></i>
+              <span id="btnGpsStatusText">Live GPS</span>
+            </button>
+          </div>
+          <div class="bg-black/5 rounded p-1.5 flex justify-between items-center text-[9px] font-mono border border-emerald-200">
+            <span>DEVICE: <b id="displayDeviceCoords" class="text-emerald-900 font-bold">Acquiring...</b></span>
+            <label class="flex items-center gap-1 cursor-pointer text-slate-700 font-sans">
+              <input type="checkbox" id="chkSimulateOnsite" checked onchange="toggleSimulateOnsite(this.checked)" class="rounded text-blue-600 focus:ring-0 w-3 h-3">
+              <span>Onsite (35m)</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Target Facility Selector & Info Card -->
+        <div class="bg-white rounded-xl border border-slate-200 p-3 shadow-sm space-y-2">
+          <div class="flex justify-between items-center">
+            <label class="block text-[11px] font-bold text-slate-800 flex items-center gap-1">
+              <i data-lucide="building-2" class="w-3.5 h-3.5 text-blue-600"></i>
+              <span>Assigned Facility to Audit:</span>
+            </label>
+            <span id="mobileFacilityCountBadge" class="text-[9px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded font-bold font-mono">12 Facilities</span>
+          </div>
+          <!-- Dropdown of Assigned Facilities -->
+          <select id="mobileAuditFacilitySelect" onchange="onAuditFacilitySelect(this.value)" class="w-full bg-slate-50 border border-slate-300 rounded-lg p-2 text-xs font-semibold text-slate-900 focus:ring-2 focus:ring-blue-600 focus:outline-none">
+            <!-- Populated dynamically via JS -->
+          </select>
+
+          <!-- Selected Facility Specs -->
+          <div class="pt-1.5 border-t border-slate-100 flex justify-between items-start">
+            <span class="bg-rose-100 text-rose-800 font-bold px-1.5 py-0.5 rounded text-[9px]" id="mobileAuditTypeBadge">SURPRISE AUDIT</span>
+            <span class="text-slate-400 font-mono text-[9px]" id="mobileAuditId">INSP-2026-001</span>
+          </div>
+          <div class="font-bold text-slate-900 text-sm leading-tight" id="mobileFacilityName">Snehalaya Senior Citizens Home</div>
+          <div class="text-blue-700 font-medium text-[10px]" id="mobileFacilityScheme">Scheme: AVYAY (Atal Vayo Abhyuday Yojana)</div>
+          <div class="text-slate-500 text-[10px]" id="mobileFacilityLocation">Sector 4, R.K. Puram, New Delhi • Cap: 88/100</div>
+        </div>
+
+        <!-- Inspection Rubrics Form -->
+        <div class="bg-white rounded-xl border border-slate-200 p-3 shadow-sm space-y-2.5">
+          <div class="font-bold text-slate-900 text-xs border-b pb-1 flex justify-between items-center">
+            <span>Statutory Inspection Checklist</span>
+            <span class="text-[10px] text-blue-700 font-semibold">Interactive Rubrics</span>
+          </div>
+
+          <div>
+            <div class="flex justify-between text-[11px] mb-0.5 font-medium text-slate-700">
+              <span>1. Infrastructure & Fire Safety</span>
+              <span id="valInfra" class="font-bold text-blue-900">85%</span>
+            </div>
+            <input type="range" id="sliderInfra" min="0" max="100" value="85" class="w-full accent-blue-900 h-1.5 bg-slate-200 rounded-lg cursor-pointer" oninput="onSliderChange('Infra', this.value)">
+          </div>
+
+          <div>
+            <div class="flex justify-between text-[11px] mb-0.5 font-medium text-slate-700">
+              <span>2. Hygiene & Cleanliness</span>
+              <span id="valHygiene" class="font-bold text-blue-900">90%</span>
+            </div>
+            <input type="range" id="sliderHygiene" min="0" max="100" value="90" class="w-full accent-blue-900 h-1.5 bg-slate-200 rounded-lg cursor-pointer" oninput="onSliderChange('Hygiene', this.value)">
+          </div>
+
+          <div>
+            <div class="flex justify-between text-[11px] mb-0.5 font-medium text-slate-700">
+              <span>3. Food & Nutrition Standard</span>
+              <span id="valFood" class="font-bold text-blue-900">80%</span>
+            </div>
+            <input type="range" id="sliderFood" min="0" max="100" value="80" class="w-full accent-blue-900 h-1.5 bg-slate-200 rounded-lg cursor-pointer" oninput="onSliderChange('Food', this.value)">
+          </div>
+
+          <div>
+            <div class="flex justify-between text-[11px] mb-0.5 font-medium text-slate-700">
+              <span>4. Medical Ward & Care Log</span>
+              <span id="valMedical" class="font-bold text-blue-900">85%</span>
+            </div>
+            <input type="range" id="sliderMedical" min="0" max="100" value="85" class="w-full accent-blue-900 h-1.5 bg-slate-200 rounded-lg cursor-pointer" oninput="onSliderChange('Medical', this.value)">
+          </div>
+
+          <div>
+            <div class="flex justify-between text-[11px] mb-0.5 font-medium text-slate-700">
+              <span>5. Staff & Beneficiary Roll</span>
+              <span id="valAttendance" class="font-bold text-blue-900">90%</span>
+            </div>
+            <input type="range" id="sliderAttendance" min="0" max="100" value="90" class="w-full accent-blue-900 h-1.5 bg-slate-200 rounded-lg cursor-pointer" oninput="onSliderChange('Attendance', this.value)">
+          </div>
+
+          <div class="bg-blue-50 p-2 rounded-lg flex justify-between items-center text-xs">
+            <span class="font-semibold text-blue-950">Calculated Compliance:</span>
+            <span id="mobileTotalScore" class="font-bold text-blue-900 text-sm">86 / 100 (GRADE A)</span>
+          </div>
+        </div>
+
+        <!-- Camera Capture with Live Watermarking -->
+        <div class="bg-white rounded-xl border border-slate-200 p-3 shadow-sm space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="font-bold text-slate-900 text-xs">Geo-Tagged Watermarked Photos</span>
+            <span id="photoCount" class="text-[10px] text-teal-700 font-bold">1 Evidence Attached</span>
+          </div>
+
+          <!-- Watermarked Photo Preview Box -->
+          <div id="watermarkPreview" class="relative rounded-lg overflow-hidden bg-slate-800 text-white p-2 h-28 flex flex-col justify-between border border-slate-700">
+            <div class="text-[9px] bg-rose-600 text-white font-mono px-1.5 py-0.5 rounded w-fit">LIVE WATERMARK STAMP</div>
+            <div id="watermarkCategoryText" class="text-center font-semibold text-slate-300 text-xs">Dining & Kitchen Prep Area</div>
+            <div class="text-[8px] font-mono text-amber-300 leading-tight bg-black/60 p-1 rounded">
+              GPS: <span id="watermarkCoords">28.5672° N, 77.1734° E</span> | TIME: <span id="watermarkTime">2026-09-07 16:30:12 UTC</span><br>
+              INSPECTOR: <span id="watermarkOfficer">Sunita Rao</span> | HASH: <span id="watermarkHash">8f3a9b1c7e...</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="simulatePhotoCapture('Dining Hall & Kitchen')" class="py-1.5 px-2 bg-slate-100 hover:bg-slate-200 rounded-lg font-medium flex items-center justify-center gap-1 text-[10px] border border-slate-200 transition">
+              <i data-lucide="camera" class="w-3 h-3 text-slate-700"></i> Capture Kitchen
+            </button>
+            <button onclick="simulatePhotoCapture('Dormitory Living Area')" class="py-1.5 px-2 bg-slate-100 hover:bg-slate-200 rounded-lg font-medium flex items-center justify-center gap-1 text-[10px] border border-slate-200 transition">
+              <i data-lucide="camera" class="w-3 h-3 text-slate-700"></i> Capture Dorms
+            </button>
+            <button onclick="simulatePhotoCapture('Sanitation & Hygiene')" class="py-1.5 px-2 bg-slate-100 hover:bg-slate-200 rounded-lg font-medium flex items-center justify-center gap-1 text-[10px] border border-slate-200 transition">
+              <i data-lucide="camera" class="w-3 h-3 text-slate-700"></i> Capture Hygiene
+            </button>
+            <button onclick="simulatePhotoCapture('Facility Main Entrance')" class="py-1.5 px-2 bg-slate-100 hover:bg-slate-200 rounded-lg font-medium flex items-center justify-center gap-1 text-[10px] border border-slate-200 transition">
+              <i data-lucide="camera" class="w-3 h-3 text-slate-700"></i> Capture Entrance
+            </button>
+          </div>
+        </div>
+
+        <!-- Dual Digital Signatures -->
+        <div class="bg-white rounded-xl border border-slate-200 p-3 shadow-sm space-y-2">
+          <span class="font-bold text-slate-900 text-xs">Dual Digital Signatures</span>
+          <div class="grid grid-cols-2 gap-2">
+            <button id="btnSignInsp" onclick="toggleSignature('insp')" class="py-1.5 px-2 bg-emerald-50 text-emerald-800 border border-emerald-300 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1">
+              <i data-lucide="check" class="w-3 h-3 text-emerald-600"></i> Inspector Signed
+            </button>
+            <button id="btnSignHead" onclick="toggleSignature('head')" class="py-1.5 px-2 bg-emerald-50 text-emerald-800 border border-emerald-300 rounded-lg text-[10px] font-bold flex items-center justify-center gap-1">
+              <i data-lucide="check" class="w-3 h-3 text-emerald-600"></i> NGO Head Signed
+            </button>
+          </div>
+        </div>
+
+        <!-- Submit Buttons -->
+        <div class="space-y-2 pt-1">
+          <button onclick="submitMobileAudit(false)" class="w-full py-2.5 bg-blue-900 hover:bg-blue-800 text-white font-bold rounded-xl shadow flex items-center justify-center gap-1.5 transition">
+            <i data-lucide="cloud-upload" class="w-4 h-4"></i>
+            <span>Submit Encrypted Audit to DoSJE</span>
+          </button>
+          <button onclick="submitMobileAudit(true)" class="w-full py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-xl flex items-center justify-center gap-1 text-[10px] transition">
+            <i data-lucide="download" class="w-3 h-3"></i>
+            <span>Save Offline Package (AES-256-GCM)</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Column 2: Native Android Subsystem Hub & Telemetry Stream (7 cols on lg) -->
+  <div class="lg:col-span-7 space-y-4">
+    <!-- Card 1: Native Android Architecture Specifications -->
+    <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+        <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="cpu" class="w-4 h-4 text-blue-600"></i>
+          Native Android Project Architecture (<code class="text-xs font-mono text-blue-700">android/</code>)
+        </h3>
+        <span class="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-mono font-bold">READY / TEST VERIFIED</span>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+        <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+          <span class="text-[10px] text-slate-500 font-semibold block">Application ID</span>
+          <span class="font-mono font-bold text-slate-900 text-[11px]">gov.mosje.sih26095</span>
+        </div>
+        <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+          <span class="text-[10px] text-slate-500 font-semibold block">SDK Targets</span>
+          <span class="font-bold text-slate-900 text-[11px]">Target 34 (MinSdk 26)</span>
+        </div>
+        <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+          <span class="text-[10px] text-slate-500 font-semibold block">Language / UI</span>
+          <span class="font-bold text-slate-900 text-[11px]">Kotlin + ViewBinding</span>
+        </div>
+        <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+          <span class="text-[10px] text-slate-500 font-semibold block">Camera Engine</span>
+          <span class="font-bold text-blue-700 text-[11px]">AndroidX CameraX 1.3.1</span>
+        </div>
+        <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+          <span class="text-[10px] text-slate-500 font-semibold block">Geofence Radar</span>
+          <span class="font-bold text-emerald-700 text-[11px]">Haversine ST_DWithin</span>
+        </div>
+        <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+          <span class="text-[10px] text-slate-500 font-semibold block">Cryptographic Vault</span>
+          <span class="font-bold text-purple-700 text-[11px]">AES-256-GCM + SHA-256</span>
+        </div>
+      </div>
+
+      <div class="bg-blue-50/70 border border-blue-200 rounded-xl p-3 text-xs text-blue-900 space-y-1">
+        <div class="font-bold flex items-center gap-1.5 text-blue-950">
+          <i data-lucide="layers" class="w-3.5 h-3.5 text-blue-700"></i>
+          Core Native Android Modules in <code class="font-mono text-[11px]">android/app/src/main/java</code>:
+        </div>
+        <ul class="list-disc pl-5 text-[11px] text-slate-700 space-y-0.5">
+          <li><span class="font-mono font-semibold">ui.login.LoginActivity</span>: 50 field inspector pool, PIN authentication, assignment lock.</li>
+          <li><span class="font-mono font-semibold">ui.audit.AuditActivity</span>: Real-time GPS geofencing radar, 5-rubric compliance sliders, dual digital signatures.</li>
+          <li><span class="font-mono font-semibold">camera.NativeCameraCaptureActivity</span>: Android CameraX hardware capture & FileProvider integration.</li>
+          <li><span class="font-mono font-semibold">camera.CameraWatermarkProcessor</span>: Hardware Canvas stamping of GPS, ISO timestamp, inspector name & SHA-256 tamper hash.</li>
+          <li><span class="font-mono font-semibold">security.AesCipherUtil & HashUtil</span>: Hardware keystore AES-256-GCM encryption and SHA-256 digest computation.</li>
+          <li><span class="font-mono font-semibold">data.OfflineQueueManager</span>: Encrypted on-device queue for disconnected zero-network field audits.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Card 2: CameraX Tamper-Proof Watermark HUD Engine -->
+    <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+        <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="camera" class="w-4 h-4 text-emerald-600"></i>
+          CameraX Cryptographic Watermark Pipeline (<code class="text-xs font-mono text-emerald-700">CameraWatermarkProcessor.kt</code>)
+        </h3>
+        <span class="text-[10px] bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-0.5 rounded font-mono font-bold">HARDWARE STAMP</span>
+      </div>
+
+      <p class="text-xs text-slate-600">
+        When the inspector takes a site picture using the phone camera, Android CameraX passes the raw sensor bitmap directly to <code class="bg-slate-100 px-1 py-0.5 rounded text-slate-800 font-mono">CameraWatermarkProcessor.kt</code>, which dynamically draws the high-contrast tamper-evident HUD overlay banner with SHA-256 checksum onto the image pixels before saving to disk.
+      </p>
+
+      <!-- Watermark Banner Simulator Box -->
+      <div class="bg-slate-900 text-white rounded-xl p-3 font-mono text-[11px] border border-slate-800 space-y-1.5 shadow-inner">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-1 text-amber-400 font-bold text-[10px]">
+          <span>[MoSJE] GOV OF INDIA | EVIDENCE: <span id="watermarkCategoryDisplay">DINING HALL & KITCHEN</span></span>
+          <span class="bg-emerald-900/80 text-emerald-300 px-1.5 py-0.5 rounded text-[9px]">GEOFENCE: VERIFIED</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-1 text-[10px] text-slate-300">
+          <div><span class="text-slate-500">FACILITY:</span> <span id="watermarkFacDisplay">Snehalaya Senior Citizens Home (DOSJE-DL-001)</span></div>
+          <div><span class="text-slate-500">GPS:</span> <span id="watermarkCoordsDisplay" class="text-emerald-400 font-bold">28.5672° N, 77.1734° E (±4.2m)</span></div>
+          <div><span class="text-slate-500">INSPECTOR:</span> <span id="watermarkOfficerDisplay">Sunita Rao (ID: OFFICER-ONSITE-001)</span></div>
+          <div><span class="text-slate-500">TIME:</span> <span id="watermarkTimestampDisplay" class="text-blue-300">2026-09-12 03:00:00 UTC</span></div>
+        </div>
+        <div class="border-t border-slate-800 pt-1 text-[9px] text-slate-400 flex items-center justify-between">
+          <span>SHA-256: <span id="watermarkHashDisplay" class="text-amber-300 font-mono font-bold">c8f921e48ba02409...</span></span>
+          <span class="text-slate-500">EXIF + Pixel Authenticity Signed</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3: Live Android Field Sync Bridge (Telemetry Stream) -->
+    <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+        <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="radio" class="w-4 h-4 text-blue-600 animate-pulse"></i>
+          Live Android Field Device Telemetry & Sync Bridge
+        </h3>
+        <button onclick="simulateAndroidFieldSync()" class="bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold px-2.5 py-1 rounded-lg flex items-center gap-1 shadow transition">
+          <i data-lucide="refresh-cw" class="w-3 h-3"></i> Simulate Android Sync
+        </button>
+      </div>
+
+      <div id="androidSyncLog" class="bg-slate-950 text-slate-300 rounded-xl p-3 font-mono text-[10px] space-y-1 max-h-48 overflow-y-auto border border-slate-800">
+        <div class="text-emerald-400 font-semibold">[READY] Android Handheld Sync Bridge Listening on /api/v1/inspections/submit...</div>
+        <div class="text-slate-400">[03:00:15 UTC] Handheld Device Pixel-8 (ID: ANDROID-OFFICER-001) connected via TLS 1.3</div>
+        <div class="text-blue-400">[03:00:18 UTC] Geofence Heartbeat: Lat 28.5672, Lon 77.1734 • Within 500m radius of DOSJE-DL-001 (OK)</div>
+        <div class="text-amber-300">[03:00:20 UTC] AES-256-GCM package verified • Cryptographic watermark SHA-256 matched</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+  <!-- =========================================================================
+       VIEW 3: ONVIF & RTSP LIVE CCTV MATRIX
+  ========================================================================== -->
+  <div id="viewCCTVMatrix" class="hidden flex-1 max-w-7xl w-full mx-auto p-4 space-y-4">
+    <div class="flex flex-wrap items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+      <div>
+        <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="cctv" class="w-5 h-5 text-blue-600"></i>
+          ONVIF Profile S/G & RTSP Central Surveillance Wall
+        </h2>
+        <p class="text-xs text-slate-500">Live multi-camera streaming grid with PTZ continuous control & heartbeat diagnostics</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <select id="cctvFacilitySelect" onchange="loadFacilityCameras(this.value)" class="text-xs border border-slate-300 rounded-lg px-2.5 py-1.5 bg-slate-50">
+          <option value="DOSJE-DL-001">Snehalaya Senior Citizens Home (New Delhi)</option>
+          <option value="DOSJE-PB-002">Nasha Mukti Punarvas Kendra IRCA (Amritsar)</option>
+          <option value="DOSJE-MP-009">Nasha Mukt Bharat Clinic (Bhopal)</option>
+          <option value="DOSJE-MH-003">Savitribai Phule SC Hostel (Pune)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- 4-Screen Camera Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- Camera 1 -->
+      <div class="bg-black rounded-2xl overflow-hidden shadow-lg border border-slate-800 flex flex-col">
+        <div class="bg-slate-900 text-white px-3 py-2 flex justify-between items-center text-xs">
+          <span class="font-bold flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+            CAM-01: Main Entrance & Gate
+          </span>
+          <span class="text-[10px] bg-emerald-900/60 text-emerald-300 px-2 py-0.5 rounded font-mono">1080p • 25fps</span>
+        </div>
+        <div class="h-60 relative flex items-center justify-center bg-slate-950">
+          <div class="text-center text-slate-400 space-y-2">
+            <i data-lucide="video" class="w-12 h-12 text-slate-600 mx-auto"></i>
+            <div class="text-xs font-mono text-emerald-400">RTSP LIVE: rtsp://192.168.10.101:554/live/ch0</div>
+            <div class="text-[10px] text-slate-500">Facility Check-in Stream • ONVIF Profile S</div>
+          </div>
+          <div class="absolute bottom-2 left-2 text-[9px] font-mono text-slate-400 bg-black/70 px-2 py-0.5 rounded">
+            REC | 28.5672° N, 77.1734° E | <span class="cctv-clock">16:30:45 UTC</span>
+          </div>
+        </div>
+        <!-- PTZ Controller -->
+        <div class="bg-slate-900 p-2.5 border-t border-slate-800 flex items-center justify-between text-xs text-slate-300">
+          <span class="font-semibold text-slate-400">ONVIF PTZ:</span>
+          <div class="flex items-center space-x-1">
+            <button onclick="sendPTZ('CAM-DL01-1', 'PAN_LEFT')" class="p-1 bg-slate-800 hover:bg-slate-700 rounded text-white" title="Pan Left"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+            <button onclick="sendPTZ('CAM-DL01-1', 'TILT_UP')" class="p-1 bg-slate-800 hover:bg-slate-700 rounded text-white" title="Tilt Up"><i data-lucide="chevron-up" class="w-4 h-4"></i></button>
+            <button onclick="sendPTZ('CAM-DL01-1', 'TILT_DOWN')" class="p-1 bg-slate-800 hover:bg-slate-700 rounded text-white" title="Tilt Down"><i data-lucide="chevron-down" class="w-4 h-4"></i></button>
+            <button onclick="sendPTZ('CAM-DL01-1', 'PAN_RIGHT')" class="p-1 bg-slate-800 hover:bg-slate-700 rounded text-white" title="Pan Right"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+            <span class="w-px h-4 bg-slate-700 mx-1"></span>
+            <button onclick="sendPTZ('CAM-DL01-1', 'ZOOM_IN')" class="p-1 bg-slate-800 hover:bg-slate-700 rounded text-white" title="Zoom In"><i data-lucide="zoom-in" class="w-4 h-4"></i></button>
+            <button onclick="sendPTZ('CAM-DL01-1', 'ZOOM_OUT')" class="p-1 bg-slate-800 hover:bg-slate-700 rounded text-white" title="Zoom Out"><i data-lucide="zoom-out" class="w-4 h-4"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Camera 2: Dining Hall (With AI Headcount Verification Overlay) -->
+      <div class="bg-black rounded-2xl overflow-hidden shadow-lg border border-slate-800 flex flex-col">
+        <div class="bg-slate-900 text-white px-3 py-2 flex justify-between items-center text-xs">
+          <span class="font-bold flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+            CAM-02: Dining Hall & Kitchen (AI Headcount Scan)
+          </span>
+          <button onclick="runAIHeadcountScan()" class="text-[10px] bg-blue-600 hover:bg-blue-700 text-white px-2 py-0.5 rounded font-medium flex items-center gap-1">
+            <i data-lucide="scan" class="w-3 h-3"></i> Run AI Attendance Scan
+          </button>
+        </div>
+        <div class="h-60 relative flex items-center justify-center bg-slate-950 overflow-hidden">
+          <div class="text-center text-slate-400 space-y-2">
+            <i data-lucide="utensils" class="w-12 h-12 text-slate-600 mx-auto"></i>
+            <div class="text-xs font-mono text-blue-400">RTSP LIVE: rtsp://192.168.10.102:554/live/ch0</div>
+            <div class="text-[10px] text-slate-500">Meal Distribution & Nutrition Tracking</div>
+          </div>
+          <!-- Simulated AI Detection Boxes -->
+          <div id="aiDetectionBoxes" class="absolute inset-0 pointer-events-none p-4">
+            <div class="absolute top-12 left-16 w-16 h-24 border-2 border-emerald-400 bg-emerald-500/10 rounded flex items-start justify-start p-0.5">
+              <span class="text-[8px] font-mono bg-emerald-800 text-emerald-200 px-0.5">Person #1 (98%)</span>
+            </div>
+            <div class="absolute top-14 left-40 w-16 h-24 border-2 border-emerald-400 bg-emerald-500/10 rounded flex items-start justify-start p-0.5">
+              <span class="text-[8px] font-mono bg-emerald-800 text-emerald-200 px-0.5">Person #2 (95%)</span>
+            </div>
+            <div class="absolute top-10 right-20 w-16 h-24 border-2 border-emerald-400 bg-emerald-500/10 rounded flex items-start justify-start p-0.5">
+              <span class="text-[8px] font-mono bg-emerald-800 text-emerald-200 px-0.5">Person #3 (91%)</span>
+            </div>
+          </div>
+          <div class="absolute bottom-2 left-2 text-[9px] font-mono text-emerald-300 bg-black/70 px-2 py-0.5 rounded">
+            TensorFlow TFLite: <span id="headcountStatus">82 Persons Verified (Register: 88) • No Ghost Beneficiary</span>
+          </div>
+        </div>
+        <div class="bg-slate-900 p-2.5 border-t border-slate-800 flex items-center justify-between text-xs text-slate-300">
+          <span class="font-semibold text-slate-400">Privacy Safeguard:</span>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="privacyFaceBlur" onchange="toggleFaceBlur(this.checked)" class="rounded text-blue-600 focus:ring-0">
+            <span class="text-[11px] text-slate-300">DPDP Act 2023 Face Anonymization</span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       VIEW 4: WEBRTC REMOTE VIDEO CONFERENCING (VC SPOT-CHECK)
+  ========================================================================== -->
+  <div id="viewWebRTC" class="hidden flex-1 max-w-7xl w-full mx-auto p-4 space-y-4">
+    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="video" class="w-5 h-5 text-teal-600"></i>
+          Unannounced Remote Video Conference (VC) Spot-Check
+        </h2>
+        <p class="text-xs text-slate-500">Live WebRTC two-way communication between MoSJE Vigilance Auditors and project staff/beneficiaries</p>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <select id="vcTargetFacilitySelect" onchange="onVCTargetFacilityChange(this.value)" class="text-xs bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-lg px-2.5 py-1.5 font-semibold focus:outline-none focus:ring-2 focus:ring-teal-500 shadow-xs">
+          <!-- Populated dynamically via JS -->
+        </select>
+        <button id="btnLocalCameraToggle" onclick="toggleLocalCameraFeed()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow transition">
+          <i data-lucide="camera" class="w-3.5 h-3.5"></i>
+          <span id="btnCameraText">Start Local Webcam Feed</span>
+        </button>
+        <button id="btnHeadcountToggle" onclick="toggleHeadcountTracker()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow transition">
+          <i data-lucide="scan" class="w-3.5 h-3.5"></i>
+          <span id="btnTrackerText">AI Tracker: ON</span>
+        </button>
+        <button onclick="startVCSession()" class="px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow transition">
+          <i data-lucide="phone-call" class="w-3.5 h-3.5"></i>
+          <span>Initiate Spot Call</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- WebRTC Call Screen -->
+    <div class="bg-slate-900 rounded-2xl overflow-hidden shadow-2xl border border-slate-800 flex flex-col h-[520px]">
+      <div class="bg-slate-950 px-4 py-3 flex items-center justify-between border-b border-slate-800 text-xs">
+        <div class="flex items-center space-x-2 text-white font-semibold">
+          <span class="w-2.5 h-2.5 rounded-full bg-teal-400 animate-pulse"></span>
+          <span id="webrtcRoomInfoText">Room: VC-SPOT-DL001 ⇄ Snehalaya Senior Home (Anil Verma, Manager)</span>
+        </div>
+        <div class="flex items-center space-x-2 text-[10px] text-slate-400 font-mono">
+          <span id="webrtcFeedSourceBadge" class="text-emerald-400 font-bold bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-800">SIMULATED FEED</span>
+          <span>•</span>
+          <span class="text-teal-400">AES-256 WebRTC DataChannel</span>
+        </div>
+      </div>
+
+      <!-- Video Feed Area -->
+      <div class="flex-1 relative bg-black flex items-center justify-center overflow-hidden">
+        <!-- Real Local Webcam Video Element -->
+        <video id="localCameraVideo" autoplay playsinline muted class="w-full h-full object-cover hidden"></video>
+
+        <!-- Canvas Overlay for Real-Time Headcount Bounding Boxes -->
+        <canvas id="headcountOverlayCanvas" class="absolute inset-0 w-full h-full pointer-events-none z-10"></canvas>
+
+        <!-- Simulated Stream Fallback Container -->
+        <div id="cameraPlaceholder" class="text-center space-y-2 text-slate-400 z-0">
+          <div class="w-20 h-20 rounded-full bg-slate-800 mx-auto flex items-center justify-center border-2 border-teal-500/50 shadow-lg">
+            <i data-lucide="users" class="w-10 h-10 text-teal-400"></i>
+          </div>
+          <div id="cameraPlaceholderTitle" class="text-sm font-semibold text-white">Live Remote Feed: Common Hall & Beneficiary Verification</div>
+          <div class="text-xs text-teal-400 font-mono">WebRTC P2P Stream Established (Bandwidth: 1.8 Mbps, Latency: 32ms)</div>
+          <p class="text-[11px] text-slate-400 max-w-md mx-auto">Click "Start Local Webcam Feed" to use your real camera with working live AI bounding boxes!</p>
+        </div>
+
+        <!-- Live Watermark Overlay -->
+        <div class="absolute top-4 left-4 z-20 bg-black/75 border border-slate-700 px-3 py-1.5 rounded text-[9px] font-mono text-amber-300">
+          MoSJE SPOT CHECK | <span id="webrtcWatermarkCoords">28.5672° N, 77.1734° E</span> | <span class="cctv-clock">16:31:02 UTC</span>
+        </div>
+
+        <!-- Live Headcount Tracker HUD Pill -->
+        <div class="absolute top-4 right-4 z-20 bg-slate-900/80 border border-emerald-500/60 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-bold text-white flex items-center gap-2 shadow-lg">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>Verified Present: <b id="webrtcLiveHeadcountVal" class="text-emerald-300 font-mono text-sm">1</b></span>
+        </div>
+
+        <!-- PIP Local Camera (Auditor) -->
+        <div class="absolute bottom-4 right-4 z-20 w-36 h-28 bg-slate-800/90 rounded-xl border-2 border-slate-600 shadow-lg overflow-hidden flex flex-col items-center justify-center backdrop-blur-sm">
+          <i data-lucide="user-check" class="w-8 h-8 text-teal-300 mb-1"></i>
+          <span class="text-[10px] font-semibold text-white">Auditor Vikramaditya</span>
+          <span class="text-[8px] text-teal-400">HQ New Delhi</span>
+        </div>
+      </div>
+
+      <!-- Action & Evidence Capture Bar -->
+      <div class="bg-slate-950 p-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 text-xs">
+        <div class="flex items-center space-x-2">
+          <button onclick="captureVCSnapshot()" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-semibold flex items-center gap-2 shadow transition">
+            <i data-lucide="camera" class="w-4 h-4"></i>
+            <span>Capture In-Call Watermarked Snapshot</span>
+          </button>
+          <span id="vcSnapshotStatus" class="text-[11px] text-slate-400"></span>
+        </div>
+
+        <div class="flex items-center space-x-3">
+          <div class="flex items-center gap-2 bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-lg text-slate-300">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Live AI Headcount:</span>
+            <b id="displayVerifiedLiveCount" class="text-emerald-400 font-mono text-sm">0</b>
+            <span class="text-[10px] text-slate-400">(Autonomous)</span>
+          </div>
+          <button onclick="completeVCAudit()" class="px-3 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg font-semibold flex items-center gap-1.5 transition">
+            <i data-lucide="check-square" class="w-4 h-4"></i>
+            Finalize & Sign VC Audit
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       VIEW 5: ADMIN DATABASE OPERATIONS CONSOLE
+  ========================================================================== -->
+  <div id="viewAdminConsole" class="hidden flex-1 max-w-7xl w-full mx-auto p-4 space-y-5">
+    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="text-[10px] bg-purple-100 text-purple-900 font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">MoSJE Super Admin</span>
+          <span class="text-[10px] bg-slate-100 text-slate-600 font-mono px-2 py-0.5 rounded">PostGIS & SQLite Engine</span>
+        </div>
+        <h2 class="text-base font-bold text-slate-900 flex items-center gap-2 mt-1">
+          <i data-lucide="database" class="w-5 h-5 text-purple-600"></i>
+          Database Management & Operations Console
+        </h2>
+        <p class="text-xs text-slate-500">Live view of database tables with administrative options to clear audits, inspectors, facilities or restore default seed data</p>
+      </div>
+
+      <!-- Action Buttons Bar -->
+      <div class="flex flex-wrap items-center gap-2">
+        <button onclick="adminResetDatabase()" class="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow transition">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+          Reset to Default Seed Data
+        </button>
+        <button onclick="adminClearAudits()" class="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow transition">
+          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+          Clear All Audits
+        </button>
+        <button onclick="adminClearFacilities()" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow transition">
+          <i data-lucide="building" class="w-3.5 h-3.5"></i>
+          Clear Facilities
+        </button>
+      </div>
+    </div>
+
+    <!-- Admin Stat Cards -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
+        <div class="text-xs text-slate-500 flex justify-between"><span>Audits in DB</span><i data-lucide="clipboard" class="w-4 h-4 text-blue-600"></i></div>
+        <div class="text-xl font-bold text-slate-900 mt-1" id="adminStatAudits">--</div>
+        <div class="text-[10px] text-slate-500" id="adminStatAuditsSub">Completed / Assigned</div>
+      </div>
+      <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
+        <div class="text-xs text-slate-500 flex justify-between"><span>Facilities in DB</span><i data-lucide="building-2" class="w-4 h-4 text-emerald-600"></i></div>
+        <div class="text-xl font-bold text-slate-900 mt-1" id="adminStatFacilities">--</div>
+        <div class="text-[10px] text-emerald-600">PostGIS Geometries</div>
+      </div>
+      <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
+        <div class="text-xs text-slate-500 flex justify-between"><span>Inspectors & Officers</span><i data-lucide="users" class="w-4 h-4 text-indigo-600"></i></div>
+        <div class="text-xl font-bold text-slate-900 mt-1" id="adminStatOfficers">--</div>
+        <div class="text-[10px] text-indigo-600">RBAC User Accounts</div>
+      </div>
+      <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-sm">
+        <div class="text-xs text-slate-500 flex justify-between"><span>CCTV Feeds & Alerts</span><i data-lucide="bell" class="w-4 h-4 text-amber-600"></i></div>
+        <div class="text-xl font-bold text-slate-900 mt-1" id="adminStatCamsAlerts">--</div>
+        <div class="text-[10px] text-amber-600">Surveillance Nodes</div>
+      </div>
+    </div>
+
+    <!-- Live Data Explorer -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <!-- Sub-Tabs Navigation -->
+      <div class="bg-slate-50 border-b border-slate-200 px-4 pt-3 flex space-x-4 text-xs font-semibold">
+        <button id="tabAdminAudits" onclick="switchAdminTab('audits')" class="pb-2.5 border-b-2 border-blue-600 text-blue-700 flex items-center gap-1.5">
+          <i data-lucide="clipboard-check" class="w-3.5 h-3.5"></i>
+          Audits & Inspections Table
+        </button>
+        <button id="tabAdminFacilities" onclick="switchAdminTab('facilities')" class="pb-2.5 border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-1.5">
+          <i data-lucide="building" class="w-3.5 h-3.5"></i>
+          Registered Facilities Table
+        </button>
+        <button id="tabAdminOfficers" onclick="switchAdminTab('officers')" class="pb-2.5 border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-1.5">
+          <i data-lucide="user-check" class="w-3.5 h-3.5"></i>
+          Inspectors & Officers Table
+        </button>
+      </div>
+
+      <!-- Table Container -->
+      <div class="p-4">
+        <!-- 1. Audits Table -->
+        <div id="adminTableAudits" class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="bg-slate-100 text-slate-700 uppercase text-[10px] tracking-wider border-b border-slate-200">
+                <th class="p-2.5">Audit ID</th>
+                <th class="p-2.5">Facility Checked</th>
+                <th class="p-2.5">Officer</th>
+                <th class="p-2.5">Audit Type</th>
+                <th class="p-2.5">Date / Completed</th>
+                <th class="p-2.5">Score</th>
+                <th class="p-2.5">Geofence</th>
+                <th class="p-2.5 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminAuditsTableBody" class="divide-y divide-slate-100">
+              <tr><td colspan="8" class="p-4 text-center text-slate-400">Loading audit records...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 2. Facilities Table -->
+        <div id="adminTableFacilities" class="hidden overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="bg-slate-100 text-slate-700 uppercase text-[10px] tracking-wider border-b border-slate-200">
+                <th class="p-2.5">Facility ID</th>
+                <th class="p-2.5">Name</th>
+                <th class="p-2.5">Scheme</th>
+                <th class="p-2.5">District, State</th>
+                <th class="p-2.5">Capacity / Enrolled</th>
+                <th class="p-2.5">Risk Score</th>
+                <th class="p-2.5">Grade</th>
+              </tr>
+            </thead>
+            <tbody id="adminFacilitiesTableBody" class="divide-y divide-slate-100">
+              <tr><td colspan="7" class="p-4 text-center text-slate-400">Loading facilities...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 3. Officers Table -->
+        <div id="adminTableOfficers" class="hidden space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="relative flex-1 max-w-sm">
+              <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5"></i>
+              <input type="text" id="officerSearchInput" oninput="filterAdminOfficers(this.value)" placeholder="Search 50 inspectors by name, state, phone, role..." class="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:outline-none">
+            </div>
+            <div class="text-[11px] text-slate-500 font-medium">
+              Showing <span id="officerFilteredCount" class="font-bold text-slate-800">50</span> of <span id="officerTotalCount" class="font-bold text-slate-800">50</span> officers
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr class="bg-slate-100 text-slate-700 uppercase text-[10px] tracking-wider border-b border-slate-200">
+                  <th class="p-2.5">Officer ID</th>
+                  <th class="p-2.5">Username</th>
+                  <th class="p-2.5">Full Name</th>
+                  <th class="p-2.5">Role</th>
+                  <th class="p-2.5">Designation</th>
+                  <th class="p-2.5">Jurisdiction</th>
+                  <th class="p-2.5">Phone</th>
+                </tr>
+              </thead>
+              <tbody id="adminOfficersTableBody" class="divide-y divide-slate-100">
+                <tr><td colspan="7" class="p-4 text-center text-slate-400">Loading officers...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL: LATEST AUDIT REPORT & EVIDENCE DETAILS
+  ========================================================================== -->
+  <div id="auditDetailModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-4xl rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+      <!-- Modal Header -->
+      <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between border-b border-slate-800">
+        <div class="flex items-center space-x-3">
+          <div class="w-9 h-9 rounded-full bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center">
+            <i data-lucide="clipboard-check" class="w-5 h-5 text-emerald-400"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-amber-400 font-bold uppercase tracking-wider">MoSJE Statutory Inspection Report</span>
+              <span id="modalAuditTypeBadge" class="text-[9px] bg-blue-900 text-blue-200 px-2 py-0.5 rounded font-mono font-bold">ROUTINE_PERIODIC</span>
+            </div>
+            <h2 id="modalAuditTitle" class="text-base font-bold text-white">Inspection Audit Details</h2>
+          </div>
+        </div>
+        <button onclick="closeLatestAuditModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body (Scrollable) -->
+      <div class="flex-1 overflow-y-auto p-6 space-y-5 text-xs">
+        <!-- 3-Column Info Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <!-- Facility Card -->
+          <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 space-y-1.5">
+            <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+              <i data-lucide="building" class="w-3.5 h-3.5 text-blue-600"></i> Facility Checked
+            </div>
+            <div id="modalFacilityName" class="font-bold text-slate-900 text-sm">--</div>
+            <div id="modalFacilityScheme" class="text-blue-700 font-semibold text-[11px]">--</div>
+            <div id="modalFacilityAddress" class="text-slate-500 text-[11px] leading-tight">--</div>
+            <div class="pt-1 text-[10px] text-slate-600 flex justify-between border-t border-slate-200">
+              <span>Cap: <b id="modalFacilityCap">--</b></span>
+              <span>In-Charge: <b id="modalFacilityHead">--</b></span>
+            </div>
+          </div>
+
+          <!-- Officer Card -->
+          <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 space-y-1.5">
+            <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+              <i data-lucide="user-check" class="w-3.5 h-3.5 text-indigo-600"></i> Inspection Officer
+            </div>
+            <div id="modalOfficerName" class="font-bold text-slate-900 text-sm">--</div>
+            <div id="modalOfficerDesignation" class="text-slate-600 text-[11px]">--</div>
+            <div id="modalOfficerContact" class="text-slate-500 text-[11px]">--</div>
+            <div class="pt-1 text-[10px] text-slate-600 flex justify-between border-t border-slate-200">
+              <span>Jurisdiction: <b id="modalOfficerJurisdiction">--</b></span>
+              <span class="text-emerald-700 font-bold">OAuth2 Verified</span>
+            </div>
+          </div>
+
+          <!-- Time & Geofence Card -->
+          <div class="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 space-y-1.5">
+            <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+              <i data-lucide="navigation" class="w-3.5 h-3.5 text-emerald-600"></i> Time & Geofence Status
+            </div>
+            <div id="modalCompletedTime" class="font-bold text-slate-900 text-xs font-mono">--</div>
+            <div class="flex items-center gap-1.5 pt-1">
+              <span id="modalGeofenceBadge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                GPS GEOFENCE VALIDATED
+              </span>
+            </div>
+            <div id="modalGeofenceDistance" class="text-slate-500 text-[10px]">Inspector was 15.2m from facility entrance (Radius: 150m)</div>
+            <div class="pt-1 text-[10px] text-slate-600 border-t border-slate-200 flex justify-between font-mono">
+              <span>Lat: <b id="modalInspectorLat">--</b></span>
+              <span>Lon: <b id="modalInspectorLon">--</b></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Compliance Score Rubrics -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-bold text-slate-900 text-sm">Statutory Compliance Score Breakdown</h3>
+              <p class="text-[11px] text-slate-500">Evaluated against official DoSJE welfare guidelines & safety rubrics</p>
+            </div>
+            <div class="text-right">
+              <span id="modalTotalScore" class="text-xl font-extrabold text-blue-900">-- / 100</span>
+              <div id="modalScoreGrade" class="text-[10px] font-bold text-emerald-700 uppercase">GRADE A CERTIFIED</div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 pt-2">
+            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+              <div class="flex justify-between text-[11px] font-semibold text-slate-700">
+                <span>Infrastructure</span>
+                <span id="scoreValInfra">--</span>
+              </div>
+              <div class="w-full bg-slate-200 h-2 rounded-full mt-1.5 overflow-hidden">
+                <div id="barInfra" class="bg-blue-600 h-full rounded-full" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+              <div class="flex justify-between text-[11px] font-semibold text-slate-700">
+                <span>Hygiene</span>
+                <span id="scoreValHygiene">--</span>
+              </div>
+              <div class="w-full bg-slate-200 h-2 rounded-full mt-1.5 overflow-hidden">
+                <div id="barHygiene" class="bg-teal-600 h-full rounded-full" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+              <div class="flex justify-between text-[11px] font-semibold text-slate-700">
+                <span>Food Quality</span>
+                <span id="scoreValFood">--</span>
+              </div>
+              <div class="w-full bg-slate-200 h-2 rounded-full mt-1.5 overflow-hidden">
+                <div id="barFood" class="bg-amber-600 h-full rounded-full" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+              <div class="flex justify-between text-[11px] font-semibold text-slate-700">
+                <span>Medical Care</span>
+                <span id="scoreValMedical">--</span>
+              </div>
+              <div class="w-full bg-slate-200 h-2 rounded-full mt-1.5 overflow-hidden">
+                <div id="barMedical" class="bg-indigo-600 h-full rounded-full" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+              <div class="flex justify-between text-[11px] font-semibold text-slate-700">
+                <span>Attendance</span>
+                <span id="scoreValAttendance">--</span>
+              </div>
+              <div class="w-full bg-slate-200 h-2 rounded-full mt-1.5 overflow-hidden">
+                <div id="barAttendance" class="bg-emerald-600 h-full rounded-full" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Geo-Tagged Watermarked Photos Evidence Gallery -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="font-bold text-slate-900 text-sm flex items-center gap-1.5">
+                <i data-lucide="camera" class="w-4 h-4 text-blue-600"></i>
+                Geo-Tagged Watermarked Evidence Photos
+              </h3>
+              <p class="text-[11px] text-slate-500">Tamper-proof live captures embedded with GPS coordinates, ISO timestamp, and SHA-256 hash</p>
+            </div>
+            <span id="modalPhotoCountBadge" class="text-[10px] bg-blue-100 text-blue-900 font-bold px-2 py-0.5 rounded-full">3 Photos</span>
+          </div>
+
+          <!-- Photo Gallery Grid -->
+          <div id="modalPhotoGallery" class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
+            <!-- Injected via JS -->
+          </div>
+        </div>
+
+        <!-- Digital Signatures & Cryptographic Audit Vault -->
+        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-2">
+          <h4 class="font-bold text-slate-900 text-xs uppercase tracking-wider flex items-center gap-1.5">
+            <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
+            Digital Signatures & Cryptographic Security Package
+          </h4>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1 text-[11px]">
+            <div class="bg-white p-2.5 rounded-xl border border-slate-200">
+              <div class="text-slate-400 text-[10px]">Inspector Digital Signature:</div>
+              <div class="font-semibold text-slate-800 flex items-center gap-1 mt-0.5">
+                <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Verified Hash
+              </div>
+              <div id="modalInspectorSig" class="font-mono text-[9px] text-slate-500 truncate mt-0.5">sig_insp_hash_1</div>
+            </div>
+            <div class="bg-white p-2.5 rounded-xl border border-slate-200">
+              <div class="text-slate-400 text-[10px]">NGO In-Charge Signature:</div>
+              <div class="font-semibold text-slate-800 flex items-center gap-1 mt-0.5">
+                <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600"></i> Verified Hash
+              </div>
+              <div id="modalHeadSig" class="font-mono text-[9px] text-slate-500 truncate mt-0.5">sig_head_hash_1</div>
+            </div>
+            <div class="bg-white p-2.5 rounded-xl border border-slate-200">
+              <div class="text-slate-400 text-[10px]">AES-256 Storage Hash:</div>
+              <div class="font-semibold text-emerald-700 flex items-center gap-1 mt-0.5">
+                <i data-lucide="lock" class="w-3.5 h-3.5 text-emerald-600"></i> Encrypted at Rest
+              </div>
+              <div id="modalAesPackage" class="font-mono text-[9px] text-slate-500 truncate mt-0.5">aes_pkg_001</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="bg-slate-100 px-6 py-3 border-t border-slate-200 flex justify-between items-center text-xs">
+        <span class="text-slate-500">Official Government Record • Verified by DoSJE PMU</span>
+        <button onclick="closeLatestAuditModal()" class="px-4 py-1.5 bg-slate-800 hover:bg-slate-900 text-white font-semibold rounded-xl transition">
+          Close Report
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL: WEBRTC WATERMARKED SNAPSHOT EVIDENCE MODAL
+  ========================================================================== -->
+  <div id="webrtcSnapshotModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col">
+      <!-- Header -->
+      <div class="bg-slate-900 text-white px-5 py-3.5 flex items-center justify-between border-b border-slate-800">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-8 h-8 rounded-full bg-teal-500/20 border border-teal-400/40 flex items-center justify-center">
+            <i data-lucide="camera" class="w-4 h-4 text-teal-400"></i>
+          </div>
+          <div>
+            <span class="text-[10px] text-teal-400 font-bold uppercase tracking-wider font-mono">WebRTC Remote Spot-Check Evidence</span>
+            <h3 class="text-sm font-bold text-white">Live Camera Snapshot with Headcount & Watermark</h3>
+          </div>
+        </div>
+        <button onclick="closeWebRTCSnapshotModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Image Canvas Body -->
+      <div class="p-4 space-y-3 bg-slate-950 flex flex-col items-center">
+        <div class="w-full rounded-xl overflow-hidden border border-slate-700 relative bg-black shadow-lg">
+          <img id="snapshotPreviewImg" class="w-full h-auto max-h-[420px] object-contain mx-auto" alt="WebRTC Snapshot">
+        </div>
+        <div class="w-full grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px] font-mono text-slate-300 bg-slate-900 p-2.5 rounded-xl border border-slate-800">
+          <div>
+            <span class="text-slate-500 block">TIME (UTC)</span>
+            <span id="snapshotTimeVal" class="text-amber-400 font-bold">--</span>
+          </div>
+          <div>
+            <span class="text-slate-500 block">GPS COORDINATES</span>
+            <span id="snapshotCoordsVal" class="text-slate-200">28.5672° N, 77.1734° E</span>
+          </div>
+          <div>
+            <span class="text-slate-500 block">AI HEADCOUNT</span>
+            <span id="snapshotHeadcountVal" class="text-emerald-400 font-bold">--</span>
+          </div>
+          <div>
+            <span class="text-slate-500 block">SHA-256 INTEGRITY</span>
+            <span id="snapshotHashVal" class="text-teal-300 truncate block">--</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="bg-slate-100 px-5 py-3 border-t border-slate-200 flex items-center justify-between text-xs">
+        <span class="text-[11px] text-slate-500 font-medium">Tamper-evident snapshot stamped and encrypted with AES-256</span>
+        <div class="flex items-center gap-2">
+          <a id="btnDownloadSnapshot" href="#" download="webrtc_watermarked_snapshot.png" class="px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl flex items-center gap-1.5 transition text-xs">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i> Download Evidence
+          </a>
+          <button onclick="closeWebRTCSnapshotModal()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-900 text-white font-semibold rounded-xl transition text-xs">
+            Done
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Application Logic -->
+  <script src="app.js"></script>
+</body>
+</html>

@@ -7,6 +7,7 @@ Validates all layers: AES-256, OAuth2, RBAC, PostGIS Geofence, AI Models, ONVIF/
 import unittest
 import json
 import time
+import os
 
 from security.aes256_cipher import default_cipher
 from security.oauth2_provider import oauth2_provider
@@ -394,6 +395,48 @@ class TestSIH26095Prototype(unittest.TestCase):
             self.assertIsNotNone(loaded)
             self.assertEqual(loaded["id"], insp_id)
             self.assertEqual(loaded["facility_name"], latest["facility_name"])
+
+    def test_20_native_android_project_structure(self):
+        """Verify Native Android project structure, CameraX, watermarking, and Web folder."""
+        # Check Web/ folder
+        web_dir = os.path.join(os.path.dirname(__file__), "Web")
+        self.assertTrue(os.path.exists(web_dir), "Web/ directory must exist")
+        self.assertTrue(os.path.isfile(os.path.join(web_dir, "index.html")))
+        self.assertTrue(os.path.isfile(os.path.join(web_dir, "app.js")))
+        self.assertTrue(os.path.isfile(os.path.join(web_dir, "styles.css")))
+
+        # Check android/ project
+        android_dir = os.path.join(os.path.dirname(__file__), "android")
+        self.assertTrue(os.path.exists(android_dir), "android/ directory must exist")
+        self.assertTrue(os.path.isfile(os.path.join(android_dir, "build.gradle")))
+        self.assertTrue(os.path.isfile(os.path.join(android_dir, "settings.gradle")))
+        self.assertTrue(os.path.isfile(os.path.join(android_dir, "app", "build.gradle")))
+
+        # Check AndroidManifest.xml
+        manifest = os.path.join(android_dir, "app", "src", "main", "AndroidManifest.xml")
+        self.assertTrue(os.path.isfile(manifest))
+        with open(manifest, 'r', encoding='utf-8') as f:
+            content = f.read()
+            self.assertIn("android.permission.CAMERA", content)
+            self.assertIn("android.permission.ACCESS_FINE_LOCATION", content)
+            self.assertIn("gov.mosje.sih26095.fileprovider", content)
+            self.assertIn("NativeCameraCaptureActivity", content)
+
+        # Check Key Kotlin Source Files
+        java_base = os.path.join(android_dir, "app", "src", "main", "java", "gov", "mosje", "sih26095")
+        self.assertTrue(os.path.isfile(os.path.join(java_base, "camera", "NativeCameraCaptureActivity.kt")))
+        self.assertTrue(os.path.isfile(os.path.join(java_base, "camera", "CameraWatermarkProcessor.kt")))
+        self.assertTrue(os.path.isfile(os.path.join(java_base, "util", "GeofenceCalculator.kt")))
+        self.assertTrue(os.path.isfile(os.path.join(java_base, "security", "HashUtil.kt")))
+        self.assertTrue(os.path.isfile(os.path.join(java_base, "security", "AesCipherUtil.kt")))
+        self.assertTrue(os.path.isfile(os.path.join(java_base, "ui", "audit", "AuditActivity.kt")))
+        self.assertTrue(os.path.isfile(os.path.join(java_base, "ui", "login", "LoginActivity.kt")))
+
+        # Check Android Unit Tests
+        test_base = os.path.join(android_dir, "app", "src", "test", "java", "gov", "mosje", "sih26095")
+        self.assertTrue(os.path.isfile(os.path.join(test_base, "GeofenceCalculatorTest.kt")))
+        self.assertTrue(os.path.isfile(os.path.join(test_base, "ScoringTest.kt")))
+        self.assertTrue(os.path.isfile(os.path.join(test_base, "HashUtilTest.kt")))
 
     @classmethod
     def tearDownClass(cls):

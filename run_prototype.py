@@ -155,6 +155,26 @@ class DoSJEUnifiedHandler(SimpleHTTPRequestHandler):
             officers = db_adapter.get_officers_with_assignments()
             return self.send_json({'status': 'SUCCESS', 'count': len(officers), 'officers': officers})
 
+        elif path == "/api/v1/android/apk-info":
+            return self.send_json({
+                'status': 'SUCCESS',
+                'app_name': 'DoSJE Inspector Native Handheld',
+                'package_name': 'gov.mosje.sih26095',
+                'version_name': '1.0.0',
+                'version_code': 1,
+                'min_sdk': 26,
+                'target_sdk': 34,
+                'compile_sdk': 34,
+                'language': 'Kotlin',
+                'architecture': 'MVVM + ViewBinding + Coroutines',
+                'camera_subsystem': 'AndroidX CameraX 1.3.1 with Cryptographic Watermark HUD',
+                'geofence_subsystem': 'Google Play Services Location / Haversine ST_DWithin',
+                'encryption': 'AES-256-GCM Hardware-Backed Keystore',
+                'offline_sync': 'Encrypted SharedPreferences with Automated Flush on Network Reconnect',
+                'server_endpoint': 'http://10.0.2.2:8088/api/v1 (Emulator) / http://localhost:8088/api/v1',
+                'project_path': 'android/'
+            })
+
         elif path == "/api/v1/live-feed":
             feed = db_adapter.get_live_officer_feed()
             return self.send_json({'status': 'SUCCESS', 'count': len(feed), 'feed': feed})
@@ -225,12 +245,17 @@ class DoSJEUnifiedHandler(SimpleHTTPRequestHandler):
             })
 
         # ----------------------------------------------------------------------
-        # STATIC WEB PORTAL SERVING
+        # STATIC WEB PORTAL SERVING (Web/ or fallback web_preview/)
         # ----------------------------------------------------------------------
+        web_dir = os.path.join(BASE_DIR, "Web") if os.path.exists(os.path.join(BASE_DIR, "Web")) else os.path.join(BASE_DIR, "web_preview")
         if path == "" or path == "/":
-            self.serve_file(os.path.join(BASE_DIR, "web_preview", "index.html"), "text/html")
+            self.serve_file(os.path.join(web_dir, "index.html"), "text/html")
         elif path.startswith("/"):
-            local_path = os.path.join(BASE_DIR, "web_preview", path.lstrip('/'))
+            local_path = os.path.join(web_dir, path.lstrip('/'))
+            if not os.path.exists(local_path):
+                alt_path = os.path.join(BASE_DIR, "web_preview", path.lstrip('/'))
+                if os.path.exists(alt_path):
+                    local_path = alt_path
             if os.path.exists(local_path) and os.path.isfile(local_path):
                 content_type = "text/html"
                 if local_path.endswith(".js"): content_type = "application/javascript"
@@ -240,7 +265,7 @@ class DoSJEUnifiedHandler(SimpleHTTPRequestHandler):
                 elif local_path.endswith(".json"): content_type = "application/json"
                 self.serve_file(local_path, content_type)
             else:
-                self.serve_file(os.path.join(BASE_DIR, "web_preview", "index.html"), "text/html")
+                self.serve_file(os.path.join(web_dir, "index.html"), "text/html")
 
     def do_POST(self):
         parsed = urllib.parse.urlparse(self.path)

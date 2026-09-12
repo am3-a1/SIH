@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- MoSJE Official Color Palette -->
+    <color name="gov_blue_dark">#0A2540</color>
+    <color name="gov_blue_primary">#1E3A8A</color>
+    <color name="gov_blue_light">#3B82F6</color>
+    <color name="gov_blue_bg">#EFF6FF</color>
+    
+    <!-- Indian Emblem & Accent Accents -->
+    <color name="saffron_primary">#FF9933</color>
+    <color name="saffron_dark">#D97706</color>
+    <color name="amber_warning">#F59E0B</color>
+    <color name="amber_bg">#FEF3C7</color>
+
+    <!-- Verification States -->
+    <color name="emerald_verified">#10B981</color>
+    <color name="emerald_dark">#047857</color>
+    <color name="emerald_bg">#ECFDF5</color>
+    <color name="rose_error">#EF4444</color>
+    <color name="rose_dark">#B91C1C</color>
+    <color name="rose_bg">#FEF2F2</color>
+
+    <!-- Neutral Surfaces -->
+    <color name="slate_900">#0F172A</color>
+    <color name="slate_800">#1E293B</color>
+    <color name="slate_700">#334155</color>
+    <color name="slate_500">#64748B</color>
+    <color name="slate_300">#CBD5E1</color>
+    <color name="slate_100">#F1F5F9</color>
+    <color name="slate_50">#F8FAFC</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+</resources>

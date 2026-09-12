@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DoSJE Inspector</string>
+    <string name="ministry_title">Ministry of Social Justice and Empowerment</string>
+    <string name="department_subtitle">Department of Social Justice &amp; Empowerment • GovCloud</string>
+    <string name="title_activity_audit">Field Inspection Portal</string>
+    <string name="title_activity_camera">Evidence Camera</string>
+
+    <!-- Login -->
+    <string name="select_inspector_prompt">Select Field Vigilance Officer</string>
+    <string name="officer_pool_count">50 Active Inspectors</string>
+    <string name="sso_pin_label">GovCloud OAuth2 SSO PIN / Token</string>
+    <string name="btn_login">Sign In to Handheld Inspection Portal</string>
+    <string name="status_standing_by">Standing by in Jurisdiction</string>
+    <string name="status_assigned_audit">⚡ Assigned Unannounced Audit</string>
+
+    <!-- Geofence -->
+    <string name="geofence_verified">GPS GEOFENCE VALIDATED</string>
+    <string name="geofence_breached">OUTSIDE FACILITY GEOFENCE</string>
+    <string name="geofence_locked">GEOFENCE LOCKED: NO FACILITY ASSIGNED</string>
+    <string name="btn_refresh_gps">Live GPS</string>
+    <string name="simulate_onsite_label">Simulate Onsite (35m)</string>
+
+    <!-- Rubrics -->
+    <string name="rubric_infra">1. Infrastructure &amp; Fire Safety</string>
+    <string name="rubric_hygiene">2. Hygiene &amp; Sanitation</string>
+    <string name="rubric_food">3. Food &amp; Nutrition Standard</string>
+    <string name="rubric_medical">4. Medical Ward &amp; Care Log</string>
+    <string name="rubric_attendance">5. Staff &amp; Beneficiary Roll</string>
+    <string name="total_compliance_label">Calculated Compliance:</string>
+
+    <!-- Camera & Evidence -->
+    <string name="evidence_section_title">Geo-Tagged Watermarked Photos</string>
+    <string name="btn_capture_kitchen">Capture Kitchen</string>
+    <string name="btn_capture_dorms">Capture Dorms</string>
+    <string name="btn_capture_medical">Capture Medical</string>
+    <string name="btn_capture_sanitation">Capture Washrooms</string>
+    <string name="watermark_badge">LIVE WATERMARK STAMP</string>
+
+    <!-- Signatures & Submit -->
+    <string name="dual_signatures_title">Dual Digital Signatures</string>
+    <string name="sig_inspector">Inspector Signed</string>
+    <string name="sig_head">NGO In-Charge Signed</string>
+    <string name="btn_submit_cloud">Submit Encrypted Audit to DoSJE</string>
+    <string name="btn_save_offline">Save Offline Package (AES-256-GCM)</string>
+</resources>

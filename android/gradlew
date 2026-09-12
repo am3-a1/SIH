@@ -1,0 +1,141 @@
+#!/bin/sh
+##############################################################################
+##
+##  Gradle start up script for UN*X
+##
+##############################################################################
+
+# Attempt to set APP_HOME
+PRG="$0"
+while [ -h "$PRG" ] ; do
+    ls=`ls -ld "$PRG"`
+    link=`expr "$ls" : '.*-> \(.*\)$'`
+    if expr "$link" : '/.*' > /dev/null; then
+        PRG="$link"
+    else
+        PRG=`dirname "$PRG"`"/$link"
+    fi
+done
+SAVED="`pwd`"
+cd "`dirname \"$PRG\"`/" >/dev/null
+APP_HOME="`pwd -P`"
+cd "$SAVED" >/dev/null
+
+APP_NAME="Gradle"
+APP_BASE_NAME=`basename "$0"`
+
+# Add default JVM options here
+DEFAULT_JVM_OPTS="-Xmx1024m -Xms256m"
+MAX_FD="maximum"
+
+warn () {
+    echo "$*"
+}
+
+die () {
+    echo
+    echo "$*"
+    echo
+    exit 1
+}
+
+# OS specific support
+cygwin=false
+msys=false
+darwin=false
+nonstop=false
+case "`uname`" in
+  CYGWIN* ) cygwin=true ;;
+  Darwin* ) darwin=true ;;
+  MINGW* ) msys=true ;;
+  NONSTOP* ) nonstop=true ;;
+esac
+
+CLASSPATH="$APP_HOME/gradle/wrapper/gradle-wrapper.jar"
+
+# Auto-download gradle-wrapper.jar if missing
+if [ ! -f "$CLASSPATH" ]; then
+    echo "============================================================"
+    echo "⬇️  Gradle Wrapper JAR not found. Downloading wrapper runtime..."
+    echo "============================================================"
+    mkdir -p "$APP_HOME/gradle/wrapper"
+    
+    DOWNLOAD_SUCCESS=false
+    if which curl >/dev/null 2>&1; then
+        for URL in \
+            "https://raw.githubusercontent.com/gradle/gradle/v8.4.0/gradle/wrapper/gradle-wrapper.jar" \
+            "https://github.com/gradle/gradle/raw/v8.4.0/gradle/wrapper/gradle-wrapper.jar" \
+            "https://repo.gradle.org/gradle/libs-releases-local/org/gradle/gradle-wrapper/8.4/gradle-wrapper-8.4.jar"
+        do
+            if curl -fsSL "$URL" -o "$CLASSPATH" 2>/dev/null; then
+                if [ -s "$CLASSPATH" ]; then
+                    DOWNLOAD_SUCCESS=true
+                    echo "✅ Gradle Wrapper JAR downloaded successfully."
+                    break
+                fi
+            fi
+        done
+    fi
+
+    if [ "$DOWNLOAD_SUCCESS" = "false" ] && which python3 >/dev/null 2>&1; then
+        python3 -c "
+import urllib.request, os
+urls = [
+    'https://raw.githubusercontent.com/gradle/gradle/v8.4.0/gradle/wrapper/gradle-wrapper.jar',
+    'https://repo.gradle.org/gradle/libs-releases-local/org/gradle/gradle-wrapper/8.4/gradle-wrapper-8.4.jar'
+]
+for u in urls:
+    try:
+        urllib.request.urlretrieve(u, '$CLASSPATH')
+        if os.path.getsize('$CLASSPATH') > 1000:
+            print('✅ Downloaded wrapper via Python.')
+            break
+    except Exception:
+        pass
+" 2>/dev/null
+        if [ -s "$CLASSPATH" ]; then
+            DOWNLOAD_SUCCESS=true
+        fi
+    fi
+
+    if [ "$DOWNLOAD_SUCCESS" = "false" ]; then
+        die "ERROR: Could not download gradle-wrapper.jar.
+Please check your internet connection, or install Android Studio to build the app."
+    fi
+fi
+
+# Determine the Java command to use
+if [ -n "$JAVA_HOME" ] ; then
+    if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
+        JAVACMD="$JAVA_HOME/jre/sh/java"
+    else
+        JAVACMD="$JAVA_HOME/bin/java"
+    fi
+else
+    JAVACMD="java"
+    which java >/dev/null 2>&1 || die "ERROR: Java is not found. Please install Java (JDK 17+) or Android Studio."
+fi
+
+# Detect Android SDK location if not set
+if [ -z "$ANDROID_HOME" ] && [ -z "$ANDROID_SDK_ROOT" ]; then
+    if [ -d "$HOME/Library/Android/sdk" ]; then
+        export ANDROID_HOME="$HOME/Library/Android/sdk"
+    fi
+fi
+
+# Increase file descriptors
+if [ "$cygwin" = "false" -a "$darwin" = "false" -a "$nonstop" = "false" ] ; then
+    MAX_FD_LIMIT=`ulimit -H -n`
+    if [ $? -eq 0 ] ; then
+        [ "$MAX_FD" = "maximum" -o "$MAX_FD" = "max" ] && MAX_FD="$MAX_FD_LIMIT"
+        ulimit -n $MAX_FD 2>/dev/null
+    fi
+fi
+
+# For Darwin dock icon
+if $darwin; then
+    GRADLE_OPTS="$GRADLE_OPTS -Xdock:name=$APP_NAME"
+fi
+
+# Execute Gradle Wrapper
+exec "$JAVACMD" $DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS -jar "$CLASSPATH" "$@"
