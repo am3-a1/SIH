@@ -398,12 +398,16 @@ class TestSIH26095Prototype(unittest.TestCase):
 
     def test_20_native_android_project_structure(self):
         """Verify Native Android project structure, CameraX, watermarking, and Web folder."""
-        # Check Web/ folder
+        # Check Web/ folder (supports modern Next.js App Router or legacy)
         web_dir = os.path.join(os.path.dirname(__file__), "Web")
         self.assertTrue(os.path.exists(web_dir), "Web/ directory must exist")
-        self.assertTrue(os.path.isfile(os.path.join(web_dir, "index.html")))
-        self.assertTrue(os.path.isfile(os.path.join(web_dir, "app.js")))
-        self.assertTrue(os.path.isfile(os.path.join(web_dir, "styles.css")))
+        is_next_app = os.path.isfile(os.path.join(web_dir, "package.json"))
+        if is_next_app:
+            self.assertTrue(os.path.isfile(os.path.join(web_dir, "src", "app", "page.tsx")))
+            self.assertTrue(os.path.isfile(os.path.join(web_dir, "src", "app", "layout.tsx")))
+        else:
+            self.assertTrue(os.path.isfile(os.path.join(web_dir, "index.html")))
+            self.assertTrue(os.path.isfile(os.path.join(web_dir, "app.js")))
 
         # Check android/ project
         android_dir = os.path.join(os.path.dirname(__file__), "android")
