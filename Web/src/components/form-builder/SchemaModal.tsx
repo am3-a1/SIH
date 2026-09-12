@@ -149,11 +149,19 @@ export function SchemaModal({ isOpen, onClose, formData }: SchemaModalProps) {
 
             <button
               onClick={handleDownload}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-900 hover:bg-blue-800 text-white font-bold text-xs rounded-xl shadow-xs transition-all"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all"
             >
               <Download className="w-4 h-4 text-blue-300" />
               <span>Download .json</span>
             </button>
+
+            <a
+              href="/android"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl shadow-xs transition-all"
+            >
+              <span>View in Android App</span>
+              <span className="text-amber-300 font-bold">&rarr;</span>
+            </a>
           </div>
         </div>
       </div>

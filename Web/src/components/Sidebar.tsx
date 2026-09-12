@@ -8,44 +8,54 @@ import {
   Users, 
   FileEdit, 
   ShieldCheck, 
-  CheckCircle2, 
-  ExternalLink,
-  ChevronRight
+  Smartphone,
+  ChevronRight,
+  Sun,
+  Moon
 } from "lucide-react";
+import { useTheme } from "@/context/ThemeContext";
 
 const navigationItems = [
   {
     name: "Dashboard",
     href: "/",
     icon: LayoutDashboard,
-    description: "National Monitoring & KPIs"
+    description: "National Monitoring & GIS"
+  },
+  {
+    name: "Android App",
+    href: "/android",
+    icon: Smartphone,
+    description: "Working Handheld Station",
+    badge: "Live"
   },
   {
     name: "Facilities",
     href: "/facilities",
     icon: Building2,
-    description: "12 DoSJE Registered Homes"
+    description: "12 Registered Homes"
   },
   {
     name: "Officers",
     href: "/officers",
     icon: Users,
-    description: "52 Field Vigilance Officers"
+    description: "52 Vigilance Officers"
   },
   {
     name: "Form Builder",
     href: "/form-builder",
     icon: FileEdit,
     description: "Inspection Checklist Studio",
-    badge: "Crucial"
+    badge: "Sync"
   }
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { theme, toggleTheme } = useTheme();
 
   return (
-    <aside className="w-64 bg-slate-900 text-slate-100 flex flex-col shrink-0 border-r border-slate-800 shadow-xl select-none">
+    <aside className="w-64 bg-slate-900 dark:bg-slate-950 text-slate-100 flex flex-col shrink-0 border-r border-slate-800 shadow-xl select-none transition-colors duration-200">
       {/* Ministry Brand Header */}
       <div className="p-5 border-b border-slate-800/80 bg-slate-950/40">
         <div className="flex items-center space-x-3">
@@ -56,18 +66,18 @@ export function Sidebar() {
             <h1 className="font-black text-xs tracking-wider text-white uppercase truncate">
               MoSJE National
             </h1>
-            <p className="text-[10px] text-amber-400/90 font-semibold tracking-tight truncate">
+            <p className="text-[10px] text-amber-400 font-bold tracking-tight truncate">
               Welfare Portal
             </p>
           </div>
         </div>
 
         <div className="mt-3.5 flex items-center justify-between text-[10px] font-mono px-2.5 py-1 bg-slate-800/60 rounded-lg border border-slate-700/50 text-slate-400">
-          <span className="flex items-center gap-1.5 text-emerald-400">
+          <span className="flex items-center gap-1.5 text-emerald-400 font-semibold">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
             GovCloud Live
           </span>
-          <span className="text-slate-400">v2.4-Next</span>
+          <span className="text-slate-400 font-semibold">v2.4-Next</span>
         </div>
       </div>
 
@@ -119,8 +129,26 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* Admin User Footer Card */}
-      <div className="p-3 border-t border-slate-800/80 bg-slate-950/60">
+      {/* Theme Toggle & User Card */}
+      <div className="p-3 border-t border-slate-800/80 bg-slate-950/60 space-y-2">
+        {/* Dark Mode Quick Toggle */}
+        <button
+          onClick={toggleTheme}
+          className="w-full flex items-center justify-between px-3 py-2 rounded-xl bg-slate-800/60 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700/50 text-xs font-semibold transition-colors"
+        >
+          <span className="flex items-center gap-2">
+            {theme === "dark" ? (
+              <Moon className="w-3.5 h-3.5 text-amber-300" />
+            ) : (
+              <Sun className="w-3.5 h-3.5 text-amber-400" />
+            )}
+            <span>{theme === "dark" ? "Dark Mode Active" : "Light Mode Active"}</span>
+          </span>
+          <span className="text-[10px] font-mono uppercase bg-slate-700 text-slate-300 px-1.5 py-0.5 rounded">
+            Toggle
+          </span>
+        </button>
+
         <div className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center space-x-3">
           <div className="w-8 h-8 rounded-full bg-blue-900 text-amber-400 flex items-center justify-center font-bold text-xs shrink-0 border border-amber-400/30">
             DR

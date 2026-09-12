@@ -32,6 +32,7 @@ import { ChecklistForm, Question, QuestionType } from "@/types";
 import { QuestionCard } from "@/components/form-builder/QuestionCard";
 import { MobilePreview } from "@/components/form-builder/MobilePreview";
 import { SchemaModal } from "@/components/form-builder/SchemaModal";
+import { saveStoredChecklist } from "@/lib/checklistStore";
 
 // Zod Validation Schema
 const questionSchema = z.object({
@@ -260,17 +261,20 @@ export default function FormBuilderPage() {
 
   // Save Form Handler
   const onSubmit = (data: ChecklistForm) => {
-    // 1. Output structured JSON schema to console as strictly requested
+    // 1. Sync structured schema directly into the Android Handheld App UI
+    saveStoredChecklist(data);
+
+    // 2. Output structured JSON schema to console
     console.log("=================================================");
-    console.log(" [MoSJE Inspection Studio] STATUTORY CHECKLIST SCHEMA SAVED");
+    console.log(" [MoSJE Inspection Studio] STATUTORY CHECKLIST SCHEMA SAVED & SYNCED TO ANDROID APP");
     console.log("=================================================");
     console.log(JSON.stringify(data, null, 2));
     console.table(data.questions);
 
-    // 2. Open copyable modal for user convenience
+    // 3. Open copyable modal for user convenience
     setSavedData(data);
     setIsModalOpen(true);
-    showToast("Checklist saved and logged to browser console!");
+    showToast("Checklist saved and updated into Android Handheld App!");
   };
 
   const handleResetToTemplate = () => {

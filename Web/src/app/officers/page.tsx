@@ -61,16 +61,16 @@ export default function OfficersPage() {
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs transition-colors">
         <div>
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-purple-700">
+          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-purple-700 dark:text-purple-400">
             <Users className="w-4 h-4" />
             <span>Field Vigilance Cadre</span>
           </div>
-          <h1 className="text-2xl font-black text-slate-900 mt-1">
+          <h1 className="text-2xl font-black text-slate-900 dark:text-white mt-1">
             Vigilance & Field Officers Directory
           </h1>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">
             Authorized statutory inspectors, surprise vigilance auditors, and field surveillance personnel.
           </p>
         </div>
@@ -88,33 +88,33 @@ export default function OfficersPage() {
 
       {/* Summary KPI Strip */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-          <div className="text-[11px] font-bold text-slate-500 uppercase">Total Cadre</div>
-          <div className="text-2xl font-black text-slate-900 mt-0.5">{allOfficers.length}</div>
-          <div className="text-[10px] text-slate-500 font-semibold mt-0.5">National Deployment</div>
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs transition-colors">
+          <div className="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase">Total Cadre</div>
+          <div className="text-2xl font-black text-slate-900 dark:text-white mt-0.5">{allOfficers.length}</div>
+          <div className="text-[10px] text-slate-600 dark:text-slate-400 font-semibold mt-0.5">National Deployment</div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-          <div className="text-[11px] font-bold text-slate-500 uppercase">Assigned to Audit</div>
-          <div className="text-2xl font-black text-amber-600 mt-0.5">{assignedCount} Dispatched</div>
-          <div className="text-[10px] text-amber-600 font-semibold mt-0.5">Live field inspections</div>
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs transition-colors">
+          <div className="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase">Assigned to Audit</div>
+          <div className="text-2xl font-black text-amber-700 dark:text-amber-400 mt-0.5">{assignedCount} Dispatched</div>
+          <div className="text-[10px] text-amber-700 dark:text-amber-400 font-semibold mt-0.5">Live field inspections</div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-          <div className="text-[11px] font-bold text-slate-500 uppercase">On Standby</div>
-          <div className="text-2xl font-black text-slate-700 mt-0.5">{standbyCount}</div>
-          <div className="text-[10px] text-emerald-600 font-semibold mt-0.5">Ready for immediate dispatch</div>
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs transition-colors">
+          <div className="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase">On Standby</div>
+          <div className="text-2xl font-black text-slate-900 dark:text-white mt-0.5">{standbyCount}</div>
+          <div className="text-[10px] text-emerald-700 dark:text-emerald-400 font-semibold mt-0.5">Ready for immediate dispatch</div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-          <div className="text-[11px] font-bold text-slate-500 uppercase">Flying Squad Auditors</div>
-          <div className="text-2xl font-black text-purple-700 mt-0.5">{surpriseAuditorsCount}</div>
-          <div className="text-[10px] text-purple-600 font-semibold mt-0.5">Surprise Vigilance Wing</div>
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs transition-colors">
+          <div className="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase">Flying Squad Auditors</div>
+          <div className="text-2xl font-black text-purple-700 dark:text-purple-400 mt-0.5">{surpriseAuditorsCount}</div>
+          <div className="text-[10px] text-purple-700 dark:text-purple-400 font-semibold mt-0.5">Surprise Vigilance Wing</div>
         </div>
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+      <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-3 transition-colors">
         <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
           {/* Search Input */}
           <div className="relative flex-1">
@@ -124,7 +124,7 @@ export default function OfficersPage() {
               placeholder="Search by officer name, username, designation, district, or assigned home..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-9 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all text-slate-900"
+              className="w-full pl-10 pr-9 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white dark:focus:bg-slate-900 transition-all text-slate-900 dark:text-white"
             />
             {searchQuery && (
               <button 
@@ -193,11 +193,11 @@ export default function OfficersPage() {
       </div>
 
       {/* Officers Table */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden transition-colors">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="bg-slate-50 text-slate-500 border-b border-slate-200 font-bold uppercase tracking-wider text-[10px]">
+              <tr className="bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700 font-bold uppercase tracking-wider text-[10px]">
                 <th className="py-3 px-4">Officer Profile</th>
                 <th className="py-3 px-4">Designation & Role</th>
                 <th className="py-3 px-4">Jurisdiction</th>
@@ -206,7 +206,7 @@ export default function OfficersPage() {
                 <th className="py-3 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
               {filteredOfficers.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="text-center py-12 text-slate-500">
