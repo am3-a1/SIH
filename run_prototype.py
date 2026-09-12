@@ -623,14 +623,34 @@ class DoSJEUnifiedHandler(SimpleHTTPRequestHandler):
         sys.stderr.write(f"[DoSJE API] {self.address_string()} - {format % args}\n")
 
 
+def get_wifi_ip():
+    try:
+        import subprocess
+        for iface in ['en0', 'en1', 'wlan0', 'eth0']:
+            try:
+                out = subprocess.check_output(['ipconfig', 'getifaddr', iface], stderr=subprocess.DEVNULL).decode().strip()
+                if out:
+                    return out
+            except Exception:
+                pass
+    except Exception:
+        pass
+    return None
+
+
 def run_server(port: int = 8000):
     server_address = ('', port)
     httpd = HTTPServer(server_address, DoSJEUnifiedHandler)
+    wifi_ip = get_wifi_ip()
     print("=" * 75)
     print("🚀 SIH26095: SMART REAL-TIME MONITORING & INSPECTION PLATFORM")
     print("   Department of Social Justice and Empowerment (DoSJE) / MoSJE")
     print("=" * 75)
-    print(f"📡 REST API & WebRTC Portal: http://localhost:{port}")
+    print(f"📡 Computer Browser:     http://localhost:{port}")
+    if wifi_ip:
+        print(f"📱 Phone (Same Wi-Fi):   http://{wifi_ip}:{port}")
+    else:
+        print(f"📱 Phone (Same Wi-Fi):   http://<YOUR_MAC_IP>:{port}")
     print(f"🔒 Security: OAuth2 Bearer Tokens, AES-256-GCM, RBAC Permissions Active")
     print(f"🗺️  Spatial Engine: PostGIS Spatial Queries & ST_DWithin Geofence Ready")
     print(f"📹 Video Engine: ONVIF PTZ SOAP, RTSP Stream Gateway, WebRTC Signaling")

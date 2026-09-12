@@ -76,10 +76,10 @@ class LoginActivity : AppCompatActivity() {
             AlertDialog.Builder(this)
                 .setTitle("DoSJE Central Server URL")
                 .setMessage("Select connection mode or enter custom URL:\n\n" +
+                        "• Same Wi-Fi LAN: http://192.168.1.89:8000\n" +
+                        "  (Phone and Mac connected to same Wi-Fi)\n\n" +
                         "• USB Tether: http://localhost:8000\n" +
                         "  (Requires: adb reverse tcp:8000 tcp:8000)\n\n" +
-                        "• Wi-Fi LAN: http://10.254.3.98:8000\n" +
-                        "  (Requires phone and Mac on same Wi-Fi)\n\n" +
                         "• Android Emulator: http://10.0.2.2:8000")
                 .setView(input)
                 .setPositiveButton("Save & Connect") { _, _ ->
@@ -90,9 +90,9 @@ class LoginActivity : AppCompatActivity() {
                         loadOfficers()
                     }
                 }
-                .setNeutralButton("Wi-Fi (10.254.3.98)") { _, _ ->
-                    app.preferences.serverBaseUrl = "http://10.254.3.98:8000"
-                    txtServerConfig.text = "🌐 http://10.254.3.98:8000"
+                .setNeutralButton("Wi-Fi (192.168.1.89)") { _, _ ->
+                    app.preferences.serverBaseUrl = "http://192.168.1.89:8000"
+                    txtServerConfig.text = "🌐 http://192.168.1.89:8000"
                     loadOfficers()
                 }
                 .setNegativeButton("USB Localhost") { _, _ ->
