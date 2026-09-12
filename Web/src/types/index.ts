@@ -50,7 +50,14 @@ export interface Officer {
   jurisdiction_facility_ids: string[];
 }
 
-export type QuestionType = 'text' | 'yes_no' | 'number_range' | 'photo_evidence';
+export type QuestionType = 'text' | 'yes_no' | 'number_range' | 'photo_evidence' | 'rubrics_checklist';
+
+export interface RubricItem {
+  id: string;
+  name: string;
+  weight: number;
+  defaultScore?: number;
+}
 
 export interface Question {
   id: string;
@@ -75,6 +82,9 @@ export interface Question {
   photoCategory?: string;
   minPhotos?: number;
   requireGeotagWatermark?: boolean;
+  // Rubrics checklist options
+  rubrics?: RubricItem[];
+  passingScore?: number;
 }
 
 export interface ChecklistForm {

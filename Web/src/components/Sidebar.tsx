@@ -11,7 +11,8 @@ import {
   Smartphone,
   ChevronRight,
   Sun,
-  Moon
+  Moon,
+  Database
 } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
 
@@ -47,6 +48,13 @@ const navigationItems = [
     icon: FileEdit,
     description: "Inspection Checklist Studio",
     badge: "Sync"
+  },
+  {
+    name: "Admin Console",
+    href: "/admin",
+    icon: Database,
+    description: "Central Databases & Logs",
+    badge: "DB"
   }
 ];
 

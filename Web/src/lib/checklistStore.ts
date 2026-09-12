@@ -48,6 +48,21 @@ export const DEFAULT_CHECKLIST_SCHEMA: ChecklistForm = {
       placeholder: "Record any discrepancies, maintenance shortcomings, or positive feedback...",
       maxLength: 1000,
     },
+    {
+      id: "q-statutory-rubrics",
+      type: "rubrics_checklist",
+      title: "Statutory 5-Point Inspection Rubrics Matrix",
+      description: "Interactive quantitative rubrics assessing infrastructure, hygiene, nutrition, medical care, and staff roll with automatic Grade calculation.",
+      required: true,
+      rubrics: [
+        { id: "r_infra", name: "1. Infrastructure & Fire Safety", weight: 20, defaultScore: 85 },
+        { id: "r_hygiene", name: "2. Hygiene & Cleanliness", weight: 20, defaultScore: 90 },
+        { id: "r_food", name: "3. Food & Nutrition Standard", weight: 20, defaultScore: 80 },
+        { id: "r_medical", name: "4. Medical Ward & Care Log", weight: 20, defaultScore: 85 },
+        { id: "r_attendance", name: "5. Staff & Beneficiary Roll", weight: 20, defaultScore: 90 },
+      ],
+      passingScore: 70,
+    },
   ],
 };
 

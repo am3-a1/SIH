@@ -15,7 +15,9 @@ import {
   Signal,
   Sparkles,
   AlertTriangle,
-  Info
+  Info,
+  Award,
+  HardDrive
 } from "lucide-react";
 import { ChecklistForm, Question } from "@/types";
 
@@ -28,6 +30,7 @@ export function MobilePreview({ formValues }: MobilePreviewProps) {
   const [activeTab, setActiveTab] = useState<"questions" | "info">("questions");
   const [mockYesNoAnswers, setMockYesNoAnswers] = useState<Record<string, boolean>>({});
   const [mockNumberAnswers, setMockNumberAnswers] = useState<Record<string, number>>({});
+  const [mockRubricScores, setMockRubricScores] = useState<Record<string, Record<string, number>>>({});
 
   const questions = formValues.questions || [];
 
@@ -133,6 +136,8 @@ export function MobilePreview({ formValues }: MobilePreviewProps) {
                         ? "bg-emerald-500/20 text-emerald-300"
                         : q.type === "number_range"
                         ? "bg-purple-500/20 text-purple-300"
+                        : q.type === "rubrics_checklist"
+                        ? "bg-teal-500/20 text-teal-300 border border-teal-500/30"
                         : "bg-amber-500/20 text-amber-300"
                     }`}>
                       {q.type.replace("_", " ")}
@@ -231,7 +236,7 @@ export function MobilePreview({ formValues }: MobilePreviewProps) {
                           Take {q.photoCategory || "Evidence"} Photo
                         </div>
                         <div className="text-[8px] text-slate-400">
-                          Min required: {q.minPhotos || 1} photo(s)
+                          Min required: {q.minPhotos || 1} photo(s) (Direct Camera Only)
                         </div>
 
                         {q.requireGeotagWatermark && (
@@ -243,20 +248,94 @@ export function MobilePreview({ formValues }: MobilePreviewProps) {
                       </div>
                     </div>
                   )}
+
+                  {q.type === "rubrics_checklist" && (() => {
+                    const rubrics = q.rubrics || [];
+                    const questionScores = mockRubricScores[q.id] || {};
+                    const totalWeight = rubrics.reduce((sum, r) => sum + (r.weight || 0), 0) || 100;
+                    const weightedScore = Math.round(
+                      rubrics.reduce((sum, r) => {
+                        const score = questionScores[r.id] ?? r.defaultScore ?? 80;
+                        return sum + (score * (r.weight || 20)) / totalWeight;
+                      }, 0)
+                    );
+                    const grade = weightedScore >= 85 ? "Grade A" : weightedScore >= 60 ? "Grade B" : "Grade C";
+                    const gradeColor = weightedScore >= 85 
+                      ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40" 
+                      : weightedScore >= 60 
+                      ? "bg-amber-500/20 text-amber-300 border-amber-500/40" 
+                      : "bg-rose-500/20 text-rose-300 border-rose-500/40";
+
+                    return (
+                      <div className="space-y-2.5 bg-slate-900/80 p-2.5 rounded-lg border border-teal-900/50">
+                        <div className="flex items-center justify-between pb-1.5 border-b border-slate-700/60">
+                          <div className="flex items-center gap-1.5 text-[10px] font-bold text-teal-300">
+                            <Award className="w-3.5 h-3.5 text-teal-400" />
+                            <span>Rubrics Compliance</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 font-mono text-[9px]">
+                            <span className="font-bold text-white">{weightedScore}/100</span>
+                            <span className={`px-1.5 py-0.5 rounded border text-[8px] font-bold ${gradeColor}`}>
+                              {grade}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          {rubrics.map((item) => {
+                            const val = questionScores[item.id] ?? item.defaultScore ?? 80;
+                            return (
+                              <div key={item.id} className="space-y-1">
+                                <div className="flex items-center justify-between text-[9px]">
+                                  <span className="text-slate-300 truncate max-w-[150px]">{item.name}</span>
+                                  <span className="font-mono text-teal-300 font-bold">{val}% <span className="text-slate-500 font-normal">({item.weight}%)</span></span>
+                                </div>
+                                <input
+                                  type="range"
+                                  min={0}
+                                  max={100}
+                                  value={val}
+                                  onChange={(e) => {
+                                    const nextVal = Number(e.target.value);
+                                    setMockRubricScores(prev => ({
+                                      ...prev,
+                                      [q.id]: {
+                                        ...(prev[q.id] || {}),
+                                        [item.id]: nextVal
+                                      }
+                                    }));
+                                  }}
+                                  className="w-full accent-teal-400 h-1 bg-slate-700 rounded-lg cursor-pointer"
+                                />
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               ))
             )}
           </div>
 
           {/* Mobile Footer Action */}
-          <div className="p-3 bg-slate-800/90 border-t border-slate-700/80 backdrop-blur-sm space-y-1.5">
+          <div className="p-3 bg-slate-800/90 border-t border-slate-700/80 backdrop-blur-sm space-y-2">
             <button
               type="button"
               disabled
               className="w-full py-2 bg-blue-600 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-md opacity-90 cursor-not-allowed"
             >
               <ShieldCheck className="w-3.5 h-3.5 text-amber-300" />
-              <span>Submit Statutory Audit</span>
+              <span>Submit Encrypted Audit to DoSJE</span>
+            </button>
+            <button
+              type="button"
+              disabled
+              className="w-full py-1.5 bg-slate-700 text-slate-200 font-bold rounded-xl text-[11px] flex items-center justify-center gap-1.5 border border-slate-600 shadow-sm opacity-90 cursor-not-allowed"
+            >
+              <HardDrive className="w-3 h-3 text-cyan-400" />
+              <span>Save Offline Package (.enc)</span>
             </button>
             <div className="text-center text-[8px] font-mono text-slate-500">
               SHA-256 Cryptographic Packaging Active
