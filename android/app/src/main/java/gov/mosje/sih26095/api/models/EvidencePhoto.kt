@@ -28,6 +28,8 @@ data class EvidencePhoto(
         json.put("officer_name", officerName)
         if (!base64Thumbnail.isNullOrEmpty()) {
             json.put("thumbnail_base64", base64Thumbnail)
+            json.put("url", "data:image/jpeg;base64,$base64Thumbnail")
+            json.put("data_url", "data:image/jpeg;base64,$base64Thumbnail")
         }
         return json
     }

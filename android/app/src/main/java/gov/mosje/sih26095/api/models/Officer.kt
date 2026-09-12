@@ -24,8 +24,8 @@ data class AssignedInspection(
                 scheduledDate = json.optString("scheduled_date", ""),
                 inspectionType = json.optString("inspection_type", "SURPRISE_AUDIT"),
                 status = json.optString("status", "ASSIGNED"),
-                facilityDistrict = json.optString("facility_district", null),
-                facilityState = json.optString("facility_state", null)
+                facilityDistrict = if (json.has("facility_district") && !json.isNull("facility_district")) json.getString("facility_district") else null,
+                facilityState = if (json.has("facility_state") && !json.isNull("facility_state")) json.getString("facility_state") else null
             )
         }
     }
@@ -74,10 +74,10 @@ data class Officer(
                 fullName = json.optString("full_name", json.optString("name", "Officer")),
                 designation = json.optString("designation", "Field Vigilance Inspector"),
                 role = json.optString("role", "DISTRICT_INSPECTOR"),
-                district = json.optString("district", null),
-                state = json.optString("state", null),
-                phone = json.optString("phone", null),
-                email = json.optString("email", null),
+                district = if (json.has("district") && !json.isNull("district")) json.getString("district") else null,
+                state = if (json.has("state") && !json.isNull("state")) json.getString("state") else null,
+                phone = if (json.has("phone") && !json.isNull("phone")) json.getString("phone") else null,
+                email = if (json.has("email") && !json.isNull("email")) json.getString("email") else null,
                 hasPendingAssignment = json.optBoolean("has_pending_assignment", inspections.isNotEmpty()),
                 assignedFacilityIds = assignedIds,
                 assignedInspections = inspections

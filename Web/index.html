@@ -246,15 +246,19 @@
             </h2>
             <p class="text-[11px] text-slate-400">Real-time facility telemetry with boundary geofencing & surprise audit tracking</p>
           </div>
-
-          <div class="flex items-center gap-2">
-            <select id="schemeFilter" onchange="filterMapByScheme(this.value)" class="text-xs bg-slate-800 border border-white/15 rounded-xl px-3 py-1.5 text-slate-200 font-medium focus:ring-2 focus:ring-blue-500 focus:outline-none">
-              <option value="ALL">All DoSJE Schemes</option>
-              <option value="AVYAY">AVYAY (Senior Citizens)</option>
-              <option value="SMILE">SMILE (Rehabilitation)</option>
-              <option value="PM-DAKSH">PM-DAKSH (Skill Training)</option>
-              <option value="PM-AJAY">PM-AJAY (Hostels)</option>
-            </select>
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="openAssignAuditModal()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm transition" title="Manually assign an audit to a specific officer">
+              <i data-lucide="user-check" class="w-3.5 h-3.5"></i>
+              Assign Audit
+            </button>
+            <button onclick="triggerTrueRandomDispatch()" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm transition" title="Truly random assignment from 50 onsite field officers">
+              <i data-lucide="shuffle" class="w-3.5 h-3.5"></i>
+              Random Dispatch
+            </button>
+            <button onclick="triggerAIRandomDispatch()" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm transition">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+              Risk-Weighted Dispatch
+            </button>
           </div>
         </div>
 
@@ -311,56 +315,26 @@
               <span>Random Dispatch</span>
             </button>
           </div>
-          <div id="facilityRiskList" class="space-y-2 max-h-60 overflow-y-auto pr-1">
-            <div class="text-xs text-slate-400 text-center py-4">Calculating risk index...</div>
-          </div>
         </div>
       </div>
     </div>
+  </main>
 
-    <!-- Live Dynamic Activity Feed Stream (Pulled every 90-120s) -->
-    <div class="gov-card overflow-hidden">
-      <div class="p-4 border-b border-white/10 flex flex-wrap items-center justify-between gap-3 bg-slate-900/60">
-        <div class="flex items-center space-x-2.5">
-          <div class="w-8 h-8 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-            <i data-lucide="activity" class="w-4 h-4 text-blue-400"></i>
-          </div>
-          <div>
-            <h3 class="text-sm font-bold text-white flex items-center gap-2">
-              Live Field Officer Audit Updates Stream
-              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-            </h3>
-            <p class="text-[11px] text-slate-400">Central database synchronization engine across all active field inspection teams</p>
-          </div>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="text-[10px] font-mono text-slate-400 bg-slate-800/80 px-2.5 py-1 rounded-lg border border-white/10">
-            Next Pull: <span id="liveFeedCountdown" class="text-emerald-400 font-bold">120s</span>
-          </span>
-          <button onclick="loadLiveFeed()" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition border border-white/10" title="Refresh Feed">
-            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
-          </button>
+  <!-- =========================================================================
+       VIEW 2: NATIVE ANDROID INSPECTOR APP STATION & HANDHELD HUB
+  <!-- =========================================================================
+       VIEW 2: NATIVE ANDROID HANDHELD AUDIT EMULATOR
+  ========================================================================== -->
+  <div id="viewFlutterSimulator" class="hidden flex-1 max-w-7xl w-full mx-auto p-4 flex justify-center items-center py-6">
+    <!-- Smartphone Frame -->
+    <div class="phone-frame w-full max-w-[400px] h-[820px] bg-white rounded-[44px] shadow-2xl flex flex-col overflow-hidden relative border-8 border-slate-800 ring-1 ring-slate-900/10">
+      <!-- Phone Speaker Notch -->
+      <div class="phone-notch-bar w-full bg-slate-800 flex justify-center py-1">
+        <div class="phone-notch-cutout w-24 h-4 bg-black rounded-b-xl flex items-center justify-center">
+          <div class="w-3 h-3 rounded-full bg-slate-900 mr-2"></div>
+          <div class="w-10 h-1 bg-slate-700 rounded-full"></div>
         </div>
       </div>
-
-      <div class="overflow-x-auto">
-        <table class="w-full text-left gov-table">
-          <thead>
-            <tr class="bg-slate-900/40 text-slate-400 border-b border-white/10">
-              <th>Time (UTC)</th>
-              <th>Action</th>
-              <th>Officer Name</th>
-              <th>Facility Audited</th>
-              <th>Location / City</th>
-              <th class="text-right">Audit Report</th>
-            </tr>
-          </thead>
-          <tbody id="liveOfficerFeedBody">
-            <tr><td colspan="6" class="p-4 text-center text-slate-400">Loading live officer audit events...</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
 
     <!-- Registered Institutions & Audit Records Table -->
     <div class="gov-card overflow-hidden">
@@ -479,10 +453,10 @@
               <span id="loginCardStatusBadge" class="text-[9px] bg-slate-700 text-slate-300 px-2 py-0.5 rounded-full font-bold">STANDBY</span>
             </div>
 
-            <!-- Assigned Inspection Details -->
-            <div id="loginCardAssignmentBox" class="border-t border-slate-700 pt-2 space-y-1">
-              <div class="text-[10px] text-amber-400 font-bold uppercase tracking-wider flex items-center gap-1">
-                <i data-lucide="lock" class="w-3 h-3"></i> Locked Audit Assignment
+            <div id="loginCardAssignmentBox" class="hidden p-2 rounded-xl bg-amber-50 border border-amber-200 text-[11px] text-amber-900 space-y-1">
+              <div class="font-bold flex items-center gap-1 text-[10px] uppercase text-rose-700">
+                <i data-lucide="alert-circle" class="w-3 h-3 text-rose-600"></i>
+                Assigned Unannounced Audit:
               </div>
               <div id="loginCardFacilityName" class="font-semibold text-slate-200 text-[11px]">--</div>
               <div id="loginCardFacilityScheme" class="text-[10px] text-slate-400">--</div>
@@ -616,45 +590,51 @@
           </div>
         </div>
 
-        <!-- CameraX Watermarked Photo Evidence Capture -->
-        <div class="bg-slate-800 border border-slate-700 rounded-2xl p-3 space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-white text-xs flex items-center gap-1.5">
-              <i data-lucide="camera" class="w-3.5 h-3.5 text-blue-400"></i>
-              CameraX Tamper-Proof Evidence
-            </span>
-            <span id="photoCount" class="text-[9px] text-emerald-400 font-mono font-semibold">2 Packages Stamped</span>
+        <!-- Camera Capture with Live Watermarking -->
+        <div class="bg-white rounded-xl border border-slate-200 p-3 shadow-sm space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="font-bold text-slate-900 text-xs">Geo-Tagged Watermarked Photos</span>
+            <span id="photoCount" class="text-[10px] text-teal-700 font-bold">1 Evidence Stamped</span>
           </div>
 
-          <!-- Stamped Watermark HUD Preview Box -->
-          <div class="bg-black/90 rounded-xl p-2 font-mono text-[9px] text-slate-300 border border-slate-700 space-y-0.5">
-            <div class="text-amber-400 font-bold flex justify-between">
-              <span>[MoSJE] GOV OF INDIA | EVIDENCE: <span id="watermarkCategoryText">DINING HALL</span></span>
-              <span class="text-emerald-400">GEOFENCE: VERIFIED</span>
-            </div>
-            <div class="flex justify-between text-slate-400">
-              <span>GPS: <span id="watermarkCoords" class="text-slate-200">28.5672° N, 77.1734° E</span></span>
-              <span id="watermarkTime">2026-09-12 04:30:00 UTC</span>
-            </div>
-            <div class="text-[8px] text-slate-500 truncate pt-0.5 border-t border-slate-800">
-              SHA-256: <span class="text-amber-300 font-bold">7f8a92e10c5d4b3a...</span>
+          <!-- Watermarked Photo Preview Box -->
+          <div id="watermarkPreview" class="relative rounded-lg overflow-hidden bg-slate-900 text-white h-32 flex flex-col justify-between border border-slate-700 shadow-inner">
+            <!-- Dynamic Preview Image (Live Canvas Watermark) -->
+            <img id="watermarkImg" src="" alt="Live Watermark Preview" class="absolute inset-0 w-full h-full object-cover hidden">
+            <div id="watermarkPreviewOverlay" class="relative z-10 p-2 flex flex-col justify-between h-full bg-gradient-to-t from-black/85 via-black/40 to-transparent">
+              <div class="flex justify-between items-center">
+                <span class="text-[8px] bg-rose-600 text-white font-mono px-1.5 py-0.5 rounded shadow font-bold">LIVE WATERMARK STAMP</span>
+                <span id="watermarkPhotoBadge" class="text-[8px] bg-emerald-600 text-white font-mono px-1.5 py-0.5 rounded shadow font-bold">READY</span>
+              </div>
+              <div id="watermarkCategoryText" class="text-center font-semibold text-white text-xs drop-shadow-md">Dining Hall & Kitchen</div>
+              <div class="text-[7.5px] font-mono text-amber-300 leading-tight bg-black/70 p-1.5 rounded backdrop-blur-xs">
+                GPS: <span id="watermarkCoords">28.5672° N, 77.1734° E</span> | TIME: <span id="watermarkTime">2026-09-12 UTC</span><br>
+                INSPECTOR: <span id="watermarkOfficer">Sunita Rao</span> | SHA-256: <span id="watermarkHash">8f3a9b1c7e...</span>
+              </div>
             </div>
           </div>
 
-          <div class="grid grid-cols-2 gap-2">
-            <button onclick="simulatePhotoCapture('Dining Hall & Kitchen')" class="py-1.5 px-2 bg-slate-700 hover:bg-slate-600 rounded-xl font-medium flex items-center justify-center gap-1 text-[10px] text-slate-200 border border-slate-600 transition">
-              <i data-lucide="camera" class="w-3 h-3 text-amber-400"></i> Capture Kitchen
+          <div class="grid grid-cols-2 gap-1.5">
+            <button type="button" onclick="simulatePhotoCapture('Dining Hall & Kitchen')" class="py-1.5 px-2 bg-slate-100 hover:bg-slate-200 rounded-lg font-medium flex items-center justify-center gap-1 text-[10px] border border-slate-200 transition">
+              <i data-lucide="camera" class="w-3 h-3 text-slate-700"></i> Capture Kitchen
             </button>
-            <button onclick="simulatePhotoCapture('Dormitory Living Area')" class="py-1.5 px-2 bg-slate-700 hover:bg-slate-600 rounded-xl font-medium flex items-center justify-center gap-1 text-[10px] text-slate-200 border border-slate-600 transition">
-              <i data-lucide="camera" class="w-3 h-3 text-blue-400"></i> Capture Dorms
+            <button type="button" onclick="simulatePhotoCapture('Dormitory Living Area')" class="py-1.5 px-2 bg-slate-100 hover:bg-slate-200 rounded-lg font-medium flex items-center justify-center gap-1 text-[10px] border border-slate-200 transition">
+              <i data-lucide="camera" class="w-3 h-3 text-slate-700"></i> Capture Dorms
             </button>
-            <button onclick="simulatePhotoCapture('Sanitation & Hygiene')" class="py-1.5 px-2 bg-slate-700 hover:bg-slate-600 rounded-xl font-medium flex items-center justify-center gap-1 text-[10px] text-slate-200 border border-slate-600 transition">
-              <i data-lucide="camera" class="w-3 h-3 text-teal-400"></i> Capture Hygiene
+            <button type="button" onclick="simulatePhotoCapture('Sanitation & Hygiene')" class="py-1.5 px-2 bg-slate-100 hover:bg-slate-200 rounded-lg font-medium flex items-center justify-center gap-1 text-[10px] border border-slate-200 transition">
+              <i data-lucide="camera" class="w-3 h-3 text-slate-700"></i> Capture Hygiene
             </button>
-            <button onclick="simulatePhotoCapture('Facility Main Entrance')" class="py-1.5 px-2 bg-slate-700 hover:bg-slate-600 rounded-xl font-medium flex items-center justify-center gap-1 text-[10px] text-slate-200 border border-slate-600 transition">
-              <i data-lucide="camera" class="w-3 h-3 text-emerald-400"></i> Capture Entrance
+            <button type="button" onclick="simulatePhotoCapture('Facility Main Entrance')" class="py-1.5 px-2 bg-slate-100 hover:bg-slate-200 rounded-lg font-medium flex items-center justify-center gap-1 text-[10px] border border-slate-200 transition">
+              <i data-lucide="camera" class="w-3 h-3 text-slate-700"></i> Capture Entrance
             </button>
           </div>
+
+          <!-- Real Photo File Picker / Camera Snap -->
+          <input type="file" id="mobilePhotoFileInput" accept="image/*" class="hidden" onchange="handleMobilePhotoFileSelected(event)">
+          <button type="button" onclick="document.getElementById('mobilePhotoFileInput').click()" class="w-full py-1.5 px-2 bg-blue-50 hover:bg-blue-100 text-blue-900 rounded-lg font-semibold flex items-center justify-center gap-1.5 text-[10px] border border-blue-200 transition">
+            <i data-lucide="image-plus" class="w-3 h-3 text-blue-600"></i>
+            <span>Upload / Snap Real Site Photo (Applies MoSJE Stamp)</span>
+          </button>
         </div>
 
         <!-- Dual Digital Signatures -->
@@ -670,9 +650,9 @@
           </div>
         </div>
 
-        <!-- Submission Actions -->
-        <div class="space-y-2 pt-1 pb-4">
-          <button id="btnSubmitAudit" onclick="submitMobileAudit(false)" class="w-full py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-1.5 transition">
+        <!-- Submit Buttons -->
+        <div class="space-y-2 pt-1">
+          <button id="btnSubmitAudit" onclick="submitMobileAudit(false)" class="w-full py-2.5 bg-blue-900 hover:bg-blue-800 text-white font-bold rounded-xl shadow flex items-center justify-center gap-1.5 transition">
             <i data-lucide="cloud-upload" class="w-4 h-4"></i>
             <span>Submit Encrypted Audit to DoSJE</span>
           </button>
@@ -806,7 +786,18 @@
           <option value="DOSJE-MP-009">Nasha Mukt Bharat Clinic (Bhopal)</option>
           <option value="DOSJE-MH-003">Savitribai Phule SC Hostel (Pune)</option>
         </select>
-        <span id="vcStatusBadge" class="text-[10px] font-mono bg-purple-900/60 text-purple-200 border border-purple-500/30 px-2 py-1 rounded-xl font-bold">READY</span>
+        <button id="btnLocalCameraToggle" onclick="toggleLocalCameraFeed()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow transition">
+          <i data-lucide="camera" class="w-3.5 h-3.5"></i>
+          <span id="btnCameraText">Start Local Webcam Feed</span>
+        </button>
+        <button id="btnHeadcountToggle" onclick="toggleHeadcountTracker()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow transition">
+          <i data-lucide="scan-face" class="w-3.5 h-3.5"></i>
+          <span id="btnTrackerText">Face Count AI: ON</span>
+        </button>
+        <button onclick="startVCSession()" class="px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow transition">
+          <i data-lucide="phone-call" class="w-3.5 h-3.5"></i>
+          <span>Initiate Spot Call</span>
+        </button>
       </div>
     </div>
 
@@ -821,46 +812,57 @@
           </div>
           <span class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono">1080p Local</span>
         </div>
-        <div class="h-80 relative flex items-center justify-center bg-slate-950 overflow-hidden">
-          <video id="localVideoFeed" autoplay playsinline muted class="w-full h-full object-cover hidden"></video>
-          <canvas id="videoSimulatedCanvas" class="w-full h-full object-cover"></canvas>
-          <canvas id="watermarkCanvas" class="hidden"></canvas>
-          <!-- Tactical HUD Watermark -->
-          <div class="absolute top-2 left-2 text-[9px] font-mono text-emerald-400 bg-black/70 px-2 py-0.5 rounded border border-emerald-500/30">
-            [HQ SECURE FEED] • TLS 1.3 DTLS-SRTP
+      </div>
+
+      <!-- Video Feed Area -->
+      <div class="flex-1 relative bg-black flex items-center justify-center overflow-hidden">
+        <!-- Real Local Webcam Video Element -->
+        <video id="localCameraVideo" autoplay playsinline muted class="w-full h-full object-cover hidden"></video>
+
+        <!-- Canvas Overlay for Real-Time Face Count Bounding Boxes -->
+        <canvas id="headcountOverlayCanvas" class="absolute inset-0 w-full h-full pointer-events-none z-10"></canvas>
+
+        <!-- Simulated Stream Fallback Container -->
+        <div id="cameraPlaceholder" class="text-center space-y-2 text-slate-400 z-0">
+          <div class="w-20 h-20 rounded-full bg-slate-800 mx-auto flex items-center justify-center border-2 border-teal-500/50 shadow-lg">
+            <i data-lucide="users" class="w-10 h-10 text-teal-400"></i>
           </div>
-        </div>
-        <div class="bg-slate-900/90 p-3 border-t border-white/10 flex items-center justify-between">
-          <button id="btnToggleLocalCamera" onclick="toggleLocalCameraFeed()" class="text-xs bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition border border-white/10">
-            <i data-lucide="camera" class="w-3.5 h-3.5 text-blue-400"></i> Use Physical Webcam
-          </button>
-          <button id="btnCaptureWatermark" onclick="captureWatermarkSnapshot()" class="text-xs bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-semibold px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition shadow">
-            <i data-lucide="camera" class="w-3.5 h-3.5 text-amber-300"></i> Stamped Watermark Snapshot
-          </button>
+          <div id="cameraPlaceholderTitle" class="text-sm font-semibold text-white">Live Remote Feed: Common Hall & Beneficiary Verification</div>
+          <div class="text-xs text-teal-400 font-mono">WebRTC P2P Stream Established (Bandwidth: 1.8 Mbps, Latency: 32ms)</div>
+          <p class="text-[11px] text-slate-400 max-w-md mx-auto">Click "Start Local Webcam Feed" to use your real camera with accurate AI Face Verification!</p>
         </div>
       </div>
 
-      <!-- Remote On-Site Pane -->
-      <div class="gov-card overflow-hidden flex flex-col bg-black">
-        <div class="bg-slate-900 text-white px-4 py-2.5 flex justify-between items-center text-xs border-b border-white/10">
-          <div class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-            <span class="font-bold">Onsite Stream: <span id="vcRemoteRoomId" class="font-mono text-emerald-400">VC-SPOT-DELHI01</span></span>
-          </div>
-          <span class="text-[10px] bg-emerald-950 text-emerald-300 border border-emerald-800 px-2 py-0.5 rounded font-mono" id="vcCallDuration">00:04:12</span>
+        <!-- Live Face Count Tracker HUD Pill -->
+        <div class="absolute top-4 right-4 z-20 bg-slate-900/80 border border-emerald-500/60 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-bold text-white flex items-center gap-2 shadow-lg">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>Verified Faces: <b id="webrtcLiveHeadcountVal" class="text-emerald-300 font-mono text-sm">0</b></span>
         </div>
-        <div class="h-80 relative flex items-center justify-center bg-slate-950 overflow-hidden">
-          <video id="remoteVideoFeed" autoplay playsinline class="w-full h-full object-cover"></video>
-          <!-- Dynamic Bounding Boxes Overlay -->
-          <div id="dynamicBoundingBox" class="absolute inset-0 pointer-events-none p-4">
-            <div class="absolute top-12 left-16 w-20 h-28 border-2 border-emerald-400 bg-emerald-500/10 rounded flex items-start justify-start p-1">
-              <span class="text-[8px] font-mono bg-emerald-900 text-emerald-200 px-1 font-bold">Verified Beneficiary (96%)</span>
-            </div>
-          </div>
-          <!-- Real-Time Verified Headcount Badge -->
-          <div class="absolute bottom-2 left-2 text-[10px] font-mono text-emerald-300 bg-black/80 px-2.5 py-1 rounded-lg border border-emerald-500/30 flex items-center gap-2">
-            <span>Verified Beneficiaries Present:</span>
-            <span id="verifiedBeneficiaryCounter" class="text-white font-bold bg-emerald-600 px-2 py-0.5 rounded">2</span>
+
+        <!-- PIP Local Camera (Auditor) -->
+        <div class="absolute bottom-4 right-4 z-20 w-36 h-28 bg-slate-800/90 rounded-xl border-2 border-slate-600 shadow-lg overflow-hidden flex flex-col items-center justify-center backdrop-blur-sm">
+          <i data-lucide="user-check" class="w-8 h-8 text-teal-300 mb-1"></i>
+          <span class="text-[10px] font-semibold text-white">Auditor Vikramaditya</span>
+          <span class="text-[8px] text-teal-400">HQ New Delhi</span>
+        </div>
+      </div>
+
+      <!-- Action & Evidence Capture Bar -->
+      <div class="bg-slate-950 p-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-800 text-xs">
+        <div class="flex items-center space-x-2">
+          <button onclick="captureVCSnapshot()" class="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg font-semibold flex items-center gap-2 shadow transition">
+            <i data-lucide="camera" class="w-4 h-4"></i>
+            <span>Capture In-Call Watermarked Snapshot</span>
+          </button>
+          <span id="vcSnapshotStatus" class="text-[11px] text-slate-400"></span>
+        </div>
+
+        <div class="flex items-center space-x-3">
+          <div class="flex items-center gap-2 bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-lg text-slate-300">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Live AI Face Count:</span>
+            <b id="displayVerifiedLiveCount" class="text-emerald-400 font-mono text-sm">0</b>
+            <span class="text-[10px] text-slate-400">(Face Verified)</span>
           </div>
         </div>
         <div class="bg-slate-900/90 p-3 border-t border-white/10 flex items-center justify-between text-xs">
@@ -923,33 +925,158 @@
       </div>
     </div>
 
-    <!-- 50 Officers Roster Table -->
-    <div class="gov-card overflow-hidden">
-      <div class="p-4 border-b border-white/10 flex flex-wrap items-center justify-between gap-3 bg-slate-900/60">
-        <h3 class="text-sm font-bold text-white flex items-center gap-2">
-          <i data-lucide="users" class="w-4 h-4 text-blue-400"></i>
-          Active Field Inspection Officers Roster (50 Inspectors)
-        </h3>
-        <input type="text" id="adminOfficerSearch" oninput="filterAdminOfficers(this.value)" placeholder="Search by name, state, or ID..." class="text-xs bg-slate-800 border border-white/15 rounded-xl px-3 py-1.5 text-white placeholder-slate-500 focus:ring-2 focus:ring-blue-500 focus:outline-none w-64">
+    <!-- Live Data Explorer -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <!-- Sub-Tabs Navigation -->
+      <div class="bg-slate-50 border-b border-slate-200 px-4 pt-3 flex space-x-4 text-xs font-semibold">
+        <button id="tabAdminAudits" onclick="switchAdminTab('audits')" class="pb-2.5 border-b-2 border-blue-600 text-blue-700 flex items-center gap-1.5">
+          <i data-lucide="clipboard-check" class="w-3.5 h-3.5"></i>
+          Audits & Inspections Table
+        </button>
+        <button id="tabAdminFacilities" onclick="switchAdminTab('facilities')" class="pb-2.5 border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-1.5">
+          <i data-lucide="building" class="w-3.5 h-3.5"></i>
+          Registered Facilities Table
+        </button>
+        <button id="tabAdminOfficers" onclick="switchAdminTab('officers')" class="pb-2.5 border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-1.5">
+          <i data-lucide="user-check" class="w-3.5 h-3.5"></i>
+          Inspectors & Officers Table
+        </button>
       </div>
-      <div class="overflow-x-auto">
-        <table class="w-full text-left gov-table">
-          <thead>
-            <tr class="bg-slate-900/40 text-slate-400 border-b border-white/10">
-              <th>Officer ID</th>
-              <th>Full Name</th>
-              <th>Username</th>
-              <th>Role</th>
-              <th>Designation</th>
-              <th>State</th>
-              <th>Phone</th>
-            </tr>
-          </thead>
-          <tbody id="adminOfficersTableBody">
-            <tr><td colspan="7" class="p-4 text-center text-slate-400">Loading officers...</td></tr>
-          </tbody>
-        </table>
+
+      <!-- Table Container -->
+      <div class="p-4">
+        <!-- 1. Audits Table -->
+        <div id="adminTableAudits" class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="bg-slate-100 text-slate-700 uppercase text-[10px] tracking-wider border-b border-slate-200">
+                <th class="p-2.5">Audit ID</th>
+                <th class="p-2.5">Facility Checked</th>
+                <th class="p-2.5">Officer</th>
+                <th class="p-2.5">Audit Type</th>
+                <th class="p-2.5">Date / Completed</th>
+                <th class="p-2.5">Score</th>
+                <th class="p-2.5">Geofence</th>
+                <th class="p-2.5 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminAuditsTableBody" class="divide-y divide-slate-100">
+              <tr><td colspan="8" class="p-4 text-center text-slate-400">Loading audit records...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 2. Facilities Table -->
+        <div id="adminTableFacilities" class="hidden overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="bg-slate-100 text-slate-700 uppercase text-[10px] tracking-wider border-b border-slate-200">
+                <th class="p-2.5">Facility ID</th>
+                <th class="p-2.5">Name</th>
+                <th class="p-2.5">Scheme</th>
+                <th class="p-2.5">District, State</th>
+                <th class="p-2.5">Capacity / Enrolled</th>
+                <th class="p-2.5">Risk Score</th>
+                <th class="p-2.5">Grade</th>
+              </tr>
+            </thead>
+            <tbody id="adminFacilitiesTableBody" class="divide-y divide-slate-100">
+              <tr><td colspan="7" class="p-4 text-center text-slate-400">Loading facilities...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 3. Officers Table -->
+        <div id="adminTableOfficers" class="hidden space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="relative flex-1 max-w-sm">
+              <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5"></i>
+              <input type="text" id="officerSearchInput" oninput="filterAdminOfficers(this.value)" placeholder="Search 50 inspectors by name, state, phone, role..." class="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-600 focus:outline-none">
+            </div>
+            <div class="text-[11px] text-slate-500 font-medium">
+              Showing <span id="officerFilteredCount" class="font-bold text-slate-800">50</span> of <span id="officerTotalCount" class="font-bold text-slate-800">50</span> officers
+            </div>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr class="bg-slate-100 text-slate-700 uppercase text-[10px] tracking-wider border-b border-slate-200">
+                  <th class="p-2.5">Officer ID</th>
+                  <th class="p-2.5">Username</th>
+                  <th class="p-2.5">Full Name</th>
+                  <th class="p-2.5">Role</th>
+                  <th class="p-2.5">Designation</th>
+                  <th class="p-2.5">Jurisdiction</th>
+                  <th class="p-2.5">Phone</th>
+                </tr>
+              </thead>
+              <tbody id="adminOfficersTableBody" class="divide-y divide-slate-100">
+                <tr><td colspan="7" class="p-4 text-center text-slate-400">Loading officers...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL: ASSIGN STATUTORY AUDIT TO FIELD INSPECTOR
+  ========================================================================== -->
+  <div id="assignAuditModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 w-full max-w-lg rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col">
+      <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between border-b border-slate-800">
+        <div class="flex items-center space-x-3">
+          <div class="w-9 h-9 rounded-full bg-blue-500/20 border border-blue-400/40 flex items-center justify-center">
+            <i data-lucide="user-check" class="w-5 h-5 text-blue-400"></i>
+          </div>
+          <div>
+            <div class="text-[10px] text-blue-400 font-bold uppercase tracking-wider">MoSJE Central Dispatch Engine</div>
+            <h2 class="text-base font-bold text-white">Assign Field Audit to Officer</h2>
+          </div>
+        </div>
+        <button onclick="closeAssignAuditModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form onsubmit="submitAssignAuditForm(event)" class="p-6 space-y-4 text-xs">
+        <div>
+          <label class="block text-slate-700 dark:text-slate-300 font-bold mb-1">Select Field Inspector (50 Officers):</label>
+          <select id="assignOfficerSelect" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-xl px-3 py-2.5 font-semibold text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-slate-700 dark:text-slate-300 font-bold mb-1">Select Target Facility (Welfare Institutions):</label>
+          <select id="assignFacilitySelect" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-xl px-3 py-2.5 font-semibold text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-slate-700 dark:text-slate-300 font-bold mb-1">Inspection Type:</label>
+          <select id="assignInspectionType" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-xl px-3 py-2.5 font-semibold text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+            <option value="SURPRISE_AUDIT">Surprise Audit (Unannounced)</option>
+            <option value="ROUTINE_PERIODIC">Routine Periodic Statutory Inspection</option>
+            <option value="SPECIAL_VIGILANCE">Special Vigilance Spot-Check</option>
+          </select>
+        </div>
+
+        <div class="bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800/60 rounded-xl p-3 text-[11px] text-amber-800 dark:text-amber-300 flex items-start gap-2">
+          <i data-lucide="info" class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5"></i>
+          <span>Once assigned, the database records the dispatch and the officer's Android app will instantly lock to this facility upon syncing.</span>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+          <button type="button" onclick="closeAssignAuditModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl font-bold transition">
+            Cancel
+          </button>
+          <button type="submit" id="btnSubmitAssignAudit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-md transition flex items-center gap-1.5">
+            <i data-lucide="send" class="w-3.5 h-3.5"></i>
+            Assign & Dispatch Audit
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 

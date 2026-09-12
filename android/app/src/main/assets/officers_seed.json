@@ -1,0 +1,1086 @@
+{
+  "status": "SUCCESS",
+  "count": 52,
+  "officers": [
+    {
+      "id": "33333333-3333-3333-3333-333333333333",
+      "username": "inspector_delhi",
+      "full_name": "Sunita Rao",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "Senior Field Inspection Officer",
+      "district": "New Delhi",
+      "state": "Delhi",
+      "email": "inspector.delhi@dosje.gov.in",
+      "phone": "+91-9810123456",
+      "assigned_facility_id": "DOSJE-DL-001",
+      "assigned_facility_name": "Snehalaya Senior Citizens Home",
+      "assigned_inspection_id": "INSP-2026-001",
+      "assigned_inspections": [
+        {
+          "inspection_id": "INSP-2026-001",
+          "facility_id": "DOSJE-DL-001",
+          "facility_name": "Snehalaya Senior Citizens Home",
+          "scheme_name": "AVYAY",
+          "latitude": 28.5672,
+          "longitude": 77.1734
+        }
+      ],
+      "assigned_facility_ids": [
+        "DOSJE-DL-001"
+      ],
+      "has_pending_assignment": true,
+      "jurisdiction_facility_ids": [
+        "DOSJE-DL-001"
+      ]
+    },
+    {
+      "id": "44444444-4444-4444-4444-444444444444",
+      "username": "auditor_flying_squad",
+      "full_name": "Vikramaditya Roy",
+      "role": "SURPRISE_AUDITOR",
+      "designation": "Chief Vigilance Auditor",
+      "district": "ALL",
+      "state": "ALL",
+      "email": "audit.squad@dosje.gov.in",
+      "phone": "+91-9876543210",
+      "assigned_facility_id": "DOSJE-PB-002",
+      "assigned_facility_name": "Nasha Mukti Punarvas Kendra (IRCA)",
+      "assigned_inspection_id": "INSP-2026-002",
+      "assigned_inspections": [
+        {
+          "inspection_id": "INSP-2026-002",
+          "facility_id": "DOSJE-PB-002",
+          "facility_name": "Nasha Mukti Punarvas Kendra (IRCA)",
+          "scheme_name": "NAPDDR",
+          "latitude": 31.634,
+          "longitude": 74.8723
+        }
+      ],
+      "assigned_facility_ids": [
+        "DOSJE-PB-002"
+      ],
+      "has_pending_assignment": true,
+      "jurisdiction_facility_ids": [
+        "DOSJE-DL-001",
+        "DOSJE-PB-002",
+        "DOSJE-MH-003",
+        "DOSJE-WB-004",
+        "DOSJE-UP-005",
+        "DOSJE-MN-006",
+        "DOSJE-RJ-007",
+        "DOSJE-KA-008",
+        "DOSJE-MP-009",
+        "DOSJE-MH-010",
+        "DOSJE-UP-011",
+        "DOSJE-TG-012"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-006",
+      "username": "insp_lucknow_alok",
+      "full_name": "Alok Srivastava",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "Onsite Compliance Officer",
+      "district": "Lucknow",
+      "state": "Uttar Pradesh",
+      "email": "alok.sri@dosje.gov.in",
+      "phone": "+91-9860666706",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-UP-005",
+        "DOSJE-UP-011"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-004",
+      "username": "insp_jaipur_amit",
+      "full_name": "Amit Deshmukh",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "Senior Field Inspection Officer",
+      "district": "Jaipur",
+      "state": "Rajasthan",
+      "email": "amit.deshmukh@dosje.gov.in",
+      "phone": "+91-9840444504",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-RJ-007"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-050",
+      "username": "insp_portblair_anand",
+      "full_name": "Anand Swaroop",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "District Social Welfare Inspector",
+      "district": "South Andaman",
+      "state": "Andaman and Nicobar",
+      "email": "anand.swaroop@dosje.gov.in",
+      "phone": "+91-9850501250",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-DL-001"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-007",
+      "username": "insp_kolkata_ananya",
+      "full_name": "Ananya Dasgupta",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "Senior Field Inspection Officer",
+      "district": "Kolkata",
+      "state": "West Bengal",
+      "email": "ananya.das@dosje.gov.in",
+      "phone": "+91-9870777807",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-WB-004"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-029",
+      "username": "insp_kanpur_arun",
+      "full_name": "Arun Tripathi",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "Onsite Compliance Officer",
+      "district": "Kanpur",
+      "state": "Uttar Pradesh",
+      "email": "arun.tripathi@dosje.gov.in",
+      "phone": "+91-9820256729",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-UP-005",
+        "DOSJE-UP-011"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-040",
+      "username": "insp_thiruvananthapuram_arun",
+      "full_name": "Arun Varma",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "Vigilance Monitoring Officer",
+      "district": "Thiruvananthapuram",
+      "state": "Kerala",
+      "email": "arun.varma@dosje.gov.in",
+      "phone": "+91-9840489040",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-DL-001"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-025",
+      "username": "insp_panaji_ashwin",
+      "full_name": "Ashwin Kamat",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "District Welfare Officer",
+      "district": "North Goa",
+      "state": "Goa",
+      "email": "ashwin.kamat@dosje.gov.in",
+      "phone": "+91-9870790125",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-DL-001"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-033",
+      "username": "insp_jalandhar_balraj",
+      "full_name": "Balraj Sahni",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "Vigilance Monitoring Officer",
+      "district": "Jalandhar",
+      "state": "Punjab",
+      "email": "balraj.sahni@dosje.gov.in",
+      "phone": "+91-9860690133",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-PB-002"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-015",
+      "username": "insp_ahmedabad_bhavin",
+      "full_name": "Bhavin Shah",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "District Social Welfare Inspector",
+      "district": "Ahmedabad",
+      "state": "Gujarat",
+      "email": "bhavin.shah@dosje.gov.in",
+      "phone": "+91-9860678915",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-DL-001"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-044",
+      "username": "insp_agartala_biplab",
+      "full_name": "Biplab Debbarma",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "Senior Field Inspection Officer",
+      "district": "West Tripura",
+      "state": "Tripura",
+      "email": "biplab.d@dosje.gov.in",
+      "phone": "+91-9880823444",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-DL-001"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-020",
+      "username": "insp_ranchi_deepak",
+      "full_name": "Deepak Oraon",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "Vigilance Monitoring Officer",
+      "district": "Ranchi",
+      "state": "Jharkhand",
+      "email": "deepak.oraon@dosje.gov.in",
+      "phone": "+91-9820245620",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-DL-001"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-016",
+      "username": "insp_kochi_divya",
+      "full_name": "Divya Menon",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "Onsite Compliance Officer",
+      "district": "Ernakulam",
+      "state": "Kerala",
+      "email": "divya.menon@dosje.gov.in",
+      "phone": "+91-9870789016",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-DL-001"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-041",
+      "username": "insp_kozhikode_fathima",
+      "full_name": "Fathima Zahra",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "Senior Field Inspection Officer",
+      "district": "Kozhikode",
+      "state": "Kerala",
+      "email": "fathima.zahra@dosje.gov.in",
+      "phone": "+91-9850590141",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-DL-001"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-003",
+      "username": "insp_amritsar_harpreet",
+      "full_name": "Harpreet Singh Dhillon",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "Vigilance Monitoring Officer",
+      "district": "Amritsar",
+      "state": "Punjab",
+      "email": "harpreet.singh@dosje.gov.in",
+      "phone": "+91-9830333403",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-PB-002"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-026",
+      "username": "insp_surat_hetal",
+      "full_name": "Hetal Desai",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "Vigilance Monitoring Officer",
+      "district": "Surat",
+      "state": "Gujarat",
+      "email": "hetal.desai@dosje.gov.in",
+      "phone": "+91-9880801226",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-DL-001"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-019",
+      "username": "insp_chandigarh_jaspreet",
+      "full_name": "Jaspreet Kaur",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "District Welfare Officer",
+      "district": "Chandigarh",
+      "state": "Punjab",
+      "email": "jaspreet.kaur@dosje.gov.in",
+      "phone": "+91-9810134519",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-PB-002"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-011",
+      "username": "insp_hyd_kalyan",
+      "full_name": "Kalyan Ram",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "Vigilance Monitoring Officer",
+      "district": "Secunderabad",
+      "state": "Telangana",
+      "email": "kalyan.ram@dosje.gov.in",
+      "phone": "+91-9820234511",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-TG-012"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-036",
+      "username": "insp_coimbatore_karthik",
+      "full_name": "Karthik Subramanian",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "District Social Welfare Inspector",
+      "district": "Coimbatore",
+      "state": "Tamil Nadu",
+      "email": "karthik.s@dosje.gov.in",
+      "phone": "+91-9890923436",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-DL-001"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-005",
+      "username": "insp_bengaluru_kavita",
+      "full_name": "Kavita Iyer",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "District Welfare Officer",
+      "district": "Bengaluru",
+      "state": "Karnataka",
+      "email": "kavita.iyer@dosje.gov.in",
+      "phone": "+91-9850555605",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-KA-008"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-039",
+      "username": "insp_vijayawada_lakshmi",
+      "full_name": "Lakshmi Prasanna",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "District Welfare Officer",
+      "district": "Krishna",
+      "state": "Andhra Pradesh",
+      "email": "lakshmi.p@dosje.gov.in",
+      "phone": "+91-9830378939",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-DL-001"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-046",
+      "username": "insp_aizawl_lalrinsanga",
+      "full_name": "Lalrinsanga Sailo",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "District Welfare Officer",
+      "district": "Aizawl",
+      "state": "Mizoram",
+      "email": "lalrin.sailo@dosje.gov.in",
+      "phone": "+91-9810167846",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-DL-001"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-024",
+      "username": "insp_raipur_manish",
+      "full_name": "Manish Baghel",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "Senior Field Inspection Officer",
+      "district": "Raipur",
+      "state": "Chhattisgarh",
+      "email": "manish.baghel@dosje.gov.in",
+      "phone": "+91-9860689024",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-DL-001"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-032",
+      "username": "insp_ludhiana_manpreet",
+      "full_name": "Manpreet Grewal",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "District Welfare Officer",
+      "district": "Ludhiana",
+      "state": "Punjab",
+      "email": "manpreet.grewal@dosje.gov.in",
+      "phone": "+91-9850589032",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-PB-002"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-013",
+      "username": "insp_chennai_meenakshi",
+      "full_name": "Meenakshi Sundaram",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "District Welfare Officer",
+      "district": "Chennai",
+      "state": "Tamil Nadu",
+      "email": "meenakshi.s@dosje.gov.in",
+      "phone": "+91-9840456713",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-DL-001"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-008",
+      "username": "insp_bhopal_mohammed",
+      "full_name": "Mohammed Farooq",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "District Social Welfare Inspector",
+      "district": "Bhopal",
+      "state": "Madhya Pradesh",
+      "email": "mohammed.farooq@dosje.gov.in",
+      "phone": "+91-9880888908",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-MP-009"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-035",
+      "username": "insp_mangaluru_naveen",
+      "full_name": "Naveen Shetty",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "Onsite Compliance Officer",
+      "district": "Dakshina Kannada",
+      "state": "Karnataka",
+      "email": "naveen.shetty@dosje.gov.in",
+      "phone": "+91-9880812335",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-KA-008"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-010",
+      "username": "insp_varanasi_neha",
+      "full_name": "Neha Agarwal",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "Onsite Compliance Officer",
+      "district": "Varanasi",
+      "state": "Uttar Pradesh",
+      "email": "neha.agarwal@dosje.gov.in",
+      "phone": "+91-9810123410",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-UP-005",
+        "DOSJE-UP-011"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-027",
+      "username": "insp_nagpur_nitin",
+      "full_name": "Nitin Gadgil",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "Flying Squad Auditor",
+      "district": "Nagpur",
+      "state": "Maharashtra",
+      "email": "nitin.gadgil@dosje.gov.in",
+      "phone": "+91-9890912327",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-MH-003",
+        "DOSJE-MH-010"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-021",
+      "username": "insp_dehradun_pooja",
+      "full_name": "Pooja Rawat",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "Senior Field Inspection Officer",
+      "district": "Dehradun",
+      "state": "Uttarakhand",
+      "email": "pooja.rawat@dosje.gov.in",
+      "phone": "+91-9830356721",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-DL-001"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-018",
+      "username": "insp_guwahati_pranab",
+      "full_name": "Pranab Barua",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "Flying Squad Auditor",
+      "district": "Guwahati",
+      "state": "Assam",
+      "email": "pranab.barua@dosje.gov.in",
+      "phone": "+91-9890901218",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-DL-001"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-002",
+      "username": "insp_pune_priya",
+      "full_name": "Priya Sen",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "District Social Welfare Inspector",
+      "district": "Pune",
+      "state": "Maharashtra",
+      "email": "priya.sen@dosje.gov.in",
+      "phone": "+91-9820222302",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-MH-003",
+        "DOSJE-MH-010"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-001",
+      "username": "insp_delhi_rajesh",
+      "full_name": "Rajesh Nair",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "Senior Field Inspection Officer",
+      "district": "New Delhi",
+      "state": "Delhi",
+      "email": "rajesh.nair@dosje.gov.in",
+      "phone": "+91-9810111201",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-DL-001"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-014",
+      "username": "insp_patna_ramesh",
+      "full_name": "Ramesh Kumar Verma",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "Senior Field Inspection Officer",
+      "district": "Patna",
+      "state": "Bihar",
+      "email": "ramesh.verma@dosje.gov.in",
+      "phone": "+91-9850567814",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-DL-001"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-030",
+      "username": "insp_agra_rekha",
+      "full_name": "Rekha Yadav",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "District Social Welfare Inspector",
+      "district": "Agra",
+      "state": "Uttar Pradesh",
+      "email": "rekha.yadav@dosje.gov.in",
+      "phone": "+91-9830367830",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-UP-005",
+        "DOSJE-UP-011"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-037",
+      "username": "insp_madurai_revathi",
+      "full_name": "Revathi Natarajan",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "Senior Field Inspection Officer",
+      "district": "Madurai",
+      "state": "Tamil Nadu",
+      "email": "revathi.n@dosje.gov.in",
+      "phone": "+91-9810156737",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-DL-001"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-022",
+      "username": "insp_shimla_rohit",
+      "full_name": "Rohit Thakur",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "Onsite Compliance Officer",
+      "district": "Shimla",
+      "state": "Himachal Pradesh",
+      "email": "rohit.thakur@dosje.gov.in",
+      "phone": "+91-9840467822",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-DL-001"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-017",
+      "username": "insp_bhubaneswar_sanjay",
+      "full_name": "Sanjay Mohanty",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "Senior Field Inspection Officer",
+      "district": "Bhubaneswar",
+      "state": "Odisha",
+      "email": "sanjay.mohanty@dosje.gov.in",
+      "phone": "+91-9880890117",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-DL-001"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-034",
+      "username": "insp_mysuru_shweta",
+      "full_name": "Shweta Hegde",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "Senior Field Inspection Officer",
+      "district": "Mysuru",
+      "state": "Karnataka",
+      "email": "shweta.hegde@dosje.gov.in",
+      "phone": "+91-9870701234",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-KA-008"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-042",
+      "username": "insp_cuttack_soumya",
+      "full_name": "Soumya Ranjan Das",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "Onsite Compliance Officer",
+      "district": "Cuttack",
+      "state": "Odisha",
+      "email": "soumya.das@dosje.gov.in",
+      "phone": "+91-9860601242",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-DL-001"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-043",
+      "username": "insp_silchar_sudip",
+      "full_name": "Sudip Roy Choudhury",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "District Social Welfare Inspector",
+      "district": "Cachar",
+      "state": "Assam",
+      "email": "sudip.roy@dosje.gov.in",
+      "phone": "+91-9870712343",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-DL-001"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-009",
+      "username": "insp_mumbai_suresh",
+      "full_name": "Suresh Patel",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "Flying Squad Auditor",
+      "district": "Mumbai",
+      "state": "Maharashtra",
+      "email": "suresh.patel@dosje.gov.in",
+      "phone": "+91-9890999009",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-MH-003",
+        "DOSJE-MH-010"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-028",
+      "username": "insp_indore_swati",
+      "full_name": "Swati Joshi",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "Senior Field Inspection Officer",
+      "district": "Indore",
+      "state": "Madhya Pradesh",
+      "email": "swati.joshi@dosje.gov.in",
+      "phone": "+91-9810145628",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-MP-009"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-049",
+      "username": "insp_itanagar_taba",
+      "full_name": "Taba Taku",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "Onsite Compliance Officer",
+      "district": "Papum Pare",
+      "state": "Arunachal Pradesh",
+      "email": "taba.taku@dosje.gov.in",
+      "phone": "+91-9840490149",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-DL-001"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-023",
+      "username": "insp_srinagar_tariq",
+      "full_name": "Tariq Ahmad Bhat",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "District Social Welfare Inspector",
+      "district": "Srinagar",
+      "state": "Jammu and Kashmir",
+      "email": "tariq.bhat@dosje.gov.in",
+      "phone": "+91-9850578923",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-DL-001"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-047",
+      "username": "insp_kohima_temjen",
+      "full_name": "Temjen Jamir",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "Vigilance Monitoring Officer",
+      "district": "Kohima",
+      "state": "Nagaland",
+      "email": "temjen.jamir@dosje.gov.in",
+      "phone": "+91-9820278947",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-DL-001"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-012",
+      "username": "insp_imphal_thoiba",
+      "full_name": "Thoiba Meitei",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "Senior Field Inspection Officer",
+      "district": "Imphal",
+      "state": "Manipur",
+      "email": "thoiba.meitei@dosje.gov.in",
+      "phone": "+91-9830345612",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-MN-006"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-048",
+      "username": "insp_gangtok_tshering",
+      "full_name": "Tshering Lepcha",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "Senior Field Inspection Officer",
+      "district": "East Sikkim",
+      "state": "Sikkim",
+      "email": "tshering.lepcha@dosje.gov.in",
+      "phone": "+91-9830389048",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-DL-001"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-038",
+      "username": "insp_vizag_venkat",
+      "full_name": "Venkat Rao",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "Flying Squad Auditor",
+      "district": "Visakhapatnam",
+      "state": "Andhra Pradesh",
+      "email": "venkat.rao@dosje.gov.in",
+      "phone": "+91-9820267838",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-DL-001"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-031",
+      "username": "insp_jodhpur_vijay",
+      "full_name": "Vijay Rathore",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "Senior Field Inspection Officer",
+      "district": "Jodhpur",
+      "state": "Rajasthan",
+      "email": "vijay.rathore@dosje.gov.in",
+      "phone": "+91-9840478931",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-RJ-007"
+      ]
+    },
+    {
+      "id": "OFFICER-ONSITE-045",
+      "username": "insp_shillong_wankerlang",
+      "full_name": "Wankerlang Lyngdoh",
+      "role": "DISTRICT_INSPECTOR",
+      "designation": "Flying Squad Auditor",
+      "district": "East Khasi Hills",
+      "state": "Meghalaya",
+      "email": "wanker.lyngdoh@dosje.gov.in",
+      "phone": "+91-9890934545",
+      "assigned_facility_id": null,
+      "assigned_facility_name": null,
+      "assigned_inspection_id": null,
+      "assigned_inspections": [],
+      "assigned_facility_ids": [],
+      "has_pending_assignment": false,
+      "jurisdiction_facility_ids": [
+        "DOSJE-DL-001"
+      ]
+    }
+  ]
+}

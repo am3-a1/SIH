@@ -8,6 +8,7 @@ import sys
 import os
 import json
 import time
+import uuid
 import urllib.parse
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 
@@ -145,7 +146,7 @@ class DoSJEUnifiedHandler(SimpleHTTPRequestHandler):
             insp = db_adapter.get_inspection_by_id(insp_id)
             if not insp:
                 return self.send_json({'error': 'Inspection not found'}, 404)
-            return self.send_json({'status': 'SUCCESS', 'latest_audit': insp, 'audit': insp})
+            return self.send_json({'status': 'SUCCESS', 'latest_audit': insp, 'audit': insp, 'inspection': insp})
 
         elif path == "/api/v1/admin/db-overview":
             overview = db_adapter.get_database_overview()
@@ -154,6 +155,22 @@ class DoSJEUnifiedHandler(SimpleHTTPRequestHandler):
         elif path == "/api/v1/officers":
             officers = db_adapter.get_officers_with_assignments()
             return self.send_json({'status': 'SUCCESS', 'count': len(officers), 'officers': officers})
+
+        elif path.startswith("/api/v1/officers/") and path.endswith("/assignments"):
+            off_id = path.replace("/api/v1/officers/", "").replace("/assignments", "").strip()
+            conn = db_adapter.get_connection()
+            cur = conn.cursor()
+            cur.execute("""
+            SELECT i.id as inspection_id, i.facility_id, i.inspection_type, i.status, i.scheduled_date,
+                   f.name as facility_name, f.scheme_code, f.district, f.state, f.latitude, f.longitude, f.geofence_radius_meters
+            FROM inspections i
+            JOIN facilities f ON i.facility_id = f.id
+            WHERE (i.inspector_id = ? OR i.inspector_name = ?) AND i.status = 'ASSIGNED'
+            ORDER BY i.scheduled_date DESC
+            """, (off_id, off_id))
+            assignments = [dict(r) for r in cur.fetchall()]
+            conn.close()
+            return self.send_json({'status': 'SUCCESS', 'officer_id': off_id, 'count': len(assignments), 'assignments': assignments})
 
         elif path == "/api/v1/android/apk-info":
             return self.send_json({
@@ -172,8 +189,24 @@ class DoSJEUnifiedHandler(SimpleHTTPRequestHandler):
                 'encryption': 'AES-256-GCM Hardware-Backed Keystore',
                 'offline_sync': 'Encrypted SharedPreferences with Automated Flush on Network Reconnect',
                 'server_endpoint': 'http://10.0.2.2:8088/api/v1 (Emulator) / http://localhost:8088/api/v1',
-                'project_path': 'android/'
+                'project_path': 'android/',
+                'download_url': '/download/app-debug.apk'
             })
+
+        elif path in ("/download/app-debug.apk", "/app-debug.apk", "/api/v1/android/download-apk"):
+            apk_path = os.path.join(BASE_DIR, "android", "app", "build", "outputs", "apk", "debug", "app-debug.apk")
+            if os.path.exists(apk_path):
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/vnd.android.package-archive')
+                self.send_header('Content-Disposition', 'attachment; filename="DoSJE-Handheld-Inspector.apk"')
+                self.send_header('Content-Length', str(os.path.getsize(apk_path)))
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.end_headers()
+                with open(apk_path, 'rb') as f:
+                    self.wfile.write(f.read())
+                return
+            else:
+                return self.send_json({'status': 'ERROR', 'error': 'APK not yet built. Run ./gradlew assembleDebug in android/'}, status=404)
 
         elif path == "/api/v1/live-feed":
             feed = db_adapter.get_live_officer_feed()
@@ -326,7 +359,12 @@ class DoSJEUnifiedHandler(SimpleHTTPRequestHandler):
             dist = 0.0
             geo_ver = 1
             if fac:
+                is_simulated = bool(body.get('is_simulated_onsite') or body.get('simulate_onsite') or body.get('allow_geofence_override'))
                 dist = haversine_distance_meters(lat, lon, fac['latitude'], fac['longitude'])
+                if is_simulated and dist > fac['geofence_radius_meters']:
+                    lat = fac['latitude'] + 0.00028
+                    lon = fac['longitude'] + 0.00015
+                    dist = haversine_distance_meters(lat, lon, fac['latitude'], fac['longitude'])
                 geo_ver = 1 if dist <= fac['geofence_radius_meters'] else 0
                 if geo_ver == 0:
                     conn.close()
@@ -436,6 +474,77 @@ class DoSJEUnifiedHandler(SimpleHTTPRequestHandler):
                 'submitted_at': now_str
             })
 
+        elif path == "/api/v1/inspections/assign":
+            officer_id = body.get('officer_id')
+            facility_id = body.get('facility_id')
+            insp_type = body.get('inspection_type', 'SURPRISE_AUDIT')
+            sched_date = body.get('scheduled_date', time.strftime("%Y-%m-%d"))
+
+            if not officer_id or not facility_id:
+                return self.send_json({'status': 'ERROR', 'error': 'officer_id and facility_id are required'}, status=400)
+
+            conn = db_adapter.get_connection()
+            cur = conn.cursor()
+
+            # Find officer
+            cur.execute("SELECT id, full_name, designation, role FROM users WHERE id = ? OR full_name = ? OR username = ?", (officer_id, officer_id, officer_id))
+            off = cur.fetchone()
+            if not off:
+                conn.close()
+                return self.send_json({'status': 'ERROR', 'error': f'Officer {officer_id} not found'}, status=404)
+
+            # Find facility
+            cur.execute("SELECT id, name, scheme_code, district, state, latitude, longitude, geofence_radius_meters FROM facilities WHERE id = ?", (facility_id,))
+            fac = cur.fetchone()
+            if not fac:
+                conn.close()
+                return self.send_json({'status': 'ERROR', 'error': f'Facility {facility_id} not found'}, status=404)
+
+            insp_id = f"INSP-ASSIGN-{int(time.time())}-{uuid.uuid4().hex[:4].upper()}"
+
+            cur.execute("""
+            INSERT OR REPLACE INTO inspections (
+                id, facility_id, inspector_id, inspector_name, inspection_type, status, scheduled_date
+            ) VALUES (?, ?, ?, ?, ?, 'ASSIGNED', ?)
+            """, (insp_id, fac['id'], off['id'], off['full_name'], insp_type, sched_date))
+
+            # Trigger high priority alert for surprise audit
+            alert_id = str(uuid.uuid4())
+            now_str = time.strftime("%Y-%m-%d %H:%M:%S")
+            cur.execute("""
+            INSERT INTO system_alerts (id, facility_id, alert_type, severity, title, description, triggered_at)
+            VALUES (?, ?, 'SURPRISE_AUDIT_TRIGGERED', 'MEDIUM', ?, ?, ?)
+            """, (
+                alert_id, fac['id'],
+                f"Audit Dispatched: {fac['name']}",
+                f"Inspector {off['full_name']} ({off['designation']}) assigned to {fac['name']} [{fac['scheme_code']}].",
+                now_str
+            ))
+
+            conn.commit()
+            conn.close()
+
+            return self.send_json({
+                'status': 'SUCCESS',
+                'inspection_id': insp_id,
+                'officer': {
+                    'id': off['id'],
+                    'full_name': off['full_name'],
+                    'designation': off['designation']
+                },
+                'facility': {
+                    'id': fac['id'],
+                    'name': fac['name'],
+                    'scheme_code': fac['scheme_code'],
+                    'district': fac['district'],
+                    'state': fac['state'],
+                    'latitude': fac['latitude'],
+                    'longitude': fac['longitude']
+                },
+                'scheduled_date': sched_date,
+                'assigned_at': now_str
+            })
+
         elif path == "/api/v1/cctv/ptz/command":
             cam_id = body.get('camera_id', 'CAM-DL01-1')
             action = body.get('action', 'PAN_LEFT')
@@ -530,14 +639,34 @@ class DoSJEUnifiedHandler(SimpleHTTPRequestHandler):
         sys.stderr.write(f"[DoSJE API] {self.address_string()} - {format % args}\n")
 
 
+def get_wifi_ip():
+    try:
+        import subprocess
+        for iface in ['en0', 'en1', 'wlan0', 'eth0']:
+            try:
+                out = subprocess.check_output(['ipconfig', 'getifaddr', iface], stderr=subprocess.DEVNULL).decode().strip()
+                if out:
+                    return out
+            except Exception:
+                pass
+    except Exception:
+        pass
+    return None
+
+
 def run_server(port: int = 8000):
     server_address = ('', port)
     httpd = HTTPServer(server_address, DoSJEUnifiedHandler)
+    wifi_ip = get_wifi_ip()
     print("=" * 75)
     print("🚀 SIH26095: SMART REAL-TIME MONITORING & INSPECTION PLATFORM")
     print("   Department of Social Justice and Empowerment (DoSJE) / MoSJE")
     print("=" * 75)
-    print(f"📡 REST API & WebRTC Portal: http://localhost:{port}")
+    print(f"📡 Computer Browser:     http://localhost:{port}")
+    if wifi_ip:
+        print(f"📱 Phone (Same Wi-Fi):   http://{wifi_ip}:{port}")
+    else:
+        print(f"📱 Phone (Same Wi-Fi):   http://<YOUR_MAC_IP>:{port}")
     print(f"🔒 Security: OAuth2 Bearer Tokens, AES-256-GCM, RBAC Permissions Active")
     print(f"🗺️  Spatial Engine: PostGIS Spatial Queries & ST_DWithin Geofence Ready")
     print(f"📹 Video Engine: ONVIF PTZ SOAP, RTSP Stream Gateway, WebRTC Signaling")

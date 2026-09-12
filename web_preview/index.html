@@ -64,9 +64,9 @@
             <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i>
             <span> Dashboard </span>
           </button>
-          <button id="btnNavFlutter" onclick="switchView('flutter')" class="nav-btn px-3 py-1.5 rounded-md font-medium transition flex items-center gap-1.5 text-slate-300 hover:text-white">
+          <button id="btnNavAndroid" onclick="switchView('android')" class="nav-btn px-3 py-1.5 rounded-md font-medium transition flex items-center gap-1.5 text-slate-300 hover:text-white">
             <i data-lucide="smartphone" class="w-3.5 h-3.5"></i>
-            <span>Mobile App</span>
+            <span>Android App</span>
           </button>
           <button id="btnNavCCTV" onclick="switchView('cctv')" class="nav-btn px-3 py-1.5 rounded-md font-medium transition flex items-center gap-1.5 text-slate-300 hover:text-white">
             <i data-lucide="cctv" class="w-3.5 h-3.5"></i>
@@ -78,7 +78,7 @@
           </button>
           <button id="btnNavAdmin" onclick="switchView('admin')" class="nav-btn px-3 py-1.5 rounded-md font-medium transition flex items-center gap-1.5 text-slate-300 hover:text-white">
             <i data-lucide="database" class="w-3.5 h-3.5"></i>
-            <span>Admin DB Console</span>
+            <span>Admin Console</span>
           </button>
         </div>
 
@@ -193,9 +193,13 @@
             <p class="text-xs text-slate-500">Real-time facility locations with geofence radius buffers & risk status</p>
           </div>
           <div class="flex flex-wrap items-center gap-2">
+            <button onclick="openAssignAuditModal()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm transition" title="Manually assign an audit to a specific officer">
+              <i data-lucide="user-check" class="w-3.5 h-3.5"></i>
+              Assign Audit
+            </button>
             <button onclick="triggerTrueRandomDispatch()" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm transition" title="Truly random assignment from 50 onsite field officers">
               <i data-lucide="shuffle" class="w-3.5 h-3.5"></i>
-              True Random Dispatch (50 Officers)
+              Random Dispatch
             </button>
             <button onclick="triggerAIRandomDispatch()" class="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-sm transition">
               <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
@@ -292,20 +296,13 @@
   </main>
 
   <!-- =========================================================================
-       VIEW 2: FLUTTER INSPECTOR MOBILE APP SIMULATOR
+       VIEW 2: NATIVE ANDROID INSPECTOR APP STATION & HANDHELD HUB
+  <!-- =========================================================================
+       VIEW 2: NATIVE ANDROID HANDHELD AUDIT EMULATOR
   ========================================================================== -->
-  <div id="viewFlutterSimulator" class="hidden flex-1 max-w-7xl w-full mx-auto p-4 flex flex-col items-center justify-center">
-    <div class="mb-4 text-center">
-      <div class="inline-flex items-center gap-2 bg-blue-50 text-blue-900 border border-blue-200 px-3 py-1 rounded-full text-xs font-medium">
-        <i data-lucide="smartphone" class="w-3.5 h-3.5 text-blue-600"></i>
-        Interactive Flutter Mobile Runtime (Android / iOS) Simulator
-      </div>
-      <h2 class="text-lg font-bold text-slate-900 mt-1">Field Inspection Officer Handheld Portal</h2>
-      <p class="text-xs text-slate-500">Testing GPS geofencing, watermarked camera capture, dual digital signatures & offline queue</p>
-    </div>
-
+  <div id="viewFlutterSimulator" class="hidden flex-1 max-w-7xl w-full mx-auto p-4 flex justify-center items-center py-6">
     <!-- Smartphone Frame -->
-    <div class="phone-frame w-full max-w-[390px] h-[780px] bg-white rounded-[40px] shadow-2xl flex flex-col overflow-hidden relative">
+    <div class="phone-frame w-full max-w-[400px] h-[820px] bg-white rounded-[44px] shadow-2xl flex flex-col overflow-hidden relative border-8 border-slate-800 ring-1 ring-slate-900/10">
       <!-- Phone Speaker Notch -->
       <div class="phone-notch-bar w-full bg-slate-800 flex justify-center py-1">
         <div class="phone-notch-cutout w-24 h-4 bg-black rounded-b-xl flex items-center justify-center">
@@ -314,15 +311,15 @@
         </div>
       </div>
 
-      <!-- Mobile App Header -->
-      <div class="bg-blue-900 text-white px-4 py-3 flex items-center justify-between shadow-md">
-        <div class="flex items-center space-x-2">
-          <i data-lucide="shield" class="w-5 h-5 text-amber-400"></i>
-          <div>
-            <div class="text-xs font-bold leading-none" id="mobileAppHeaderTitle">DoSJE Inspector App</div>
-            <div class="text-[9px] text-blue-200" id="mobileAppHeaderOfficer">Officer Authentication</div>
-          </div>
-        </div>
+          <!-- Mobile App Header -->
+          <div class="bg-blue-900 text-white px-4 py-3 flex items-center justify-between shadow-md">
+            <div class="flex items-center space-x-2">
+              <i data-lucide="shield" class="w-5 h-5 text-amber-400"></i>
+              <div>
+                <div class="text-xs font-bold leading-none" id="mobileAppHeaderTitle">DoSJE Android Handheld</div>
+                <div class="text-[9px] text-blue-200" id="mobileAppHeaderOfficer">gov.mosje.sih26095 • Native App</div>
+              </div>
+            </div>
         <div class="flex items-center space-x-1.5 text-[10px]">
           <span id="mobileSyncBadge" class="bg-emerald-800 text-emerald-200 px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
             <i data-lucide="wifi" class="w-2.5 h-2.5"></i> Online
@@ -371,7 +368,7 @@
               <span id="loginCardStatusBadge" class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-slate-100 text-slate-600">Standing by</span>
             </div>
 
-            <div id="loginCardAssignmentBox" class="p-2 rounded-xl bg-amber-50 border border-amber-200 text-[11px] text-amber-900 space-y-1">
+            <div id="loginCardAssignmentBox" class="hidden p-2 rounded-xl bg-amber-50 border border-amber-200 text-[11px] text-amber-900 space-y-1">
               <div class="font-bold flex items-center gap-1 text-[10px] uppercase text-rose-700">
                 <i data-lucide="alert-circle" class="w-3 h-3 text-rose-600"></i>
                 Assigned Unannounced Audit:
@@ -506,27 +503,47 @@
         <div class="bg-white rounded-xl border border-slate-200 p-3 shadow-sm space-y-2">
           <div class="flex justify-between items-center">
             <span class="font-bold text-slate-900 text-xs">Geo-Tagged Watermarked Photos</span>
-            <span id="photoCount" class="text-[10px] text-teal-700 font-bold">1 Evidence Attached</span>
+            <span id="photoCount" class="text-[10px] text-teal-700 font-bold">1 Evidence Stamped</span>
           </div>
 
           <!-- Watermarked Photo Preview Box -->
-          <div id="watermarkPreview" class="relative rounded-lg overflow-hidden bg-slate-800 text-white p-2 h-28 flex flex-col justify-between border border-slate-700">
-            <div class="text-[9px] bg-rose-600 text-white font-mono px-1.5 py-0.5 rounded w-fit">LIVE WATERMARK STAMP</div>
-            <div id="watermarkCategoryText" class="text-center font-semibold text-slate-300 text-xs">Dining & Kitchen Prep Area</div>
-            <div class="text-[8px] font-mono text-amber-300 leading-tight bg-black/60 p-1 rounded">
-              GPS: <span id="watermarkCoords">28.5672° N, 77.1734° E</span> | TIME: <span id="watermarkTime">2026-09-07 16:30:12 UTC</span><br>
-              INSPECTOR: <span id="watermarkOfficer">Sunita Rao</span> | HASH: <span id="watermarkHash">8f3a9b1c7e...</span>
+          <div id="watermarkPreview" class="relative rounded-lg overflow-hidden bg-slate-900 text-white h-32 flex flex-col justify-between border border-slate-700 shadow-inner">
+            <!-- Dynamic Preview Image (Live Canvas Watermark) -->
+            <img id="watermarkImg" src="" alt="Live Watermark Preview" class="absolute inset-0 w-full h-full object-cover hidden">
+            <div id="watermarkPreviewOverlay" class="relative z-10 p-2 flex flex-col justify-between h-full bg-gradient-to-t from-black/85 via-black/40 to-transparent">
+              <div class="flex justify-between items-center">
+                <span class="text-[8px] bg-rose-600 text-white font-mono px-1.5 py-0.5 rounded shadow font-bold">LIVE WATERMARK STAMP</span>
+                <span id="watermarkPhotoBadge" class="text-[8px] bg-emerald-600 text-white font-mono px-1.5 py-0.5 rounded shadow font-bold">READY</span>
+              </div>
+              <div id="watermarkCategoryText" class="text-center font-semibold text-white text-xs drop-shadow-md">Dining Hall & Kitchen</div>
+              <div class="text-[7.5px] font-mono text-amber-300 leading-tight bg-black/70 p-1.5 rounded backdrop-blur-xs">
+                GPS: <span id="watermarkCoords">28.5672° N, 77.1734° E</span> | TIME: <span id="watermarkTime">2026-09-12 UTC</span><br>
+                INSPECTOR: <span id="watermarkOfficer">Sunita Rao</span> | SHA-256: <span id="watermarkHash">8f3a9b1c7e...</span>
+              </div>
             </div>
           </div>
 
-          <div class="grid grid-cols-2 gap-2">
-            <button onclick="simulatePhotoCapture('Dining Hall & Kitchen')" class="py-1.5 px-2 bg-slate-100 hover:bg-slate-200 rounded-lg font-medium flex items-center justify-center gap-1 text-[10px] border border-slate-200">
+          <div class="grid grid-cols-2 gap-1.5">
+            <button type="button" onclick="simulatePhotoCapture('Dining Hall & Kitchen')" class="py-1.5 px-2 bg-slate-100 hover:bg-slate-200 rounded-lg font-medium flex items-center justify-center gap-1 text-[10px] border border-slate-200 transition">
               <i data-lucide="camera" class="w-3 h-3 text-slate-700"></i> Capture Kitchen
             </button>
-            <button onclick="simulatePhotoCapture('Dormitory Living Area')" class="py-1.5 px-2 bg-slate-100 hover:bg-slate-200 rounded-lg font-medium flex items-center justify-center gap-1 text-[10px] border border-slate-200">
+            <button type="button" onclick="simulatePhotoCapture('Dormitory Living Area')" class="py-1.5 px-2 bg-slate-100 hover:bg-slate-200 rounded-lg font-medium flex items-center justify-center gap-1 text-[10px] border border-slate-200 transition">
               <i data-lucide="camera" class="w-3 h-3 text-slate-700"></i> Capture Dorms
             </button>
+            <button type="button" onclick="simulatePhotoCapture('Sanitation & Hygiene')" class="py-1.5 px-2 bg-slate-100 hover:bg-slate-200 rounded-lg font-medium flex items-center justify-center gap-1 text-[10px] border border-slate-200 transition">
+              <i data-lucide="camera" class="w-3 h-3 text-slate-700"></i> Capture Hygiene
+            </button>
+            <button type="button" onclick="simulatePhotoCapture('Facility Main Entrance')" class="py-1.5 px-2 bg-slate-100 hover:bg-slate-200 rounded-lg font-medium flex items-center justify-center gap-1 text-[10px] border border-slate-200 transition">
+              <i data-lucide="camera" class="w-3 h-3 text-slate-700"></i> Capture Entrance
+            </button>
           </div>
+
+          <!-- Real Photo File Picker / Camera Snap -->
+          <input type="file" id="mobilePhotoFileInput" accept="image/*" class="hidden" onchange="handleMobilePhotoFileSelected(event)">
+          <button type="button" onclick="document.getElementById('mobilePhotoFileInput').click()" class="w-full py-1.5 px-2 bg-blue-50 hover:bg-blue-100 text-blue-900 rounded-lg font-semibold flex items-center justify-center gap-1.5 text-[10px] border border-blue-200 transition">
+            <i data-lucide="image-plus" class="w-3 h-3 text-blue-600"></i>
+            <span>Upload / Snap Real Site Photo (Applies MoSJE Stamp)</span>
+          </button>
         </div>
 
         <!-- Dual Digital Signatures -->
@@ -544,7 +561,7 @@
 
         <!-- Submit Buttons -->
         <div class="space-y-2 pt-1">
-          <button onclick="submitMobileAudit(false)" class="w-full py-2.5 bg-blue-900 hover:bg-blue-800 text-white font-bold rounded-xl shadow flex items-center justify-center gap-1.5 transition">
+          <button id="btnSubmitAudit" onclick="submitMobileAudit(false)" class="w-full py-2.5 bg-blue-900 hover:bg-blue-800 text-white font-bold rounded-xl shadow flex items-center justify-center gap-1.5 transition">
             <i data-lucide="cloud-upload" class="w-4 h-4"></i>
             <span>Submit Encrypted Audit to DoSJE</span>
           </button>
@@ -680,8 +697,8 @@
           <span id="btnCameraText">Start Local Webcam Feed</span>
         </button>
         <button id="btnHeadcountToggle" onclick="toggleHeadcountTracker()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow transition">
-          <i data-lucide="scan" class="w-3.5 h-3.5"></i>
-          <span id="btnTrackerText">AI Tracker: ON</span>
+          <i data-lucide="scan-face" class="w-3.5 h-3.5"></i>
+          <span id="btnTrackerText">Face Count AI: ON</span>
         </button>
         <button onclick="startVCSession()" class="px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow transition">
           <i data-lucide="phone-call" class="w-3.5 h-3.5"></i>
@@ -709,7 +726,7 @@
         <!-- Real Local Webcam Video Element -->
         <video id="localCameraVideo" autoplay playsinline muted class="w-full h-full object-cover hidden"></video>
 
-        <!-- Canvas Overlay for Real-Time Headcount Bounding Boxes -->
+        <!-- Canvas Overlay for Real-Time Face Count Bounding Boxes -->
         <canvas id="headcountOverlayCanvas" class="absolute inset-0 w-full h-full pointer-events-none z-10"></canvas>
 
         <!-- Simulated Stream Fallback Container -->
@@ -719,7 +736,7 @@
           </div>
           <div id="cameraPlaceholderTitle" class="text-sm font-semibold text-white">Live Remote Feed: Common Hall & Beneficiary Verification</div>
           <div class="text-xs text-teal-400 font-mono">WebRTC P2P Stream Established (Bandwidth: 1.8 Mbps, Latency: 32ms)</div>
-          <p class="text-[11px] text-slate-400 max-w-md mx-auto">Click "Start Local Webcam Feed" to use your real camera with working live AI bounding boxes!</p>
+          <p class="text-[11px] text-slate-400 max-w-md mx-auto">Click "Start Local Webcam Feed" to use your real camera with accurate AI Face Verification!</p>
         </div>
 
         <!-- Live Watermark Overlay -->
@@ -727,10 +744,10 @@
           MoSJE SPOT CHECK | <span id="webrtcWatermarkCoords">28.5672° N, 77.1734° E</span> | <span class="cctv-clock">16:31:02 UTC</span>
         </div>
 
-        <!-- Live Headcount Tracker HUD Pill -->
+        <!-- Live Face Count Tracker HUD Pill -->
         <div class="absolute top-4 right-4 z-20 bg-slate-900/80 border border-emerald-500/60 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-bold text-white flex items-center gap-2 shadow-lg">
           <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span>Verified Present: <b id="webrtcLiveHeadcountVal" class="text-emerald-300 font-mono text-sm">1</b></span>
+          <span>Verified Faces: <b id="webrtcLiveHeadcountVal" class="text-emerald-300 font-mono text-sm">0</b></span>
         </div>
 
         <!-- PIP Local Camera (Auditor) -->
@@ -754,9 +771,9 @@
         <div class="flex items-center space-x-3">
           <div class="flex items-center gap-2 bg-slate-900 border border-slate-700 px-3 py-1.5 rounded-lg text-slate-300">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>Live AI Headcount:</span>
+            <span>Live AI Face Count:</span>
             <b id="displayVerifiedLiveCount" class="text-emerald-400 font-mono text-sm">0</b>
-            <span class="text-[10px] text-slate-400">(Autonomous)</span>
+            <span class="text-[10px] text-slate-400">(Face Verified)</span>
           </div>
           <button onclick="completeVCAudit()" class="px-3 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg font-semibold flex items-center gap-1.5 transition">
             <i data-lucide="check-square" class="w-4 h-4"></i>
@@ -917,6 +934,66 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       MODAL: ASSIGN STATUTORY AUDIT TO FIELD INSPECTOR
+  ========================================================================== -->
+  <div id="assignAuditModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 w-full max-w-lg rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col">
+      <div class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between border-b border-slate-800">
+        <div class="flex items-center space-x-3">
+          <div class="w-9 h-9 rounded-full bg-blue-500/20 border border-blue-400/40 flex items-center justify-center">
+            <i data-lucide="user-check" class="w-5 h-5 text-blue-400"></i>
+          </div>
+          <div>
+            <div class="text-[10px] text-blue-400 font-bold uppercase tracking-wider">MoSJE Central Dispatch Engine</div>
+            <h2 class="text-base font-bold text-white">Assign Field Audit to Officer</h2>
+          </div>
+        </div>
+        <button onclick="closeAssignAuditModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <form onsubmit="submitAssignAuditForm(event)" class="p-6 space-y-4 text-xs">
+        <div>
+          <label class="block text-slate-700 dark:text-slate-300 font-bold mb-1">Select Field Inspector (50 Officers):</label>
+          <select id="assignOfficerSelect" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-xl px-3 py-2.5 font-semibold text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-slate-700 dark:text-slate-300 font-bold mb-1">Select Target Facility (Welfare Institutions):</label>
+          <select id="assignFacilitySelect" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-xl px-3 py-2.5 font-semibold text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-slate-700 dark:text-slate-300 font-bold mb-1">Inspection Type:</label>
+          <select id="assignInspectionType" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-100 rounded-xl px-3 py-2.5 font-semibold text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+            <option value="SURPRISE_AUDIT">Surprise Audit (Unannounced)</option>
+            <option value="ROUTINE_PERIODIC">Routine Periodic Statutory Inspection</option>
+            <option value="SPECIAL_VIGILANCE">Special Vigilance Spot-Check</option>
+          </select>
+        </div>
+
+        <div class="bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800/60 rounded-xl p-3 text-[11px] text-amber-800 dark:text-amber-300 flex items-start gap-2">
+          <i data-lucide="info" class="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5"></i>
+          <span>Once assigned, the database records the dispatch and the officer's Android app will instantly lock to this facility upon syncing.</span>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+          <button type="button" onclick="closeAssignAuditModal()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl font-bold transition">
+            Cancel
+          </button>
+          <button type="submit" id="btnSubmitAssignAudit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-md transition flex items-center gap-1.5">
+            <i data-lucide="send" class="w-3.5 h-3.5"></i>
+            Assign & Dispatch Audit
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 

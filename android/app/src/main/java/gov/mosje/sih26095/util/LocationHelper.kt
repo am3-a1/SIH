@@ -19,6 +19,9 @@ class LocationHelper(private val context: Context) {
     var isSimulatedOnsite: Boolean = true
         private set
 
+    var isRealGpsFixed: Boolean = false
+        private set
+
     private var onLocationChangedListener: ((Location) -> Unit)? = null
 
     private val locationListener = object : LocationListener {
@@ -27,9 +30,12 @@ class LocationHelper(private val context: Context) {
                 currentLatitude = location.latitude
                 currentLongitude = location.longitude
                 currentAccuracy = location.accuracy
+                isRealGpsFixed = true
                 onLocationChangedListener?.invoke(location)
             }
         }
+        @Deprecated("Deprecated in Java", ReplaceWith(""))
+        @Suppress("DEPRECATION")
         override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
         override fun onProviderEnabled(provider: String) {}
         override fun onProviderDisabled(provider: String) {}
@@ -42,6 +48,7 @@ class LocationHelper(private val context: Context) {
     fun setSimulatedOnsite(simulate: Boolean, facilityLat: Double = 28.5672, facilityLon: Double = 77.1734) {
         this.isSimulatedOnsite = simulate
         if (simulate) {
+            isRealGpsFixed = false
             // Place 35 meters within facility perimeter
             currentLatitude = facilityLat + 0.00028
             currentLongitude = facilityLon + 0.00015
@@ -59,18 +66,29 @@ class LocationHelper(private val context: Context) {
     fun startLocationUpdates() {
         if (locationManager == null) return
         try {
-            val providers = listOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER)
+            val providers = listOf(
+                LocationManager.GPS_PROVIDER,
+                LocationManager.NETWORK_PROVIDER,
+                LocationManager.PASSIVE_PROVIDER
+            )
+            var bestLoc: Location? = null
             for (provider in providers) {
                 if (locationManager.isProviderEnabled(provider)) {
                     val lastKnown = locationManager.getLastKnownLocation(provider)
-                    if (lastKnown != null && !isSimulatedOnsite) {
-                        currentLatitude = lastKnown.latitude
-                        currentLongitude = lastKnown.longitude
-                        currentAccuracy = lastKnown.accuracy
-                        onLocationChangedListener?.invoke(lastKnown)
+                    if (lastKnown != null) {
+                        if (bestLoc == null || lastKnown.accuracy < bestLoc.accuracy) {
+                            bestLoc = lastKnown
+                        }
                     }
-                    locationManager.requestLocationUpdates(provider, 2000L, 5.0f, locationListener)
+                    locationManager.requestLocationUpdates(provider, 1000L, 1.0f, locationListener)
                 }
+            }
+            if (bestLoc != null && !isSimulatedOnsite) {
+                currentLatitude = bestLoc.latitude
+                currentLongitude = bestLoc.longitude
+                currentAccuracy = bestLoc.accuracy
+                isRealGpsFixed = true
+                onLocationChangedListener?.invoke(bestLoc)
             }
         } catch (e: SecurityException) {
             // Permission not yet granted, fallback to simulated
