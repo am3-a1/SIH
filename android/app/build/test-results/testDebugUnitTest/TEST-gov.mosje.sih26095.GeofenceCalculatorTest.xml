@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="gov.mosje.sih26095.GeofenceCalculatorTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-09-12T06:09:20" hostname="Himanshus-MacBook-Air-2.local" time="0.003">
+  <properties/>
+  <testcase name="testSameLocationDistanceIsZero" classname="gov.mosje.sih26095.GeofenceCalculatorTest" time="0.001"/>
+  <testcase name="testWithinGeofenceInsideRadius" classname="gov.mosje.sih26095.GeofenceCalculatorTest" time="0.002"/>
+  <testcase name="testOutsideGeofenceExceedsRadius" classname="gov.mosje.sih26095.GeofenceCalculatorTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

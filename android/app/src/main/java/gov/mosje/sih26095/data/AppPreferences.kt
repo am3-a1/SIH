@@ -7,7 +7,7 @@ class AppPreferences(context: Context) {
     private val prefs: SharedPreferences = context.getSharedPreferences("dosje_inspector_prefs", Context.MODE_PRIVATE)
 
     var serverBaseUrl: String
-        get() = prefs.getString("server_base_url", "http://10.0.2.2:8088") ?: "http://10.0.2.2:8088"
+        get() = prefs.getString("server_base_url", "http://10.0.2.2:8000") ?: "http://10.0.2.2:8000"
         set(value) = prefs.edit().putString("server_base_url", value).apply()
 
     var activeOfficerId: String?

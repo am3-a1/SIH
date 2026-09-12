@@ -45,6 +45,7 @@ data class InspectionSubmission(
     val inspectorSigned: Boolean,
     val headSigned: Boolean,
     val clientNonce: String,
+    val isSimulatedOnsite: Boolean = false,
     val inspectionType: String = "SURPRISE_AUDIT",
     val clientApp: String = "Native Android App (Kotlin/AndroidX)"
 ) {
@@ -61,6 +62,7 @@ data class InspectionSubmission(
         json.put("inspector_signed", inspectorSigned)
         json.put("facility_head_signed", headSigned)
         json.put("client_nonce", clientNonce)
+        json.put("is_simulated_onsite", isSimulatedOnsite)
         json.put("inspection_type", inspectionType)
         json.put("client_app", clientApp)
 
@@ -90,7 +92,7 @@ data class SubmissionResponse(
                 totalComplianceScore = json.optInt("total_compliance_score", 85),
                 geofenceVerified = json.optBoolean("geofence_verified", true) || json.optInt("geofence_verified", 0) == 1,
                 aes256PackageHash = json.optString("aes256_package_hash", "verified_hash"),
-                message = json.optString("message", null)
+                message = if (json.has("message") && !json.isNull("message")) json.getString("message") else null
             )
         }
     }

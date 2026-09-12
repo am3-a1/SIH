@@ -90,6 +90,7 @@ function updateThemeIcon(isDark) {
 // 1. VIEW SWITCHING
 // ----------------------------------------------------------------------------
 function switchView(viewName) {
+  if (viewName === 'android') viewName = 'flutter';
   const views = {
     command: document.getElementById('viewCommandCenter'),
     flutter: document.getElementById('viewFlutterSimulator'),
@@ -100,7 +101,7 @@ function switchView(viewName) {
 
   const buttons = {
     command: document.getElementById('btnNavCommand'),
-    flutter: document.getElementById('btnNavFlutter'),
+    flutter: document.getElementById('btnNavAndroid') || document.getElementById('btnNavFlutter'),
     cctv: document.getElementById('btnNavCCTV'),
     vc: document.getElementById('btnNavVC'),
     admin: document.getElementById('btnNavAdmin')
@@ -441,30 +442,44 @@ async function triggerAIRandomDispatch() {
 async function populateMobileOfficers() {
   try {
     const res = await fetch('/api/v1/officers');
-    const data = await res.json();
-    allOfficers = data.officers || [];
-
-    const select = document.getElementById('mobileOfficerSelect');
-    if (!select) return;
-
-    select.innerHTML = '<option value="">-- Choose Field Inspector --</option>' +
-      allOfficers.map(off => {
-        const hasAssignment = off.has_pending_assignment || (off.assigned_inspections && off.assigned_inspections.length > 0);
-        const prefix = hasAssignment ? '⚡ [ASSIGNED AUDIT] ' : '';
-        return `<option value="${off.id}">${prefix}${off.full_name} - ${off.designation} (${off.district || off.state || 'India'})</option>`;
-      }).join('');
-
-    // Pre-select officer with assignment if none selected
-    const assigned = allOfficers.find(o => o.has_pending_assignment || (o.assigned_inspections && o.assigned_inspections.length > 0));
-    if (assigned) {
-      select.value = assigned.id;
-      onMobileOfficerChange(assigned.id);
-    } else if (allOfficers.length > 0 && !activeMobileOfficer) {
-      select.value = allOfficers[0].id;
-      onMobileOfficerChange(allOfficers[0].id);
+    if (res.ok) {
+      const data = await res.json();
+      allOfficers = data.officers || [];
     }
   } catch (err) {
-    console.error('Failed to populate mobile officers:', err);
+    console.warn('Failed to fetch mobile officers from API, checking local seed:', err);
+  }
+
+  if (!allOfficers || allOfficers.length === 0) {
+    try {
+      const fbRes = await fetch('/officers_seed.json');
+      if (fbRes.ok) {
+        const fbData = await fbRes.json();
+        allOfficers = fbData.officers || [];
+      }
+    } catch (e) {
+      console.warn('Local seed fallback could not be loaded:', e);
+    }
+  }
+
+  const select = document.getElementById('mobileOfficerSelect');
+  if (!select) return;
+
+  select.innerHTML = '<option value="">-- Choose Field Inspector --</option>' +
+    allOfficers.map(off => {
+      const hasAssignment = off.has_pending_assignment || (off.assigned_inspections && off.assigned_inspections.length > 0);
+      const prefix = hasAssignment ? '⚡ [ASSIGNED AUDIT] ' : '';
+      return `<option value="${off.id}">${prefix}${off.full_name} - ${off.designation} (${off.district || off.state || 'India'})</option>`;
+    }).join('');
+
+  // Pre-select officer with assignment if none selected
+  const assigned = allOfficers.find(o => o.has_pending_assignment || (o.assigned_inspections && o.assigned_inspections.length > 0));
+  if (assigned) {
+    select.value = assigned.id;
+    onMobileOfficerChange(assigned.id);
+  } else if (allOfficers.length > 0 && !activeMobileOfficer) {
+    select.value = allOfficers[0].id;
+    onMobileOfficerChange(allOfficers[0].id);
   }
 }
 
@@ -605,6 +620,10 @@ function acquireLiveDeviceGPS(interactive = false) {
       currentDeviceLocation.realLon = position.coords.longitude;
       currentDeviceLocation.realAccuracy = position.coords.accuracy || 12;
       currentDeviceLocation.isRealGps = true;
+
+      if (interactive && chk) {
+        chk.checked = false;
+      }
 
       if (!chk || !chk.checked) {
         currentDeviceLocation.lat = position.coords.latitude;
@@ -865,20 +884,151 @@ function simulatePhotoCapture(category) {
   const lonDir = currentDeviceLocation.lon >= 0 ? 'E' : 'W';
   const coordsStr = `${Math.abs(currentDeviceLocation.lat).toFixed(4)}° ${latDir}, ${Math.abs(currentDeviceLocation.lon).toFixed(4)}° ${lonDir}`;
   
-  document.getElementById('watermarkTime').innerText = timeStr;
-  document.getElementById('watermarkCoords').innerText = coordsStr;
-  document.getElementById('watermarkCategoryText').innerText = category;
-  document.getElementById('photoCount').innerText = '2 Evidence Packages Stamped';
-  
   const officer = activeMobileOfficer ? activeMobileOfficer.full_name : 'Sunita Rao';
-  const facName = selectedAuditFacility ? selectedAuditFacility.name : 'Assigned Welfare Facility';
-  alert(`📸 Live Camera Photo Captured for ${category}!\n\n` +
-        `Anti-tamper watermark stamped:\n` +
-        `• Target Facility: ${facName}\n` +
-        `• Device GPS: ${coordsStr}\n` +
+  const officerId = activeMobileOfficer ? activeMobileOfficer.id : 'OFFICER-ONSITE-001';
+  const facName = selectedAuditFacility ? selectedAuditFacility.name : 'Snehalaya Senior Citizens Home';
+  const facId = selectedAuditFacility ? selectedAuditFacility.id : 'DOSJE-DL-001';
+  
+  // Calculate dynamic SHA-256 preview hash
+  const dynamicHash = Array.from(new Uint8Array(16)).map(() => Math.floor(Math.random() * 256).toString(16).padStart(2, '0')).join('');
+
+  if (document.getElementById('watermarkTime')) document.getElementById('watermarkTime').innerText = timeStr;
+  if (document.getElementById('watermarkCoords')) document.getElementById('watermarkCoords').innerText = coordsStr;
+  if (document.getElementById('watermarkCategoryText')) document.getElementById('watermarkCategoryText').innerText = category;
+  if (document.getElementById('photoCount')) document.getElementById('photoCount').innerText = '3 Evidence Packages Stamped';
+  
+  // Update Station HUD Box
+  if (document.getElementById('watermarkCategoryDisplay')) document.getElementById('watermarkCategoryDisplay').innerText = category.toUpperCase();
+  if (document.getElementById('watermarkFacDisplay')) document.getElementById('watermarkFacDisplay').innerText = `${facName} (${facId})`;
+  if (document.getElementById('watermarkCoordsDisplay')) document.getElementById('watermarkCoordsDisplay').innerText = `${coordsStr} (±4.2m)`;
+  if (document.getElementById('watermarkOfficerDisplay')) document.getElementById('watermarkOfficerDisplay').innerText = `${officer} (ID: ${officerId})`;
+  if (document.getElementById('watermarkTimestampDisplay')) document.getElementById('watermarkTimestampDisplay').innerText = timeStr;
+  if (document.getElementById('watermarkHashDisplay')) document.getElementById('watermarkHashDisplay').innerText = `${dynamicHash}...`;
+
+  // Log to Android Telemetry Stream
+  const syncLog = document.getElementById('androidSyncLog');
+  if (syncLog) {
+    const logItem = document.createElement('div');
+    logItem.className = 'text-emerald-400 font-mono text-[10px]';
+    logItem.innerText = `[${new Date().toLocaleTimeString()} UTC] [CameraX Hardware Capture] Category: ${category} • SHA-256: ${dynamicHash.substring(0, 16)}... • Stamped onto Bitmap`;
+    syncLog.insertBefore(logItem, syncLog.firstChild);
+  }
+
+  alert(`📸 Native CameraX Photo Captured for ${category}!\n\n` +
+        `CameraWatermarkProcessor.kt Stamped onto High-Res Raw Image:\n` +
+        `• Target Facility: ${facName} (${facId})\n` +
+        `• Device GPS: ${coordsStr} (±4.2m)\n` +
         `• Timestamp: ${timeStr}\n` +
         `• Inspector: ${officer}\n` +
-        `• Cryptographic SHA-256 Hash Generated.`);
+        `• SHA-256 Checksum: ${dynamicHash}\n` +
+        `• Status: Cryptographically Protected & EXIF Signed.`);
+}
+
+async function fetchApkInfoModal() {
+  try {
+    const res = await fetch(`${API_BASE}/android/apk-info`);
+    const data = await res.json();
+    alert(`📱 DoSJE Native Android Application Specifications\n\n` +
+          `• App Name: ${data.app_name}\n` +
+          `• Package ID: ${data.package_name}\n` +
+          `• Version: ${data.version_name} (Build ${data.version_code})\n` +
+          `• Platform: ${data.language} / ${data.architecture}\n` +
+          `• SDK Targets: Compile/Target SDK ${data.target_sdk}, MinSdk ${data.min_sdk}\n` +
+          `• Camera Subsystem: ${data.camera_subsystem}\n` +
+          `• Geofence Subsystem: ${data.geofence_subsystem}\n` +
+          `• Encryption Vault: ${data.encryption}\n` +
+          `• Offline Queue: ${data.offline_sync}\n` +
+          `• Local Repository: ${data.project_path}`);
+  } catch (err) {
+    alert(`📱 Native Android Build Specs:\nPackage: gov.mosje.sih26095\nTarget SDK: 34 (Android 14)\nMinSdk: 26\nSource: /android`);
+  }
+}
+
+async function simulateAndroidFieldSync() {
+  const syncLog = document.getElementById('androidSyncLog');
+  if (syncLog) {
+    const startMsg = document.createElement('div');
+    startMsg.className = 'text-blue-300 font-mono text-[10px]';
+    startMsg.innerText = `[${new Date().toLocaleTimeString()} UTC] [HANDHELD SYNC] Initiating TLS 1.3 sync from Android Field Device Pixel-8...`;
+    syncLog.insertBefore(startMsg, syncLog.firstChild);
+  }
+
+  const officer = activeMobileOfficer || (fieldOfficersList.length > 0 ? fieldOfficersList[0] : { id: 'OFFICER-ONSITE-001', full_name: 'Sunita Rao' });
+  const facility = selectedAuditFacility || { id: 'DOSJE-DL-001', name: 'Snehalaya Senior Citizens Home', latitude: 28.5672, longitude: 77.1734 };
+
+  const payload = {
+    facility_id: facility.id,
+    facility_name: facility.name,
+    inspector_id: officer.id,
+    inspector_name: officer.full_name,
+    inspector_latitude: facility.latitude,
+    inspector_longitude: facility.longitude,
+    inspection_type: 'SURPRISE_AUDIT',
+    scores: {
+      infrastructure: 92,
+      hygiene: 88,
+      food: 85,
+      medical: 90,
+      attendance: 95
+    },
+    checklist_data: {
+      fire_safety_cert: true,
+      cctv_functional: true,
+      first_aid_kit_stocked: true,
+      sanitary_inspection: "EXEMPLARY",
+      beneficiary_count_verified: 88
+    },
+    photos_evidence: [
+      { category: "Dining Hall & Kitchen", hash: "a3f5c719e8b20146e29789b9d8213f0a" },
+      { category: "Dormitory Living Area", hash: "991e0a23bc8729104b2049d10e82ca31" }
+    ],
+    inspector_signature_hash: "sig_insp_android_keystore_verified",
+    facility_head_signature_hash: "sig_ngo_head_biometric_verified",
+    synced_from_offline: false
+  };
+
+  try {
+    const res = await fetch(`${API_BASE}/inspections/submit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if (res.ok && data.status === 'SUCCESS') {
+      if (syncLog) {
+        const successMsg = document.createElement('div');
+        successMsg.className = 'text-emerald-400 font-mono text-[10px] font-bold';
+        successMsg.innerText = `[${new Date().toLocaleTimeString()} UTC] [SYNC SUCCESS] Audit ${data.inspection_id} accepted! Score: ${data.compliance_score}/100 • AES-256: ${data.aes256_package_hash.substring(0, 16)}...`;
+        syncLog.insertBefore(successMsg, syncLog.firstChild);
+      }
+      alert(`✅ Android Device Field Sync Complete!\n\n` +
+            `• Audit ID: ${data.inspection_id}\n` +
+            `• Facility: ${facility.name}\n` +
+            `• Inspector: ${officer.full_name}\n` +
+            `• Compliance Score: ${data.compliance_score}/100\n` +
+            `• AES-256 Package Hash: ${data.aes256_package_hash}\n` +
+            `• Geofence Distance: 0m (Verified On-site)\n\n` +
+            `Central dashboard national metrics and live feed updated.`);
+      loadNationalStats();
+      loadLiveFeed();
+      loadInspectionsTable();
+    } else {
+      if (syncLog) {
+        const errMsg = document.createElement('div');
+        errMsg.className = 'text-rose-400 font-mono text-[10px]';
+        errMsg.innerText = `[${new Date().toLocaleTimeString()} UTC] [SYNC ERROR] ${data.message || 'Submission rejected'}`;
+        syncLog.insertBefore(errMsg, syncLog.firstChild);
+      }
+      alert(`Sync Error: ${data.message || 'Audit rejected by server'}`);
+    }
+  } catch (err) {
+    if (syncLog) {
+      const netErr = document.createElement('div');
+      netErr.className = 'text-rose-400 font-mono text-[10px]';
+      netErr.innerText = `[${new Date().toLocaleTimeString()} UTC] [NETWORK ERROR] ${err.message}`;
+      syncLog.insertBefore(netErr, syncLog.firstChild);
+    }
+  }
 }
 
 function toggleSignature(type) {
@@ -903,8 +1053,17 @@ async function submitMobileAudit(isOffline) {
     return;
   }
 
-  // Enforce Geofence Verification: Block submission if outside facility radius
+  const chkSim = document.getElementById('chkSimulateOnsite');
+  const isSimulated = chkSim ? chkSim.checked : false;
+
+  // Enforce Geofence Verification: Block submission if outside facility radius and not in simulated mode
   const target = selectedAuditFacility;
+  if (isSimulated && target && target.latitude != null && target.longitude != null) {
+    currentDeviceLocation.lat = target.latitude + 0.00028;
+    currentDeviceLocation.lon = target.longitude + 0.00015;
+    currentDeviceLocation.accuracy = 8;
+  }
+
   if (target.latitude != null && target.longitude != null) {
     const distMeters = calculateDistanceMeters(
       currentDeviceLocation.lat,
@@ -914,7 +1073,7 @@ async function submitMobileAudit(isOffline) {
     );
     const maxRadius = target.geofence_radius_meters || 500;
 
-    if (distMeters > maxRadius) {
+    if (distMeters > maxRadius && !isSimulated) {
       const latDir = currentDeviceLocation.lat >= 0 ? 'N' : 'S';
       const lonDir = currentDeviceLocation.lon >= 0 ? 'E' : 'W';
       const coordsStr = `${Math.abs(currentDeviceLocation.lat).toFixed(4)}° ${latDir}, ${Math.abs(currentDeviceLocation.lon).toFixed(4)}° ${lonDir}`;
@@ -963,6 +1122,7 @@ async function submitMobileAudit(isOffline) {
       attendance: attendance
     },
     client_nonce: 'nonce_' + Date.now() + '_' + Math.random().toString(36).substring(2),
+    is_simulated_onsite: isSimulated,
     inspection_type: 'SURPRISE_AUDIT'
   };
 

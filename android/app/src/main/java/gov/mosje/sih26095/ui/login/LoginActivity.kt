@@ -64,15 +64,23 @@ class LoginActivity : AppCompatActivity() {
             input.setText(app.preferences.serverBaseUrl)
             AlertDialog.Builder(this)
                 .setTitle("DoSJE Central Server URL")
-                .setMessage("Enter your computer's local IP and port (e.g., http://192.168.1.121:8088 or http://10.0.2.2:8088 for emulator):")
+                .setMessage("Select or enter server URL:\n\n" +
+                        "• Emulator: http://10.0.2.2:8000\n" +
+                        "• USB Tether (adb reverse tcp:8000 tcp:8000): http://localhost:8000\n" +
+                        "• Physical Wi-Fi LAN: http://<YOUR_PC_IP>:8000")
                 .setView(input)
-                .setPositiveButton("Save & Reconnect") { _, _ ->
+                .setPositiveButton("Save & Connect") { _, _ ->
                     val newUrl = input.text.toString().trim().removeSuffix("/")
                     if (newUrl.isNotEmpty()) {
                         app.preferences.serverBaseUrl = newUrl
                         txtServerConfig.text = "🌐 Server: $newUrl (Tap to change)"
                         loadOfficers()
                     }
+                }
+                .setNeutralButton("Use Localhost (8000)") { _, _ ->
+                    app.preferences.serverBaseUrl = "http://localhost:8000"
+                    txtServerConfig.text = "🌐 Server: http://localhost:8000 (Tap to change)"
+                    loadOfficers()
                 }
                 .setNegativeButton("Cancel", null)
                 .show()
@@ -146,6 +154,26 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun setupFallbackOfficers() {
+        try {
+            assets.open("officers_seed.json").use { stream ->
+                val reader = java.io.InputStreamReader(stream, Charsets.UTF_8)
+                val jsonStr = reader.readText()
+                val json = JSONObject(jsonStr)
+                val array = json.optJSONArray("officers")
+                if (array != null && array.length() > 0) {
+                    val list = mutableListOf<Officer>()
+                    for (i in 0 until array.length()) {
+                        list.add(Officer.fromJson(array.getJSONObject(i)))
+                    }
+                    officerList = list
+                    setupSpinner(list)
+                    return
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
         val defaultOfficers = listOf(
             Officer(
                 id = "33333333-3333-3333-3333-333333333333",

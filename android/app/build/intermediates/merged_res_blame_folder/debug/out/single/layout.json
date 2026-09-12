@@ -1,0 +1,14 @@
+[
+    {
+        "merged": "gov.mosje.sih26095.app-mergeDebugResources-44:/layout/activity_login.xml",
+        "source": "gov.mosje.sih26095.app-main-47:/layout/activity_login.xml"
+    },
+    {
+        "merged": "gov.mosje.sih26095.app-mergeDebugResources-44:/layout/activity_audit.xml",
+        "source": "gov.mosje.sih26095.app-main-47:/layout/activity_audit.xml"
+    },
+    {
+        "merged": "gov.mosje.sih26095.app-mergeDebugResources-44:/layout/item_evidence_photo.xml",
+        "source": "gov.mosje.sih26095.app-main-47:/layout/item_evidence_photo.xml"
+    }
+]

@@ -1,7 +1,9 @@
 package gov.mosje.sih26095.ui.audit
 
+import android.Manifest
 import android.app.AlertDialog
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
@@ -16,6 +18,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -119,6 +122,24 @@ class AuditActivity : AppCompatActivity() {
         }
     }
 
+    // Location Permission Launcher
+    private val locationPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+        val fineGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true
+        val coarseGranted = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+        if (fineGranted || coarseGranted) {
+            Toast.makeText(this, "📍 Real GPS hardware access granted", Toast.LENGTH_SHORT).show()
+            chkSimulateOnsite.isChecked = false
+            locationHelper.setSimulatedOnsite(false)
+            locationHelper.startLocationUpdates()
+        } else {
+            Toast.makeText(this, "⚠️ Location permission denied. Operating in Onsite Simulation mode.", Toast.LENGTH_LONG).show()
+            chkSimulateOnsite.isChecked = true
+            val fac = selectedFacility
+            locationHelper.setSimulatedOnsite(true, fac?.latitude ?: 28.5672, fac?.longitude ?: 77.1734)
+            evaluateGeofence()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_audit)
@@ -127,6 +148,22 @@ class AuditActivity : AppCompatActivity() {
         initViews()
         initLocation()
         loadFacilitiesAndLock()
+        checkAndPromptLocationPermissions()
+    }
+
+    private fun checkAndPromptLocationPermissions() {
+        val fineGranted = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val coarseGranted = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        if (!fineGranted && !coarseGranted) {
+            locationPermissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
+        } else {
+            locationHelper.startLocationUpdates()
+        }
     }
 
     private fun readIntentExtras() {
@@ -242,10 +279,22 @@ class AuditActivity : AppCompatActivity() {
         }
 
         btnRefreshGps.setOnClickListener {
-            chkSimulateOnsite.isChecked = false
-            locationHelper.startLocationUpdates()
-            evaluateGeofence()
-            Toast.makeText(this, "Acquiring live hardware GPS fix...", Toast.LENGTH_SHORT).show()
+            val fineGranted = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+            val coarseGranted = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+            if (!fineGranted && !coarseGranted) {
+                locationPermissionLauncher.launch(
+                    arrayOf(
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    )
+                )
+            } else {
+                chkSimulateOnsite.isChecked = false
+                locationHelper.setSimulatedOnsite(false)
+                locationHelper.startLocationUpdates()
+                evaluateGeofence()
+                Toast.makeText(this, "Acquiring live hardware GPS fix...", Toast.LENGTH_SHORT).show()
+            }
         }
 
         // Submit Actions
@@ -266,7 +315,8 @@ class AuditActivity : AppCompatActivity() {
     private fun updateLocationUI(lat: Double, lon: Double, acc: Float) {
         val latDir = if (lat >= 0) "N" else "S"
         val lonDir = if (lon >= 0) "E" else "W"
-        txtDeviceCoords.text = String.format(Locale.US, "DEVICE: %.4f° %s, %.4f° %s (±%dm)", Math.abs(lat), latDir, Math.abs(lon), lonDir, Math.round(acc))
+        val mode = if (locationHelper.isSimulatedOnsite) " [Simulated Onsite]" else if (locationHelper.isRealGpsFixed) " [Live GPS]" else ""
+        txtDeviceCoords.text = String.format(Locale.US, "DEVICE: %.4f° %s, %.4f° %s (±%dm)%s", Math.abs(lat), latDir, Math.abs(lon), lonDir, Math.round(acc), mode)
     }
 
     private fun loadFacilitiesAndLock() {
@@ -414,7 +464,11 @@ class AuditActivity : AppCompatActivity() {
             return
         }
 
-        // GEOFENCE VALIDATION: Strict blocking when outside perimeter
+        if (chkSimulateOnsite.isChecked) {
+            locationHelper.setSimulatedOnsite(true, target.latitude, target.longitude)
+        }
+
+        // GEOFENCE VALIDATION: Strict blocking when outside perimeter and not in simulated mode
         val distMeters = GeofenceCalculator.calculateDistanceMeters(
             locationHelper.currentLatitude,
             locationHelper.currentLongitude,
@@ -422,7 +476,7 @@ class AuditActivity : AppCompatActivity() {
             target.longitude
         )
 
-        if (distMeters > target.geofenceRadiusMeters && !isOffline) {
+        if (distMeters > target.geofenceRadiusMeters && !isOffline && !chkSimulateOnsite.isChecked) {
             val latDir = if (locationHelper.currentLatitude >= 0) "N" else "S"
             val lonDir = if (locationHelper.currentLongitude >= 0) "E" else "W"
             val coordsStr = String.format(Locale.US, "%.4f° %s, %.4f° %s", Math.abs(locationHelper.currentLatitude), latDir, Math.abs(locationHelper.currentLongitude), lonDir)
@@ -453,7 +507,8 @@ class AuditActivity : AppCompatActivity() {
             photos = photoAdapter.getPhotos(),
             inspectorSigned = inspectorSigned,
             headSigned = headSigned,
-            clientNonce = "android_" + System.currentTimeMillis() + "_" + UUID.randomUUID().toString().take(6)
+            clientNonce = "android_" + System.currentTimeMillis() + "_" + UUID.randomUUID().toString().take(6),
+            isSimulatedOnsite = chkSimulateOnsite.isChecked
         )
 
         if (isOffline) {
@@ -505,6 +560,24 @@ class AuditActivity : AppCompatActivity() {
     }
 
     private fun getDefaultFacilities(): List<Facility> {
+        try {
+            assets.open("facilities_seed.json").use { stream ->
+                val reader = java.io.InputStreamReader(stream, Charsets.UTF_8)
+                val jsonStr = reader.readText()
+                val json = org.json.JSONObject(jsonStr)
+                val array = json.optJSONArray("facilities")
+                if (array != null && array.length() > 0) {
+                    val list = mutableListOf<Facility>()
+                    for (i in 0 until array.length()) {
+                        list.add(Facility.fromJson(array.getJSONObject(i)))
+                    }
+                    return list
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
         return listOf(
             Facility(
                 id = "DOSJE-DL-001",

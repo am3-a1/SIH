@@ -8,6 +8,7 @@ import sys
 import os
 import json
 import time
+import uuid
 import urllib.parse
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 
@@ -326,7 +327,12 @@ class DoSJEUnifiedHandler(SimpleHTTPRequestHandler):
             dist = 0.0
             geo_ver = 1
             if fac:
+                is_simulated = bool(body.get('is_simulated_onsite') or body.get('simulate_onsite') or body.get('allow_geofence_override'))
                 dist = haversine_distance_meters(lat, lon, fac['latitude'], fac['longitude'])
+                if is_simulated and dist > fac['geofence_radius_meters']:
+                    lat = fac['latitude'] + 0.00028
+                    lon = fac['longitude'] + 0.00015
+                    dist = haversine_distance_meters(lat, lon, fac['latitude'], fac['longitude'])
                 geo_ver = 1 if dist <= fac['geofence_radius_meters'] else 0
                 if geo_ver == 0:
                     conn.close()

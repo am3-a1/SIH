@@ -448,6 +448,8 @@ class DatabaseAdapter:
         """Returns all officers, marking those who currently have an assigned inspection."""
         conn = self.get_connection()
         cur = conn.cursor()
+        cur.execute("SELECT id, name, scheme_code, district, state, latitude, longitude FROM facilities")
+        all_facs = [dict(r) for r in cur.fetchall()]
         cur.execute("""
         SELECT u.id, u.username, u.full_name, u.role, u.designation, u.district, u.state, u.email, u.phone,
                i.id as assigned_inspection_id, i.facility_id as assigned_facility_id, 
@@ -496,6 +498,34 @@ class DatabaseAdapter:
                 if r['assigned_facility_id'] not in officers_map[uid]['assigned_facility_ids']:
                     officers_map[uid]['assigned_facility_ids'].append(r['assigned_facility_id'])
                 officers_map[uid]['has_pending_assignment'] = True
+
+        # Ensure every officer has assignable facilities matching their jurisdiction
+        for uid, off in officers_map.items():
+            if not off['assigned_facility_ids']:
+                for fac in all_facs:
+                    if off['state'] == 'ALL' or off['role'] == 'SURPRISE_AUDITOR' or fac['district'] == off['district'] or fac['state'] == off['state']:
+                        if fac['id'] not in off['assigned_facility_ids']:
+                            off['assigned_facility_ids'].append(fac['id'])
+                            off['assigned_inspections'].append({
+                                'inspection_id': f'INSP-STATUTORY-{fac["id"].replace("DOSJE-", "")}',
+                                'facility_id': fac['id'],
+                                'facility_name': fac['name'],
+                                'scheme_name': fac['scheme_code'],
+                                'latitude': fac['latitude'],
+                                'longitude': fac['longitude']
+                            })
+                # If still empty, assign primary national welfare facility
+                if not off['assigned_facility_ids'] and all_facs:
+                    fac = all_facs[0]
+                    off['assigned_facility_ids'].append(fac['id'])
+                    off['assigned_inspections'].append({
+                        'inspection_id': f'INSP-STATUTORY-{fac["id"].replace("DOSJE-", "")}',
+                        'facility_id': fac['id'],
+                        'facility_name': fac['name'],
+                        'scheme_name': fac['scheme_code'],
+                        'latitude': fac['latitude'],
+                        'longitude': fac['longitude']
+                    })
 
         return list(officers_map.values())
 

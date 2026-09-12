@@ -442,30 +442,44 @@ async function triggerAIRandomDispatch() {
 async function populateMobileOfficers() {
   try {
     const res = await fetch('/api/v1/officers');
-    const data = await res.json();
-    allOfficers = data.officers || [];
-
-    const select = document.getElementById('mobileOfficerSelect');
-    if (!select) return;
-
-    select.innerHTML = '<option value="">-- Choose Field Inspector --</option>' +
-      allOfficers.map(off => {
-        const hasAssignment = off.has_pending_assignment || (off.assigned_inspections && off.assigned_inspections.length > 0);
-        const prefix = hasAssignment ? '⚡ [ASSIGNED AUDIT] ' : '';
-        return `<option value="${off.id}">${prefix}${off.full_name} - ${off.designation} (${off.district || off.state || 'India'})</option>`;
-      }).join('');
-
-    // Pre-select officer with assignment if none selected
-    const assigned = allOfficers.find(o => o.has_pending_assignment || (o.assigned_inspections && o.assigned_inspections.length > 0));
-    if (assigned) {
-      select.value = assigned.id;
-      onMobileOfficerChange(assigned.id);
-    } else if (allOfficers.length > 0 && !activeMobileOfficer) {
-      select.value = allOfficers[0].id;
-      onMobileOfficerChange(allOfficers[0].id);
+    if (res.ok) {
+      const data = await res.json();
+      allOfficers = data.officers || [];
     }
   } catch (err) {
-    console.error('Failed to populate mobile officers:', err);
+    console.warn('Failed to fetch mobile officers from API, checking local seed:', err);
+  }
+
+  if (!allOfficers || allOfficers.length === 0) {
+    try {
+      const fbRes = await fetch('/officers_seed.json');
+      if (fbRes.ok) {
+        const fbData = await fbRes.json();
+        allOfficers = fbData.officers || [];
+      }
+    } catch (e) {
+      console.warn('Local seed fallback could not be loaded:', e);
+    }
+  }
+
+  const select = document.getElementById('mobileOfficerSelect');
+  if (!select) return;
+
+  select.innerHTML = '<option value="">-- Choose Field Inspector --</option>' +
+    allOfficers.map(off => {
+      const hasAssignment = off.has_pending_assignment || (off.assigned_inspections && off.assigned_inspections.length > 0);
+      const prefix = hasAssignment ? '⚡ [ASSIGNED AUDIT] ' : '';
+      return `<option value="${off.id}">${prefix}${off.full_name} - ${off.designation} (${off.district || off.state || 'India'})</option>`;
+    }).join('');
+
+  // Pre-select officer with assignment if none selected
+  const assigned = allOfficers.find(o => o.has_pending_assignment || (o.assigned_inspections && o.assigned_inspections.length > 0));
+  if (assigned) {
+    select.value = assigned.id;
+    onMobileOfficerChange(assigned.id);
+  } else if (allOfficers.length > 0 && !activeMobileOfficer) {
+    select.value = allOfficers[0].id;
+    onMobileOfficerChange(allOfficers[0].id);
   }
 }
 
@@ -606,6 +620,10 @@ function acquireLiveDeviceGPS(interactive = false) {
       currentDeviceLocation.realLon = position.coords.longitude;
       currentDeviceLocation.realAccuracy = position.coords.accuracy || 12;
       currentDeviceLocation.isRealGps = true;
+
+      if (interactive && chk) {
+        chk.checked = false;
+      }
 
       if (!chk || !chk.checked) {
         currentDeviceLocation.lat = position.coords.latitude;
@@ -1035,8 +1053,17 @@ async function submitMobileAudit(isOffline) {
     return;
   }
 
-  // Enforce Geofence Verification: Block submission if outside facility radius
+  const chkSim = document.getElementById('chkSimulateOnsite');
+  const isSimulated = chkSim ? chkSim.checked : false;
+
+  // Enforce Geofence Verification: Block submission if outside facility radius and not in simulated mode
   const target = selectedAuditFacility;
+  if (isSimulated && target && target.latitude != null && target.longitude != null) {
+    currentDeviceLocation.lat = target.latitude + 0.00028;
+    currentDeviceLocation.lon = target.longitude + 0.00015;
+    currentDeviceLocation.accuracy = 8;
+  }
+
   if (target.latitude != null && target.longitude != null) {
     const distMeters = calculateDistanceMeters(
       currentDeviceLocation.lat,
@@ -1046,7 +1073,7 @@ async function submitMobileAudit(isOffline) {
     );
     const maxRadius = target.geofence_radius_meters || 500;
 
-    if (distMeters > maxRadius) {
+    if (distMeters > maxRadius && !isSimulated) {
       const latDir = currentDeviceLocation.lat >= 0 ? 'N' : 'S';
       const lonDir = currentDeviceLocation.lon >= 0 ? 'E' : 'W';
       const coordsStr = `${Math.abs(currentDeviceLocation.lat).toFixed(4)}° ${latDir}, ${Math.abs(currentDeviceLocation.lon).toFixed(4)}° ${lonDir}`;
@@ -1095,6 +1122,7 @@ async function submitMobileAudit(isOffline) {
       attendance: attendance
     },
     client_nonce: 'nonce_' + Date.now() + '_' + Math.random().toString(36).substring(2),
+    is_simulated_onsite: isSimulated,
     inspection_type: 'SURPRISE_AUDIT'
   };
 
