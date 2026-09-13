@@ -17,10 +17,9 @@
 
 | Layer | Technology | Implementation Highlights |
 | :--- | :--- | :--- |
-| **Web Portal** | **Next.js 14 (App Router), TypeScript, Tailwind CSS** | • Modern App Router architecture in `Web/src/app`<br>• Interactive National GIS Geofence Map with Leaflet & CartoDB tiles<br>• Real-time Drag-and-Drop Dynamic Form Builder (`/form-builder`)<br>• Working Android Handheld Station with live Form Builder sync (`/android`)<br>• Central Admin Console database explorer & raw JSON inspector (`/admin`)<br>• Facilities (`/facilities`) and Officers (`/officers`) directories<br>• Full Dark Mode support with system preference persistence |
+| **Web Portal & Fullstack API** | **Next.js 14 (App Router), TypeScript, Tailwind CSS** | • Modern App Router architecture in `Web/src/app`<br>• Interactive National GIS Geofence Map with Leaflet & CartoDB tiles<br>• Central CCTV Surveillance Wall with facility menu & ONVIF PTZ (`/cctv`)<br>• Unannounced WebRTC Video Conference with AI Face Tracking (`/vc`)<br>• Real-time Drag-and-Drop Dynamic Form Builder (`/form-builder`)<br>• Working Android Handheld Station with live Form Builder sync (`/android`)<br>• Central Admin Console database explorer & raw JSON inspector (`/admin`)<br>• Facilities (`/facilities`) and Officers (`/officers`) directories<br>• Full Dark Mode support with system preference persistence |
 | **Mobile App (Native)** | **Android (Kotlin), CameraX, PostGIS Client** | • Native production Android client in `android/app/`<br>• Real-time GPS Geofencing perimeter validator (150m radius)<br>• Hardware Camera capture with tamper-evident GPS/Timestamp/SHA-256 HUD overlay<br>• Gallery upload disabled per DoSJE Anti-Spoofing Rule 4.2<br>• Dual digital signature capture (Inspector + NGO In-Charge)<br>• AES-256-GCM encrypted offline package queue with auto-sync<br>• Ready-to-install debug APK in `Web/public/downloads/mosje-inspection.apk` |
-| **Mobile App (Flutter)**| **Flutter (Dart), Cross-Platform** | • Production cross-platform codebase in `sih_inspector_app/`<br>• Geofence verification, camera watermarking, offline sync queue |
-| **Backend** | **Django REST Framework (DRF)** | • Modular Django REST backend in `backend/`<br>• Subsystems for `authentication_rbac`, `facilities`, `inspections`, `cctv_onvif`, `video_conference`, and `ai_services`<br>• Zero-config unified prototype runner in `run_prototype.py` |
+| **Microservice Runner** | **Python 3.9+ REST Service** | • Zero-config unified prototype runner in `run_prototype.py`<br>• Real-time spatial queries, AES-256 ciphering, and video signaling |
 | **Database** | **PostgreSQL + PostGIS** | • Spatial schema in `database/postgis_schema.sql`<br>• `GIST` spatial indices on facility GPS geometries<br>• `ST_DWithin` geofence verification stored procedure<br>• 12+ real-world DoSJE facilities seeded in `database/seed_dosje_data.sql`<br>• Automated SQLite/Haversine fallback in `database/db_adapter.py` |
 | **Video / VC** | **ONVIF, RTSP, WebRTC** | • **ONVIF**: Camera discovery & Profile S/G PTZ controls (`video_engine/onvif_ptz_service.py`)<br>• **RTSP**: Live stream gateway, heartbeat check, frame extractor (`video_engine/rtsp_stream_gateway.py`)<br>• **WebRTC**: Real-time two-way signaling server & random spot-check room coordinator (`video_engine/webrtc_signaling.py`) |
 | **AI / ML** | **Python, TensorFlow / TFLite** | • **Headcount & Attendance**: Model detecting individuals and flagging ghost beneficiary discrepancies (`ai_ml/headcount_detector.py`)<br>• **Beneficiary Privacy Masking**: Automated face-blurring engine under DPDP Act 2023 (`ai_ml/privacy_masker.py`)<br>• **Anti-Spoofing & Tamper Detection**: Velocity anomaly detection, duplicate image hashes (`ai_ml/anomaly_detector.py`)<br>• **Automated Random Dispatch**: Risk-weighted surprise inspection algorithm (`ai_ml/random_dispatch_ai.py`) |
@@ -90,19 +89,19 @@ SIH/
 │           │       ├── GeofenceCalculator.kt        # PostGIS 150m perimeter verification
 │           │       └── LocationHelper.kt            # GPS hardware location provider
 │           └── res/layout/                          # Native Android XML layouts
-├── backend/                        # Django REST Framework Backend
-│   ├── manage.py
-│   ├── config/settings.py, urls.py, wsgi.py
-│   └── apps/
-│       ├── authentication_rbac/    # OAuth2 login & role checking
-│       ├── facilities/             # PostGIS facilities & geofence endpoints
-│       ├── inspections/            # Field audit submissions & reviews
-│       ├── cctv_onvif/             # ONVIF PTZ & RTSP stream gateway
-│       ├── video_conference/       # WebRTC signaling & snapshot logging
-│       └── ai_services/            # AI Headcount, Privacy Mask, Dispatch
-├── sih_inspector_app/              # Flutter Cross-Platform Client
-│   ├── pubspec.yaml
-│   └── lib/                        # Flutter Dart source code
+├── Web/                            # Next.js 14 Fullstack App Router (Port 3000)
+│   ├── src/app/
+│   │   ├── page.tsx                # National GIS Map & Command Dashboard
+│   │   ├── cctv/page.tsx           # Multi-Feed CCTV Surveillance Wall & PTZ
+│   │   ├── vc/page.tsx             # Unannounced WebRTC VC with AI Face Count
+│   │   ├── android/page.tsx        # In-Browser Android Handheld Station
+│   │   ├── form-builder/page.tsx   # Drag-and-Drop Dynamic Checklist Studio
+│   │   ├── facilities/page.tsx     # Institutions & Geo-Fence Registry
+│   │   ├── officers/page.tsx       # 52 Field Officers Roster & Dispatch
+│   │   ├── admin/page.tsx          # Database Operations & Audit Registry
+│   │   └── api/v1/                 # Unified REST API Route Handlers
+│   ├── src/components/             # UI Components (Tailwind CSS + shadcn/ui)
+│   └── src/lib/serverDb.ts         # Server-Side In-Memory / File Database
 ├── database/                       # Spatial Database
 │   ├── postgis_schema.sql          # PostGIS spatial tables & GIST indices
 │   ├── seed_dosje_data.sql         # 12+ real-world DoSJE facilities

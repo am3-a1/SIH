@@ -33,41 +33,46 @@ class HeadcountDetector:
         self.confidence_threshold = confidence_threshold
         self.model_loaded = HAS_TF
 
-    def detect_headcount_from_image(self, image_data: str, facility_registered_count: int) -> dict:
+    def detect_headcount_from_image(self, image_data: str, facility_registered_count: int, client_detected_faces: list = None, client_headcount: int = None) -> dict:
         """
         Analyzes a photo or CCTV video frame (base64 encoded or path).
-        Returns bounding boxes, verified headcount, and discrepancy risk.
+        Cross-references live optical detections against official DoSJE beneficiary registers.
+        Returns bounding boxes, verified headcount, discrepancy percentage, and fraud risk score.
         """
-        # Calculate realistic synthetic detections or run TFLite interpreter
-        # Deterministic simulation based on image hash and registered count
-        hash_seed = sum(image_data.encode('utf-8')) if isinstance(image_data, str) else 1234
-        random.seed(hash_seed % 100000)
+        if client_headcount is not None and client_headcount >= 0:
+            detected_count = client_headcount
+            bounding_boxes = client_detected_faces or []
+        else:
+            # Calculate realistic synthetic detections or run TFLite interpreter
+            # Deterministic simulation based on image hash and registered count
+            hash_seed = sum(image_data.encode('utf-8')) if isinstance(image_data, str) else 1234
+            random.seed(hash_seed % 100000)
 
-        # Realistic detection: variance between 50% to 105% of registered
-        detected_ratio = random.uniform(0.68, 0.98)
-        detected_count = max(1, int(round(facility_registered_count * detected_ratio)))
+            # Realistic detection: variance between 68% to 98% of registered
+            detected_ratio = random.uniform(0.68, 0.98)
+            detected_count = max(1, int(round(facility_registered_count * detected_ratio)))
 
-        # Generate detected bounding boxes for UI visualization [ymin, xmin, ymax, xmax, confidence]
-        bounding_boxes = []
-        for i in range(min(detected_count, 15)):  # return up to 15 visible markers for display
-            ymin = round(random.uniform(0.15, 0.65), 2)
-            xmin = round(random.uniform(0.05, 0.80), 2)
-            height = round(random.uniform(0.15, 0.25), 2)
-            width = round(random.uniform(0.08, 0.15), 2)
-            conf = round(random.uniform(self.confidence_threshold, 0.99), 2)
-            bounding_boxes.append({
-                "id": f"person_{i+1}",
-                "box": [ymin, xmin, min(1.0, ymin + height), min(1.0, xmin + width)],
-                "confidence": conf,
-                "classification": "beneficiary_verified"
-            })
+            # Generate detected bounding boxes for UI visualization [ymin, xmin, ymax, xmax, confidence]
+            bounding_boxes = []
+            for i in range(min(detected_count, 15)):  # return up to 15 visible markers for display
+                ymin = round(random.uniform(0.15, 0.65), 2)
+                xmin = round(random.uniform(0.05, 0.80), 2)
+                height = round(random.uniform(0.15, 0.25), 2)
+                width = round(random.uniform(0.08, 0.15), 2)
+                conf = round(random.uniform(self.confidence_threshold, 0.99), 2)
+                bounding_boxes.append({
+                    "id": f"person_{i+1}",
+                    "box": [ymin, xmin, min(1.0, ymin + height), min(1.0, xmin + width)],
+                    "confidence": conf,
+                    "classification": "beneficiary_verified"
+                })
 
         discrepancy_count = facility_registered_count - detected_count
         discrepancy_percentage = round((discrepancy_count / facility_registered_count) * 100, 1) if facility_registered_count > 0 else 0
 
         # Anomaly determination
-        is_anomaly = discrepancy_percentage > 25.0
-        risk_level = "CRITICAL" if discrepancy_percentage > 40.0 else ("HIGH" if discrepancy_percentage > 25.0 else "NORMAL")
+        is_anomaly = discrepancy_percentage > 20.0
+        risk_level = "CRITICAL" if discrepancy_percentage > 40.0 else ("HIGH" if discrepancy_percentage > 20.0 else "NORMAL")
 
         return {
             "facility_registered_count": facility_registered_count,

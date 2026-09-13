@@ -24,8 +24,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: dosje-drf-api
-    command: python manage.py runserver 0.0.0.0:8000
+    container_name: dosje-api
+    command: python run_prototype.py
     volumes:
       - .:/app
     ports:

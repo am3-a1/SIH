@@ -1,7 +1,4 @@
-# SIH26095 Enterprise Dependencies
-django>=4.2.0
-djangorestframework>=3.14.0
-django-cors-headers>=4.0.0
+# SIH26095 Enterprise Microservice & Algorithm Dependencies
 psycopg2-binary>=2.9.6
 cryptography>=41.0.0
 requests>=2.31.0

@@ -8,6 +8,7 @@ import io
 import json
 import unittest
 from run_prototype import DoSJEUnifiedHandler
+from database.db_adapter import db_adapter
 
 
 class MockSocket:
@@ -61,6 +62,10 @@ def call_handler(method, path, body_dict=None, headers=None):
 
 
 class TestUnifiedAPIHandler(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        db_adapter.reset_to_default_seed()
 
     def test_01_oauth2_login(self):
         status, data = call_handler("POST", "/api/v1/auth/login", {"username": "inspector_delhi"})

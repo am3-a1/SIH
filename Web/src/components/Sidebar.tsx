@@ -12,7 +12,9 @@ import {
   ChevronRight,
   Sun,
   Moon,
-  Database
+  Database,
+  Cctv,
+  Video
 } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
 
@@ -22,6 +24,20 @@ const navigationItems = [
     href: "/",
     icon: LayoutDashboard,
     description: "National Monitoring & GIS"
+  },
+  {
+    name: "CCTV Wall",
+    href: "/cctv",
+    icon: Cctv,
+    description: "Multi-Feed Surveillance & PTZ",
+    badge: "Live"
+  },
+  {
+    name: "Video Conference",
+    href: "/vc",
+    icon: Video,
+    description: "Remote Spot-Check & AI",
+    badge: "AI"
   },
   {
     name: "Android App",

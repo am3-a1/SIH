@@ -20,7 +20,9 @@ import {
   FileEdit,
   Activity,
   MapPin,
-  CheckCircle2
+  CheckCircle2,
+  Cctv,
+  Video
 } from "lucide-react";
 import facilitiesSeed from "@/data/facilities_seed.json";
 import officersSeed from "@/data/officers_seed.json";
@@ -129,6 +131,24 @@ export default function DashboardPage() {
             <Sparkles className="w-3.5 h-3.5 text-rose-200" />
             <span>Risk-Weighted Dispatch</span>
           </button>
+
+          <Link
+            href="/cctv"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-xl text-xs font-bold shadow-xs transition-all"
+            title="Central CCTV Surveillance Wall with ONVIF PTZ"
+          >
+            <Cctv className="w-3.5 h-3.5 text-amber-300" />
+            <span>CCTV Wall</span>
+          </Link>
+
+          <Link
+            href="/vc"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-teal-700 hover:bg-teal-800 text-white rounded-xl text-xs font-bold shadow-xs transition-all"
+            title="Unannounced Remote Video Conference with AI Face Tracking"
+          >
+            <Video className="w-3.5 h-3.5 text-teal-200" />
+            <span>Remote VC</span>
+          </Link>
 
           <Link
             href="/android"

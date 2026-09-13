@@ -31,8 +31,8 @@ from video_engine.webrtc_signaling import webrtc_coordinator
 
 class DoSJEUnifiedHandler(SimpleHTTPRequestHandler):
     """
-    Unified HTTP handler that routes `/api/v1/*` requests to backend services
-    and serves the interactive web portal from `web_preview/`.
+    Unified HTTP handler that routes `/api/v1/*` requests to core AI, Security,
+    and Database microservices.
     """
 
     def do_OPTIONS(self):
@@ -286,27 +286,33 @@ class DoSJEUnifiedHandler(SimpleHTTPRequestHandler):
             })
 
         # ----------------------------------------------------------------------
-        # STATIC WEB PORTAL SERVING (Web/ or fallback web_preview/)
+        # ROOT STATUS & DISCOVERY ROUTE
         # ----------------------------------------------------------------------
-        web_dir = os.path.join(BASE_DIR, "Web") if os.path.exists(os.path.join(BASE_DIR, "Web", "index.html")) else os.path.join(BASE_DIR, "web_preview")
         if path == "" or path == "/":
-            self.serve_file(os.path.join(web_dir, "index.html"), "text/html")
-        elif path.startswith("/"):
-            local_path = os.path.join(web_dir, path.lstrip('/'))
-            if not os.path.exists(local_path):
-                alt_path = os.path.join(BASE_DIR, "web_preview", path.lstrip('/'))
-                if os.path.exists(alt_path):
-                    local_path = alt_path
-            if os.path.exists(local_path) and os.path.isfile(local_path):
-                content_type = "text/html"
-                if local_path.endswith(".js"): content_type = "application/javascript"
-                elif local_path.endswith(".css"): content_type = "text/css"
-                elif local_path.endswith(".png"): content_type = "image/png"
-                elif local_path.endswith(".jpg"): content_type = "image/jpeg"
-                elif local_path.endswith(".json"): content_type = "application/json"
-                self.serve_file(local_path, content_type)
-            else:
-                self.serve_file(os.path.join(web_dir, "index.html"), "text/html")
+            return self.send_json({
+                'name': 'DoSJE Smart Real-Time Monitoring & Inspection Platform API',
+                'status': 'ONLINE',
+                'version': '2.4.0',
+                'frontend_portal': 'http://localhost:3000 (Next.js 14 App Router)',
+                'active_subsystems': [
+                    'OAuth2 & RBAC Authentication',
+                    'PostGIS / ST_DWithin Geofencing',
+                    'YOLOv8 / SSD AI Headcount Verification',
+                    'ONVIF PTZ & RTSP Central Surveillance Wall',
+                    'WebRTC Unannounced Remote VC Auditing',
+                    'AES-256-GCM Hardware-Backed Encryption'
+                ],
+                'endpoints': {
+                    'facilities': '/api/v1/facilities',
+                    'officers': '/api/v1/officers',
+                    'inspections': '/api/v1/inspections',
+                    'cctv_streams': '/api/v1/cctv/streams',
+                    'ai_national_stats': '/api/v1/ai/national-stats',
+                    'ping': '/api/v1/ping'
+                }
+            })
+        else:
+            return self.send_json({'error': 'Endpoint not found', 'path': path}, 404)
 
     def do_POST(self):
         parsed = urllib.parse.urlparse(self.path)
@@ -579,13 +585,20 @@ class DoSJEUnifiedHandler(SimpleHTTPRequestHandler):
 
         elif path == "/api/v1/ai/headcount-scan":
             fac_id = body.get('facility_id', 'DOSJE-DL-001')
+            client_count = body.get('client_detected_count')
+            client_boxes = body.get('client_detected_boxes')
             conn = db_adapter.get_connection()
             cur = conn.cursor()
             cur.execute("SELECT enrolled_beneficiaries FROM facilities WHERE id = ?", (fac_id,))
             row = cur.fetchone()
             conn.close()
             enrolled = row['enrolled_beneficiaries'] if row else 88
-            res = headcount_detector.detect_headcount_from_image(body.get('image_data', 'frame'), enrolled)
+            res = headcount_detector.detect_headcount_from_image(
+                body.get('image_data', 'frame'),
+                enrolled,
+                client_detected_faces=client_boxes,
+                client_headcount=client_count
+            )
             return self.send_json(res)
 
         elif path == "/api/v1/ai/privacy-mask":
