@@ -5,6 +5,11 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
+import android.util.Log
+import android.util.TypedValue
+import android.view.Gravity
 import android.view.View
 import android.widget.Button
 import android.widget.CheckBox
@@ -24,16 +29,21 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import gov.mosje.sih26095.DoSJEApplication
 import gov.mosje.sih26095.R
+import gov.mosje.sih26095.api.models.ChecklistForm
+import gov.mosje.sih26095.api.models.ChecklistQuestion
 import gov.mosje.sih26095.api.models.EvidencePhoto
 import gov.mosje.sih26095.api.models.Facility
 import gov.mosje.sih26095.api.models.InspectionScores
 import gov.mosje.sih26095.api.models.InspectionSubmission
+import gov.mosje.sih26095.api.models.RubricItem
 import gov.mosje.sih26095.camera.NativeCameraCaptureActivity
 import gov.mosje.sih26095.security.HashUtil
 import gov.mosje.sih26095.util.GeofenceCalculator
 import gov.mosje.sih26095.util.LocationHelper
 import kotlinx.coroutines.launch
 import org.json.JSONArray
+import org.json.JSONObject
+import java.io.InputStreamReader
 import java.util.Locale
 import java.util.UUID
 
@@ -62,33 +72,16 @@ class AuditActivity : AppCompatActivity() {
     private lateinit var txtFacilityCap: TextView
     private lateinit var txtFacilityGrade: TextView
 
-    // Statutory Checklist Items
-    private lateinit var editObservation: EditText
-    private lateinit var btnCompliant: Button
-    private lateinit var btnBreach: Button
-    private lateinit var layoutBreachAlert: LinearLayout
-    private var isFireSafetyCompliant: Boolean = true
-
-    private lateinit var valRatio: TextView
-    private lateinit var seekRatio: SeekBar
-
-    private lateinit var layoutSnapPhotoPrompt: LinearLayout
-    private lateinit var recyclerEvidenceGallery: RecyclerView
+    // Dynamic Checklist Section (Synced via /api/v1/checklist)
+    private lateinit var txtChecklistTitle: TextView
+    private lateinit var txtChecklistCount: TextView
+    private lateinit var layoutDynamicQuestions: LinearLayout
     private lateinit var photoAdapter: PhotoGalleryAdapter
+    private val attachedGalleryViews = mutableListOf<RecyclerView>()
 
-    // Statutory Rubrics Evaluation
-    private lateinit var txtTotalScore: TextView
-    private lateinit var txtGradeBadge: TextView
-    private lateinit var valInfra: TextView
-    private lateinit var valHygiene: TextView
-    private lateinit var valFood: TextView
-    private lateinit var valMedical: TextView
-    private lateinit var valAttendance: TextView
-    private lateinit var seekInfra: SeekBar
-    private lateinit var seekHygiene: SeekBar
-    private lateinit var seekFood: SeekBar
-    private lateinit var seekMedical: SeekBar
-    private lateinit var seekAttendance: SeekBar
+    private var activeChecklist: ChecklistForm? = null
+    private val formResponses = mutableMapOf<String, Any>()
+    private var currentInspectionScores = InspectionScores(85, 80, 85, 75, 85)
 
     // Actions
     private lateinit var btnSubmitCloud: Button
@@ -127,7 +120,9 @@ class AuditActivity : AppCompatActivity() {
                 officerName = officerName
             )
             photoAdapter.addPhoto(photo)
-            recyclerEvidenceGallery.visibility = View.VISIBLE
+            for (gallery in attachedGalleryViews) {
+                gallery.visibility = View.VISIBLE
+            }
             Toast.makeText(this, "📸 On-Site Photo Stamped with Geotag HUD & Cryptographic Seal", Toast.LENGTH_SHORT).show()
         }
     }
@@ -156,6 +151,7 @@ class AuditActivity : AppCompatActivity() {
         initViews()
         initLocation()
         loadAssignedFacility()
+        loadChecklistSchema()
         checkLocationPermissions()
     }
 
@@ -197,30 +193,11 @@ class AuditActivity : AppCompatActivity() {
         txtFacilityCap = findViewById(R.id.txtFacilityCap)
         txtFacilityGrade = findViewById(R.id.txtFacilityGrade)
 
-        editObservation = findViewById(R.id.editObservation)
-        btnCompliant = findViewById(R.id.btnCompliant)
-        btnBreach = findViewById(R.id.btnBreach)
-        layoutBreachAlert = findViewById(R.id.layoutBreachAlert)
-
-        valRatio = findViewById(R.id.valRatio)
-        seekRatio = findViewById(R.id.seekRatio)
-
-        layoutSnapPhotoPrompt = findViewById(R.id.layoutSnapPhotoPrompt)
-        recyclerEvidenceGallery = findViewById(R.id.recyclerEvidenceGallery)
-
-        txtTotalScore = findViewById(R.id.txtTotalScore)
-        txtGradeBadge = findViewById(R.id.txtGradeBadge)
-        valInfra = findViewById(R.id.valInfra)
-        valHygiene = findViewById(R.id.valHygiene)
-        valFood = findViewById(R.id.valFood)
-        valMedical = findViewById(R.id.valMedical)
-        valAttendance = findViewById(R.id.valAttendance)
-
-        seekInfra = findViewById(R.id.seekInfra)
-        seekHygiene = findViewById(R.id.seekHygiene)
-        seekFood = findViewById(R.id.seekFood)
-        seekMedical = findViewById(R.id.seekMedical)
-        seekAttendance = findViewById(R.id.seekAttendance)
+        // Dynamic Checklist
+        txtChecklistTitle = findViewById(R.id.txtChecklistTitle)
+        txtChecklistCount = findViewById(R.id.txtChecklistCount)
+        layoutDynamicQuestions = findViewById(R.id.layoutDynamicQuestions)
+        photoAdapter = PhotoGalleryAdapter()
 
         btnSubmitCloud = findViewById(R.id.btnSubmitCloud)
         btnSaveOffline = findViewById(R.id.btnSaveOffline)
@@ -233,58 +210,6 @@ class AuditActivity : AppCompatActivity() {
 
         txtHeaderOfficer.text = "$officerName (Field Inspector)"
         btnLogout.setOnClickListener { finish() }
-
-        // Fire safety buttons toggle
-        btnCompliant.setOnClickListener {
-            isFireSafetyCompliant = true
-            btnCompliant.backgroundTintList = ColorStateList.valueOf(getColor(R.color.emerald_dark))
-            btnCompliant.setTextColor(getColor(R.color.white))
-            btnBreach.backgroundTintList = ColorStateList.valueOf(getColor(R.color.slate_800))
-            btnBreach.setTextColor(getColor(R.color.slate_300))
-            layoutBreachAlert.visibility = View.GONE
-        }
-
-        btnBreach.setOnClickListener {
-            isFireSafetyCompliant = false
-            btnBreach.backgroundTintList = ColorStateList.valueOf(getColor(R.color.rose_error))
-            btnBreach.setTextColor(getColor(R.color.white))
-            btnCompliant.backgroundTintList = ColorStateList.valueOf(getColor(R.color.slate_800))
-            btnCompliant.setTextColor(getColor(R.color.slate_300))
-            layoutBreachAlert.visibility = View.VISIBLE
-        }
-
-        // Beneficiary Ratio SeekBar
-        seekRatio.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                valRatio.text = "$progress%"
-            }
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-        })
-
-        // Direct Camera prompt
-        layoutSnapPhotoPrompt.setOnClickListener {
-            triggerCameraCapture("Dining & Kitchen Sanitation")
-        }
-
-        // Photo Gallery RecyclerView
-        photoAdapter = PhotoGalleryAdapter()
-        recyclerEvidenceGallery.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        recyclerEvidenceGallery.adapter = photoAdapter
-
-        // Rubrics SeekBars
-        val rubricListener = object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                updateRubricsUI()
-            }
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-        }
-        seekInfra.setOnSeekBarChangeListener(rubricListener)
-        seekHygiene.setOnSeekBarChangeListener(rubricListener)
-        seekFood.setOnSeekBarChangeListener(rubricListener)
-        seekMedical.setOnSeekBarChangeListener(rubricListener)
-        seekAttendance.setOnSeekBarChangeListener(rubricListener)
 
         // GPS Simulator CheckBox
         chkSimulateOnsite.setOnCheckedChangeListener { _, isChecked ->
@@ -299,8 +224,564 @@ class AuditActivity : AppCompatActivity() {
 
         // Start Another Inspection
         btnStartAnother.setOnClickListener { finish() }
+    }
 
-        updateRubricsUI()
+    private fun dpToPx(dp: Int): Int {
+        return (dp * resources.displayMetrics.density).toInt()
+    }
+
+    /**
+     * Loads the active checklist schema from the server (/api/v1/checklist),
+     * falling back gracefully to the offline schema asset.
+     */
+    private fun loadChecklistSchema() {
+        lifecycleScope.launch {
+            try {
+                val app = DoSJEApplication.instance
+                val result = app.apiClient.getChecklist()
+                val form = result.getOrNull()
+                if (form != null && form.questions.isNotEmpty()) {
+                    renderDynamicChecklist(form)
+                    return@launch
+                }
+            } catch (e: Exception) {
+                Log.w("AuditActivity", "Failed to fetch remote checklist: ${e.message}")
+            }
+
+            // Fallback to offline assets
+            try {
+                assets.open("checklist_schema.json").use { stream ->
+                    val jsonStr = InputStreamReader(stream, Charsets.UTF_8).readText()
+                    val assetForm = ChecklistForm.fromJson(JSONObject(jsonStr))
+                    renderDynamicChecklist(assetForm)
+                }
+            } catch (e: Exception) {
+                Log.e("AuditActivity", "Failed to load asset checklist: ${e.message}")
+            }
+        }
+    }
+
+    /**
+     * Dynamically renders native UI cards for every question in the checklist.
+     */
+    private fun renderDynamicChecklist(form: ChecklistForm) {
+        activeChecklist = form
+        txtChecklistTitle.text = "✨ ${form.title}"
+        txtChecklistCount.text = "${form.questions.size} Items"
+        layoutDynamicQuestions.removeAllViews()
+        attachedGalleryViews.clear()
+
+        for ((idx, q) in form.questions.withIndex()) {
+            when (q.type) {
+                "text" -> buildTextQuestionCard(idx + 1, q)
+                "yes_no" -> buildYesNoQuestionCard(idx + 1, q)
+                "number_range" -> buildNumberRangeQuestionCard(idx + 1, q)
+                "photo_evidence" -> buildPhotoEvidenceQuestionCard(idx + 1, q)
+                "rubrics_checklist" -> buildRubricsQuestionCard(idx + 1, q)
+                else -> buildTextQuestionCard(idx + 1, q)
+            }
+        }
+    }
+
+    private fun createQuestionCard(): LinearLayout {
+        return LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundResource(R.drawable.bg_dark_card)
+            val pad = dpToPx(12)
+            setPadding(pad, pad, pad, pad)
+            val lp = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                bottomMargin = dpToPx(10)
+            }
+            layoutParams = lp
+        }
+    }
+
+    private fun addHeaderToCard(card: LinearLayout, index: Int, q: ChecklistQuestion) {
+        val titleView = TextView(this).apply {
+            text = "$index. ${q.title}${if (q.required) " *" else ""}"
+            setTextColor(getColor(R.color.white))
+            setTypeface(typeface, android.graphics.Typeface.BOLD)
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f)
+        }
+        card.addView(titleView)
+
+        if (!q.description.isNullOrEmpty()) {
+            val descView = TextView(this).apply {
+                text = q.description
+                setTextColor(getColor(R.color.slate_400))
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, 9f)
+                val lp = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    topMargin = dpToPx(2)
+                }
+                layoutParams = lp
+            }
+            card.addView(descView)
+        }
+    }
+
+    // 1. TEXT QUESTION
+    private fun buildTextQuestionCard(index: Int, q: ChecklistQuestion) {
+        val card = createQuestionCard()
+        addHeaderToCard(card, index, q)
+
+        val editText = EditText(this).apply {
+            hint = q.placeholder ?: "Enter inspector observation..."
+            setHintTextColor(getColor(R.color.slate_500))
+            setTextColor(getColor(R.color.white))
+            setBackgroundResource(R.drawable.bg_dark_input)
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 10f)
+            val hPad = dpToPx(10)
+            val vPad = dpToPx(8)
+            setPadding(hPad, vPad, hPad, vPad)
+            minHeight = dpToPx(42)
+
+            val lp = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = dpToPx(8)
+            }
+            layoutParams = lp
+
+            val defaultVal = formResponses[q.id] as? String ?: ""
+            setText(defaultVal)
+
+            addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                    formResponses[q.id] = s?.toString() ?: ""
+                }
+                override fun afterTextChanged(s: Editable?) {}
+            })
+        }
+        card.addView(editText)
+        layoutDynamicQuestions.addView(card)
+    }
+
+    // 2. YES/NO QUESTION
+    private fun buildYesNoQuestionCard(index: Int, q: ChecklistQuestion) {
+        val card = createQuestionCard()
+        addHeaderToCard(card, index, q)
+
+        val buttonsRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            val lp = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = dpToPx(8)
+            }
+            layoutParams = lp
+        }
+
+        val breachAlert = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundResource(R.drawable.bg_radar_breach)
+            val pad = dpToPx(8)
+            setPadding(pad, pad, pad, pad)
+            visibility = View.GONE
+            val lp = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = dpToPx(6)
+            }
+            layoutParams = lp
+
+            val alertText = TextView(this@AuditActivity).apply {
+                text = "⚠️ Statutory Breach: Dispatches high-priority PMU alert"
+                setTextColor(getColor(R.color.rose_300))
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, 8f)
+            }
+            addView(alertText)
+        }
+
+        val btnPositive = Button(this).apply {
+            text = "✓ " + (if (q.positiveLabel.isNotEmpty()) q.positiveLabel else "Compliant")
+            setTextColor(getColor(R.color.white))
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 9f)
+            setTypeface(typeface, android.graphics.Typeface.BOLD)
+            backgroundTintList = ColorStateList.valueOf(getColor(R.color.emerald_dark))
+            val lp = LinearLayout.LayoutParams(0, dpToPx(38), 1f).apply {
+                marginEnd = dpToPx(4)
+            }
+            layoutParams = lp
+        }
+
+        val btnNegative = Button(this).apply {
+            text = "✕ " + (if (q.negativeLabel.isNotEmpty()) q.negativeLabel else "Breach")
+            setTextColor(getColor(R.color.slate_300))
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 9f)
+            backgroundTintList = ColorStateList.valueOf(getColor(R.color.slate_800))
+            val lp = LinearLayout.LayoutParams(0, dpToPx(38), 1f).apply {
+                marginStart = dpToPx(4)
+            }
+            layoutParams = lp
+        }
+
+        formResponses[q.id] = true
+
+        btnPositive.setOnClickListener {
+            formResponses[q.id] = true
+            btnPositive.backgroundTintList = ColorStateList.valueOf(getColor(R.color.emerald_dark))
+            btnPositive.setTextColor(getColor(R.color.white))
+            btnNegative.backgroundTintList = ColorStateList.valueOf(getColor(R.color.slate_800))
+            btnNegative.setTextColor(getColor(R.color.slate_300))
+            breachAlert.visibility = View.GONE
+        }
+
+        btnNegative.setOnClickListener {
+            formResponses[q.id] = false
+            btnNegative.backgroundTintList = ColorStateList.valueOf(getColor(R.color.rose_error))
+            btnNegative.setTextColor(getColor(R.color.white))
+            btnPositive.backgroundTintList = ColorStateList.valueOf(getColor(R.color.slate_800))
+            btnPositive.setTextColor(getColor(R.color.slate_300))
+            if (q.criticalFailure) {
+                breachAlert.visibility = View.VISIBLE
+            }
+        }
+
+        buttonsRow.addView(btnPositive)
+        buttonsRow.addView(btnNegative)
+        card.addView(buttonsRow)
+        card.addView(breachAlert)
+        layoutDynamicQuestions.addView(card)
+    }
+
+    // 3. NUMBER RANGE QUESTION
+    private fun buildNumberRangeQuestionCard(index: Int, q: ChecklistQuestion) {
+        val card = createQuestionCard()
+        addHeaderToCard(card, index, q)
+
+        val unitStr = if (!q.unit.isNullOrEmpty()) " ${q.unit}" else ""
+        val initialVal = q.targetThreshold ?: q.min
+
+        val labelRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            val lp = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = dpToPx(4)
+            }
+            layoutParams = lp
+        }
+
+        val promptLabel = TextView(this).apply {
+            text = "Recorded Value:"
+            setTextColor(getColor(R.color.slate_400))
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 10f)
+            val lp = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            layoutParams = lp
+        }
+
+        val valDisplay = TextView(this).apply {
+            text = "$initialVal$unitStr"
+            setTextColor(getColor(R.color.amber_300))
+            setTypeface(android.graphics.Typeface.MONOSPACE, android.graphics.Typeface.BOLD)
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 10f)
+        }
+
+        labelRow.addView(promptLabel)
+        labelRow.addView(valDisplay)
+        card.addView(labelRow)
+
+        val seekBar = SeekBar(this).apply {
+            max = if (q.max > 0) q.max else 100
+            progress = initialVal
+            thumbTintList = ColorStateList.valueOf(getColor(R.color.amber_400))
+            progressTintList = ColorStateList.valueOf(getColor(R.color.amber_400))
+            val lp = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = dpToPx(4)
+            }
+            layoutParams = lp
+
+            setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(sb: SeekBar?, prog: Int, fromUser: Boolean) {
+                    valDisplay.text = "$prog$unitStr"
+                    formResponses[q.id] = prog
+                }
+                override fun onStartTrackingTouch(sb: SeekBar?) {}
+                override fun onStopTrackingTouch(sb: SeekBar?) {}
+            })
+        }
+        card.addView(seekBar)
+
+        formResponses[q.id] = initialVal
+        layoutDynamicQuestions.addView(card)
+    }
+
+    // 4. PHOTO EVIDENCE QUESTION
+    private fun buildPhotoEvidenceQuestionCard(index: Int, q: ChecklistQuestion) {
+        val card = createQuestionCard()
+        addHeaderToCard(card, index, q)
+
+        val promptButton = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER
+            setBackgroundResource(R.drawable.bg_dark_input)
+            val vPad = dpToPx(14)
+            val hPad = dpToPx(10)
+            setPadding(hPad, vPad, hPad, vPad)
+            val lp = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = dpToPx(8)
+            }
+            layoutParams = lp
+
+            val cameraIcon = ImageView(this@AuditActivity).apply {
+                setImageResource(R.drawable.ic_camera)
+                val iconSize = dpToPx(36)
+                layoutParams = LinearLayout.LayoutParams(iconSize, iconSize)
+            }
+            val titleText = TextView(this@AuditActivity).apply {
+                text = "Snap Direct On-Site Camera Photo"
+                setTextColor(getColor(R.color.white))
+                setTypeface(typeface, android.graphics.Typeface.BOLD)
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f)
+                val lp = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    topMargin = dpToPx(6)
+                }
+                layoutParams = lp
+            }
+            val subtitleText = TextView(this@AuditActivity).apply {
+                text = "GPS Geotag HUD & SHA-256 Watermark Stamped Directly"
+                setTextColor(getColor(R.color.amber_300))
+                setTypeface(android.graphics.Typeface.MONOSPACE)
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, 8f)
+                val lp = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    topMargin = dpToPx(1)
+                }
+                layoutParams = lp
+            }
+            val noticeText = TextView(this@AuditActivity).apply {
+                text = "🔒 Device gallery upload disabled per DoSJE Anti-Spoofing Rule 4.2"
+                setTextColor(getColor(R.color.slate_500))
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, 8f)
+                val lp = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    topMargin = dpToPx(6)
+                }
+                layoutParams = lp
+            }
+
+            addView(cameraIcon)
+            addView(titleText)
+            addView(subtitleText)
+            addView(noticeText)
+
+            setOnClickListener {
+                triggerCameraCapture(q.photoCategory ?: "On-Site Evidence")
+            }
+        }
+        card.addView(promptButton)
+
+        val recyclerGallery = RecyclerView(this).apply {
+            layoutManager = LinearLayoutManager(this@AuditActivity, LinearLayoutManager.HORIZONTAL, false)
+            adapter = photoAdapter
+            val lp = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                dpToPx(140)
+            ).apply {
+                topMargin = dpToPx(8)
+            }
+            layoutParams = lp
+            visibility = if (photoAdapter.itemCount > 0) View.VISIBLE else View.GONE
+        }
+        card.addView(recyclerGallery)
+        attachedGalleryViews.add(recyclerGallery)
+
+        layoutDynamicQuestions.addView(card)
+    }
+
+    // 5. RUBRICS CHECKLIST QUESTION
+    private fun buildRubricsQuestionCard(index: Int, q: ChecklistQuestion) {
+        val card = createQuestionCard()
+
+        val headerRow = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            val lp = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                bottomMargin = dpToPx(8)
+            }
+            layoutParams = lp
+        }
+
+        val titleView = TextView(this).apply {
+            text = "🎖️ ${q.title}"
+            setTextColor(getColor(R.color.teal_300))
+            setTypeface(typeface, android.graphics.Typeface.BOLD)
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f)
+            val lp = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            layoutParams = lp
+        }
+
+        val txtTotal = TextView(this).apply {
+            text = "85/100"
+            setTextColor(getColor(R.color.white))
+            setTypeface(android.graphics.Typeface.MONOSPACE, android.graphics.Typeface.BOLD)
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 10f)
+            val lp = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                marginEnd = dpToPx(6)
+            }
+            layoutParams = lp
+        }
+
+        val txtGrade = TextView(this).apply {
+            text = "Grade A"
+            setTextColor(getColor(R.color.emerald_300))
+            setBackgroundResource(R.drawable.bg_badge_emerald)
+            setTypeface(typeface, android.graphics.Typeface.BOLD)
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 8f)
+            val hPad = dpToPx(6)
+            val vPad = dpToPx(2)
+            setPadding(hPad, vPad, hPad, vPad)
+        }
+
+        headerRow.addView(titleView)
+        headerRow.addView(txtTotal)
+        headerRow.addView(txtGrade)
+        card.addView(headerRow)
+
+        val rubricsList = if (q.rubrics.isNotEmpty()) q.rubrics else listOf(
+            RubricItem("r_infra", "1. Infrastructure & Fire Safety", 20, 85),
+            RubricItem("r_hygiene", "2. Hygiene & Cleanliness", 20, 85),
+            RubricItem("r_food", "3. Food & Nutrition Standard", 20, 85),
+            RubricItem("r_medical", "4. Medical Ward & Care Log", 20, 80),
+            RubricItem("r_attendance", "5. Staff & Beneficiary Roll", 20, 85)
+        )
+
+        val rubricScoreMap = mutableMapOf<String, Int>()
+        val seekBars = mutableListOf<Pair<RubricItem, SeekBar>>()
+
+        fun updateRubricScores() {
+            var totalWeight = 0
+            var weightedSum = 0.0
+            for ((item, sb) in seekBars) {
+                val weight = if (item.weight > 0) item.weight else 20
+                totalWeight += weight
+                weightedSum += sb.progress * weight
+                rubricScoreMap[item.id] = sb.progress
+            }
+
+            val finalScore = if (totalWeight > 0) Math.round(weightedSum / totalWeight).toInt() else 85
+            txtTotal.text = "$finalScore/100"
+
+            when {
+                finalScore >= 80 -> {
+                    txtGrade.text = "Grade A"
+                    txtGrade.setBackgroundResource(R.drawable.bg_badge_emerald)
+                    txtGrade.setTextColor(getColor(R.color.emerald_300))
+                }
+                finalScore >= 60 -> {
+                    txtGrade.text = "Grade B"
+                    txtGrade.setBackgroundResource(R.drawable.bg_badge_teal)
+                    txtGrade.setTextColor(getColor(R.color.teal_300))
+                }
+                finalScore >= 40 -> {
+                    txtGrade.text = "Grade C"
+                    txtGrade.setBackgroundResource(R.drawable.bg_badge_amber)
+                    txtGrade.setTextColor(getColor(R.color.amber_300))
+                }
+                else -> {
+                    txtGrade.text = "Grade D"
+                    txtGrade.setBackgroundResource(R.drawable.bg_badge_slate)
+                    txtGrade.setTextColor(getColor(R.color.rose_error))
+                }
+            }
+
+            currentInspectionScores = InspectionScores(
+                infrastructure = rubricScoreMap["r_infra"] ?: rubricScoreMap.values.firstOrNull() ?: finalScore,
+                hygiene = rubricScoreMap["r_hygiene"] ?: finalScore,
+                food = rubricScoreMap["r_food"] ?: finalScore,
+                medical = rubricScoreMap["r_medical"] ?: finalScore,
+                attendance = rubricScoreMap["r_attendance"] ?: finalScore
+            )
+            formResponses[q.id] = rubricScoreMap
+        }
+
+        for (item in rubricsList) {
+            val rubricRow = LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                val lp = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+                layoutParams = lp
+            }
+
+            val nameLabel = TextView(this).apply {
+                text = item.name
+                setTextColor(getColor(R.color.slate_300))
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, 9f)
+                val lp = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                layoutParams = lp
+            }
+
+            val scoreLabel = TextView(this).apply {
+                text = "${item.defaultScore}% (${item.weight}%)"
+                setTextColor(getColor(R.color.teal_300))
+                setTypeface(android.graphics.Typeface.MONOSPACE)
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, 9f)
+            }
+
+            rubricRow.addView(nameLabel)
+            rubricRow.addView(scoreLabel)
+            card.addView(rubricRow)
+
+            val seekBar = SeekBar(this).apply {
+                max = 100
+                progress = item.defaultScore
+                thumbTintList = ColorStateList.valueOf(getColor(R.color.teal_400))
+                progressTintList = ColorStateList.valueOf(getColor(R.color.teal_400))
+                val lp = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    bottomMargin = dpToPx(6)
+                }
+                layoutParams = lp
+
+                setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                    override fun onProgressChanged(sb: SeekBar?, prog: Int, fromUser: Boolean) {
+                        scoreLabel.text = "$prog% (${item.weight}%)"
+                        updateRubricScores()
+                    }
+                    override fun onStartTrackingTouch(sb: SeekBar?) {}
+                    override fun onStopTrackingTouch(sb: SeekBar?) {}
+                })
+            }
+            card.addView(seekBar)
+            seekBars.add(Pair(item, seekBar))
+        }
+
+        updateRubricScores()
+        layoutDynamicQuestions.addView(card)
     }
 
     private fun initLocation() {
@@ -396,48 +877,6 @@ class AuditActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateRubricsUI(): InspectionScores {
-        val infra = seekInfra.progress
-        val hygiene = seekHygiene.progress
-        val food = seekFood.progress
-        val medical = seekMedical.progress
-        val attendance = seekAttendance.progress
-
-        valInfra.text = "$infra% (20%)"
-        valHygiene.text = "$hygiene% (20%)"
-        valFood.text = "$food% (20%)"
-        valMedical.text = "$medical% (20%)"
-        valAttendance.text = "$attendance% (20%)"
-
-        val scores = InspectionScores(infra, hygiene, food, medical, attendance)
-        txtTotalScore.text = "${scores.totalScore}/100"
-
-        when {
-            scores.totalScore >= 80 -> {
-                txtGradeBadge.text = "Grade A"
-                txtGradeBadge.setBackgroundResource(R.drawable.bg_badge_emerald)
-                txtGradeBadge.setTextColor(getColor(R.color.emerald_300))
-            }
-            scores.totalScore >= 60 -> {
-                txtGradeBadge.text = "Grade B"
-                txtGradeBadge.setBackgroundResource(R.drawable.bg_badge_teal)
-                txtGradeBadge.setTextColor(getColor(R.color.teal_300))
-            }
-            scores.totalScore >= 40 -> {
-                txtGradeBadge.text = "Grade C"
-                txtGradeBadge.setBackgroundResource(R.drawable.bg_badge_amber)
-                txtGradeBadge.setTextColor(getColor(R.color.amber_300))
-            }
-            else -> {
-                txtGradeBadge.text = "Grade D"
-                txtGradeBadge.setBackgroundResource(R.drawable.bg_badge_slate)
-                txtGradeBadge.setTextColor(getColor(R.color.rose_error))
-            }
-        }
-
-        return scores
-    }
-
     private fun triggerCameraCapture(category: String) {
         val target = selectedFacility ?: return
         val intent = Intent(this, NativeCameraCaptureActivity::class.java).apply {
@@ -485,7 +924,6 @@ class AuditActivity : AppCompatActivity() {
             return
         }
 
-        val scores = updateRubricsUI()
         val submission = InspectionSubmission(
             inspectionId = inspectionId,
             facilityId = target.id,
@@ -494,12 +932,13 @@ class AuditActivity : AppCompatActivity() {
             inspectorName = officerName,
             inspectorLatitude = locationHelper.currentLatitude,
             inspectorLongitude = locationHelper.currentLongitude,
-            scores = scores,
+            scores = currentInspectionScores,
             photos = photoAdapter.getPhotos(),
             inspectorSigned = true,
             headSigned = true,
             clientNonce = "android_" + System.currentTimeMillis() + "_" + UUID.randomUUID().toString().take(6),
-            isSimulatedOnsite = chkSimulateOnsite.isChecked
+            isSimulatedOnsite = chkSimulateOnsite.isChecked,
+            responses = formResponses
         )
 
         if (isOffline) {
@@ -518,47 +957,45 @@ class AuditActivity : AppCompatActivity() {
         }
 
         // Online Cloud Submission
+        btnSubmitCloud.isEnabled = false
+        btnSubmitCloud.text = "Encrypting & Stamping to GovCloud..."
+
         lifecycleScope.launch {
             val app = DoSJEApplication.instance
-            btnSubmitCloud.isEnabled = false
-            btnSubmitCloud.text = "Encrypting & Uploading to DoSJE..."
-
             val result = app.apiClient.submitInspection(submission)
+
             btnSubmitCloud.isEnabled = true
             btnSubmitCloud.text = "Submit Encrypted Audit to DoSJE"
 
-            result.onSuccess { resp ->
+            result.onSuccess { response ->
                 showSuccessScreen(
-                    inspectionId = resp.inspectionId.ifEmpty { inspectionId },
+                    inspectionId = response.inspectionId.ifEmpty { inspectionId },
                     facilityName = target.name,
                     auditorName = officerName,
-                    hash = resp.aes256PackageHash
+                    hash = response.aes256PackageHash
                 )
             }.onFailure { err ->
                 AlertDialog.Builder(this@AuditActivity)
-                    .setTitle("⚠️ Submission Notice")
-                    .setMessage("${err.message}\n\nWould you like to save this audit locally in the encrypted offline package queue?")
-                    .setPositiveButton("Save Offline Package") { _, _ ->
-                        submitAudit(isOffline = true)
-                    }
-                    .setNegativeButton("Retry", null)
+                    .setTitle("Submission Failed")
+                    .setMessage(err.message ?: "Connection error. You can tap 'Save Offline Package' to store in local enclave.")
+                    .setPositiveButton("OK", null)
                     .show()
             }
         }
     }
 
-    private fun showSuccessScreen(inspectionId: String, facilityName: String, auditorName: String, hash: String) {
+    private fun showSuccessScreen(
+        inspectionId: String,
+        facilityName: String,
+        auditorName: String,
+        hash: String
+    ) {
         scrollAuditContainer.visibility = View.GONE
         layoutSuccessContainer.visibility = View.VISIBLE
 
         txtSuccessInspectionId.text = inspectionId
         txtSuccessFacility.text = facilityName
-        txtSuccessAuditor.text = auditorName
-        txtSuccessHash.text = "SHA-256 SEAL: $hash"
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        locationHelper.stopLocationUpdates()
+        txtSuccessAuditor.text = "$auditorName (Field Inspector)"
+        txtSuccessHash.text = hash
     }
 }

@@ -31,8 +31,8 @@ export function triggerRandomOfficerDispatch(): DispatchEvent {
   const officers: Officer[] = officersSeed.officers || [];
   const facilities: Facility[] = facilitiesSeed.facilities || [];
 
-  // Pick from officers (prefer standby officers)
-  const standbyOfficers = officers.filter(o => !o.has_pending_assignment);
+  // Pick from officers (prefer standby officers without active assignment)
+  const standbyOfficers = officers.filter((o) => !o.has_pending_assignment);
   const pool = standbyOfficers.length > 0 ? standbyOfficers : officers;
   const officer = pool[Math.floor(Math.random() * pool.length)];
 
@@ -40,18 +40,23 @@ export function triggerRandomOfficerDispatch(): DispatchEvent {
   const facility = facilities[Math.floor(Math.random() * facilities.length)];
 
   const dispatchEvent: DispatchEvent = {
-    id: `INSP-RANDOM-${Date.now().toString().slice(-6)}`,
+    id: `INSP-RAND-${Date.now().toString().slice(-5)}`,
     type: "RANDOM",
     officerId: officer.id,
     officerName: officer.full_name,
     facilityId: facility.id,
     facilityName: facility.name,
     schemeName: facility.scheme_name,
-    timestamp: new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+    timestamp: new Date().toLocaleTimeString("en-IN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    }),
     riskScore: facility.risk_score,
   };
 
   saveDispatch(dispatchEvent);
+  syncDispatchToServer(dispatchEvent);
   return dispatchEvent;
 }
 
@@ -61,29 +66,50 @@ export function triggerRiskWeightedOfficerDispatch(): DispatchEvent {
 
   // Sort facilities by risk score descending
   const sortedFacilities = [...facilities].sort((a, b) => b.risk_score - a.risk_score);
-  // Pick from top 3 highest risk facilities
-  const topRisks = sortedFacilities.slice(0, 3);
+  // Pick from top 4 highest risk facilities
+  const topRisks = sortedFacilities.slice(0, 4);
   const facility = topRisks[Math.floor(Math.random() * topRisks.length)];
 
-  // Prefer Surprise Auditor / flying squad
-  const flyingSquad = officers.filter(o => o.role === "SURPRISE_AUDITOR");
-  const pool = flyingSquad.length > 0 ? flyingSquad : officers;
+  // Select officer from available cadre (prefer standby officers across all designations)
+  // Ensures diverse rotation across cadre instead of locking to a single officer
+  const standbyOfficers = officers.filter((o) => !o.has_pending_assignment);
+  const pool = standbyOfficers.length > 0 ? standbyOfficers : officers;
   const officer = pool[Math.floor(Math.random() * pool.length)];
 
   const dispatchEvent: DispatchEvent = {
-    id: `INSP-RISK-${Date.now().toString().slice(-6)}`,
+    id: `INSP-RISK-${Date.now().toString().slice(-5)}`,
     type: "RISK_WEIGHTED",
     officerId: officer.id,
     officerName: officer.full_name,
     facilityId: facility.id,
     facilityName: facility.name,
     schemeName: facility.scheme_name,
-    timestamp: new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+    timestamp: new Date().toLocaleTimeString("en-IN", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    }),
     riskScore: facility.risk_score,
   };
 
   saveDispatch(dispatchEvent);
+  syncDispatchToServer(dispatchEvent);
   return dispatchEvent;
+}
+
+function syncDispatchToServer(dispatch: DispatchEvent) {
+  if (typeof window === "undefined") return;
+  fetch("/api/v1/dispatch", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      type: dispatch.type,
+      officerId: dispatch.officerId,
+      facilityId: dispatch.facilityId,
+    }),
+  }).catch((err) => {
+    console.error("Failed to sync dispatch to server database:", err);
+  });
 }
 
 function saveDispatch(dispatch: DispatchEvent) {

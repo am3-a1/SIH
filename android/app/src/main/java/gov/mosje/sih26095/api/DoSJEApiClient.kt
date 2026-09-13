@@ -2,6 +2,7 @@ package gov.mosje.sih26095.api
 
 import android.content.Context
 import android.util.Log
+import gov.mosje.sih26095.api.models.ChecklistForm
 import gov.mosje.sih26095.api.models.Facility
 import gov.mosje.sih26095.api.models.InspectionSubmission
 import gov.mosje.sih26095.api.models.Officer
@@ -224,6 +225,36 @@ class DoSJEApiClient(private val context: Context) {
                 return@withContext Result.failure(Exception(errMsg))
             }
             Result.failure(Exception("Server returned HTTP $code. Check server or save offline package."))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getChecklist(): Result<ChecklistForm> = withContext(Dispatchers.IO) {
+        try {
+            val (code, body) = executeHttp("/api/v1/checklist")
+            if (code in 200..299 && !body.isNullOrEmpty()) {
+                val json = JSONObject(body)
+                val checklistObj = json.optJSONObject("checklist")
+                if (checklistObj != null) {
+                    val form = ChecklistForm.fromJson(checklistObj)
+                    if (form.questions.isNotEmpty()) {
+                        return@withContext Result.success(form)
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.w("DoSJEApiClient", "Network fetch failed for checklist, loading asset schema: ${e.message}")
+        }
+
+        // Graceful Asset Fallback
+        try {
+            context.assets.open("checklist_schema.json").use { stream ->
+                val jsonStr = InputStreamReader(stream, Charsets.UTF_8).readText()
+                val json = JSONObject(jsonStr)
+                val form = ChecklistForm.fromJson(json)
+                return@withContext Result.success(form)
+            }
         } catch (e: Exception) {
             Result.failure(e)
         }

@@ -32,8 +32,24 @@ import { getStoredChecklist, subscribeToChecklist } from "@/lib/checklistStore";
 import { getLatestDispatch, subscribeToDispatch } from "@/lib/dispatchStore";
 
 export default function AndroidAppPage() {
-  const allOfficers: Officer[] = officersSeed.officers || [];
+  const [allOfficers, setAllOfficers] = useState<Officer[]>(officersSeed.officers || []);
   const allFacilities: Facility[] = facilitiesSeed.facilities || [];
+
+  // Refresh officers from serverDb
+  const refreshOfficers = () => {
+    fetch("/api/v1/officers")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.officers && Array.isArray(data.officers)) {
+          setAllOfficers(data.officers);
+        }
+      })
+      .catch((err) => console.error("Error refreshing officers:", err));
+  };
+
+  useEffect(() => {
+    refreshOfficers();
+  }, []);
 
   // Active Checklist State (synced with Form Builder)
   const [checklist, setChecklist] = useState<ChecklistForm>(getStoredChecklist());
@@ -99,17 +115,53 @@ export default function AndroidAppPage() {
   // Subscribe to Dispatch changes
   useEffect(() => {
     const unsubscribeDispatch = subscribeToDispatch((dispatch) => {
-      const off = allOfficers.find(o => o.id === dispatch.officerId);
-      const fac = allFacilities.find(f => f.id === dispatch.facilityId);
-      if (off) {
-        setSelectedOfficerId(off.id);
-        setSelectedOfficer(off);
-      }
-      if (fac) {
-        setSelectedFacilityId(fac.id);
-        setSelectedFacility(fac);
-        setDeviceCoords({ lat: fac.latitude, lng: fac.longitude });
-      }
+      fetch("/api/v1/officers")
+        .then((res) => res.json())
+        .then((data) => {
+          const list: Officer[] = (data?.officers && Array.isArray(data.officers)) ? data.officers : allOfficers;
+          setAllOfficers(list);
+
+          const off = list.find((o) => o.id === dispatch.officerId);
+          const fac = allFacilities.find((f) => f.id === dispatch.facilityId);
+
+          if (off) {
+            // Ensure local officer state has assignment flag active
+            const updatedOff: Officer = {
+              ...off,
+              has_pending_assignment: true,
+              assigned_facility_id: dispatch.facilityId,
+              assigned_facility_ids: [dispatch.facilityId],
+              assigned_facility_name: dispatch.facilityName,
+            };
+            setSelectedOfficerId(updatedOff.id);
+            setSelectedOfficer(updatedOff);
+          }
+          if (fac) {
+            setSelectedFacilityId(fac.id);
+            setSelectedFacility(fac);
+            setDeviceCoords({ lat: fac.latitude, lng: fac.longitude });
+          }
+        })
+        .catch(() => {
+          const off = allOfficers.find((o) => o.id === dispatch.officerId);
+          const fac = allFacilities.find((f) => f.id === dispatch.facilityId);
+          if (off) {
+            const updatedOff: Officer = {
+              ...off,
+              has_pending_assignment: true,
+              assigned_facility_id: dispatch.facilityId,
+              assigned_facility_ids: [dispatch.facilityId],
+              assigned_facility_name: dispatch.facilityName,
+            };
+            setSelectedOfficerId(updatedOff.id);
+            setSelectedOfficer(updatedOff);
+          }
+          if (fac) {
+            setSelectedFacilityId(fac.id);
+            setSelectedFacility(fac);
+            setDeviceCoords({ lat: fac.latitude, lng: fac.longitude });
+          }
+        });
     });
     return () => unsubscribeDispatch();
   }, [allOfficers, allFacilities]);
@@ -261,12 +313,39 @@ export default function AndroidAppPage() {
         officer_name: selectedOfficer.full_name,
         timestamp: new Date().toISOString(),
         status: "COMPLETED",
-        compliance_grade: "Grade A",
-        risk_score: selectedFacility.risk_score || 25,
         sha256_hash: generatedHash,
         responses: formResponses,
         photos_count: Object.keys(capturedPhotos).length,
       };
+
+      // Commit to serverDb via API
+      fetch("/api/v1/inspections/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          inspection_id: submittedAudit.inspection_id,
+          facility_id: submittedAudit.facility_id,
+          facility_name: submittedAudit.facility_name,
+          inspector_id: submittedAudit.officer_id,
+          inspector_name: submittedAudit.officer_name,
+          inspector_latitude: deviceCoords.lat,
+          inspector_longitude: deviceCoords.lng,
+          scores: {
+            infrastructure: formResponses.q_rubric_infra || 85,
+            hygiene: formResponses.q_rubric_hygiene || 80,
+            food: formResponses.q_rubric_food || 90,
+            medical: formResponses.q_rubric_medical || 75,
+            attendance: formResponses.q_rubric_attendance || 85,
+          },
+          responses: formResponses,
+          sha256_hash: generatedHash,
+          photos_count: Object.keys(capturedPhotos).length,
+          client_app: "Android Web Simulator (GovCloud Client)",
+        }),
+      }).catch((err) => {
+        console.error("Failed to commit audit to serverDb:", err);
+      });
+
       try {
         const existing = JSON.parse(localStorage.getItem("mosje_central_audits") || "[]");
         localStorage.setItem("mosje_central_audits", JSON.stringify([submittedAudit, ...existing]));

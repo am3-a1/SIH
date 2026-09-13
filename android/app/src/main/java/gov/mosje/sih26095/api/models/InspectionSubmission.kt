@@ -47,7 +47,8 @@ data class InspectionSubmission(
     val clientNonce: String,
     val isSimulatedOnsite: Boolean = false,
     val inspectionType: String = "SURPRISE_AUDIT",
-    val clientApp: String = "Native Android App (Kotlin/AndroidX)"
+    val clientApp: String = "Native Android App (Kotlin/AndroidX)",
+    val responses: Map<String, Any> = emptyMap()
 ) {
     fun toJson(): JSONObject {
         val json = JSONObject()
@@ -65,6 +66,12 @@ data class InspectionSubmission(
         json.put("is_simulated_onsite", isSimulatedOnsite)
         json.put("inspection_type", inspectionType)
         json.put("client_app", clientApp)
+
+        val respJson = JSONObject()
+        for ((k, v) in responses) {
+            respJson.put(k, v)
+        }
+        json.put("responses", respJson)
 
         val photoArray = JSONArray()
         for (p in photos) {

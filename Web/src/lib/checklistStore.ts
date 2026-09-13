@@ -89,6 +89,15 @@ export function saveStoredChecklist(form: ChecklistForm): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(form));
     window.dispatchEvent(new CustomEvent(SYNC_EVENT, { detail: form }));
+
+    // Sync to backend API asynchronously for native clients
+    fetch("/api/v1/checklist", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    }).catch((err) => {
+      console.warn("Failed to sync checklist to backend server:", err);
+    });
   } catch (err) {
     console.error("Failed to save checklist to storage:", err);
   }

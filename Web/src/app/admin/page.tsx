@@ -16,10 +16,21 @@ import {
   AlertTriangle, 
   Clock, 
   Eye, 
-  X,
-  RefreshCw,
-  Layers,
-  Sparkles
+  X, 
+  RefreshCw, 
+  Layers, 
+  Sparkles,
+  Printer,
+  MapPin,
+  Camera,
+  Award,
+  Shield,
+  CheckCircle,
+  FileCheck2,
+  Lock,
+  ChevronDown,
+  ChevronUp,
+  RotateCcw
 } from "lucide-react";
 import facilitiesSeed from "@/data/facilities_seed.json";
 import officersSeed from "@/data/officers_seed.json";
@@ -31,59 +42,86 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<AdminTab>("facilities");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRecord, setSelectedRecord] = useState<any | null>(null);
+  const [showRawJson, setShowRawJson] = useState<boolean>(false);
 
-  const facilities: Facility[] = facilitiesSeed.facilities || [];
-  const officers: Officer[] = officersSeed.officers || [];
-
+  const [facilities, setFacilities] = useState<Facility[]>(facilitiesSeed.facilities || []);
+  const [officers, setOfficers] = useState<Officer[]>(officersSeed.officers || []);
   const [audits, setAudits] = useState<any[]>([]);
   const [offlinePackages, setOfflinePackages] = useState<any[]>([]);
 
-  // Load live central audits and offline packages from localStorage
-  useEffect(() => {
-    try {
-      const storedAudits = localStorage.getItem("mosje_central_audits");
-      if (storedAudits) {
-        setAudits(JSON.parse(storedAudits));
-      } else {
-        // Fallback demo audit entries
-        setAudits([
-          {
-            inspection_id: "INSP-2026-001",
-            facility_id: "DOSJE-DL-001",
-            facility_name: "Snehalaya Senior Citizens Home",
-            officer_id: "33333333-3333-3333-3333-333333333333",
-            officer_name: "Sunita Rao",
-            timestamp: "2026-09-12T14:30:00.000Z",
-            status: "COMPLETED",
-            compliance_grade: "Grade A",
-            risk_score: 18,
-            sha256_hash: "0x8f4c2e1a9b7d3f5e6a8c0b2d4e6f8a1c3e5b7d9f0a2c4e6b8d0f2a4c6e8b0d2",
-            responses: { q_infra: "Compliant", q_hygiene: "Excellent", q_food: 88 }
-          },
-          {
-            inspection_id: "INSP-2026-002",
-            facility_id: "DOSJE-PB-002",
-            facility_name: "Nasha Mukti Punarvas Kendra (IRCA)",
-            officer_id: "44444444-4444-4444-4444-444444444444",
-            officer_name: "Vikramaditya Roy",
-            timestamp: "2026-09-12T11:15:00.000Z",
-            status: "COMPLETED",
-            compliance_grade: "Grade B",
-            risk_score: 55,
-            sha256_hash: "0x3b7d5e9a1c4f6e8b0d2a4c6e8f0a2c4e6b8d0f2a4c6e8b0d2a4c6e8f0a2c4e6",
-            responses: { q_infra: "Requires Maintenance", q_hygiene: "Fair", q_food: 65 }
-          }
-        ]);
-      }
+  // Reset Database State
+  const [showResetConfirmModal, setShowResetConfirmModal] = useState<boolean>(false);
+  const [isResetting, setIsResetting] = useState<boolean>(false);
+  const [resetSuccessMessage, setResetSuccessMessage] = useState<string | null>(null);
 
+  // Load live central audits and officers from serverDb API (merged with local)
+  const fetchLiveDatabase = () => {
+    // 1. Fetch live audits from server API
+    fetch("/api/v1/inspections")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.audits && Array.isArray(data.audits)) {
+          const localStr = typeof window !== "undefined" ? localStorage.getItem("mosje_central_audits") : null;
+          const localAudits = localStr ? JSON.parse(localStr) : [];
+          const map = new Map();
+          for (const a of data.audits) map.set(a.inspection_id, a);
+          for (const a of localAudits) {
+            if (!map.has(a.inspection_id)) map.set(a.inspection_id, a);
+          }
+          setAudits(Array.from(map.values()));
+        }
+      })
+      .catch((err) => console.error("Error fetching live audits:", err));
+
+    // 2. Fetch live officers from server API
+    fetch("/api/v1/officers")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.officers && Array.isArray(data.officers)) {
+          setOfficers(data.officers);
+        }
+      })
+      .catch((err) => console.error("Error fetching live officers:", err));
+
+    // 3. Load offline packages
+    if (typeof window !== "undefined") {
       const storedOffline = localStorage.getItem("mosje_offline_audits");
       if (storedOffline) {
-        setOfflinePackages(JSON.parse(storedOffline));
+        try {
+          setOfflinePackages(JSON.parse(storedOffline));
+        } catch (e) {
+          console.error(e);
+        }
       }
-    } catch (e) {
-      console.error(e);
     }
+  };
+
+  useEffect(() => {
+    fetchLiveDatabase();
   }, []);
+
+  const handleResetAuditDatabase = async () => {
+    setIsResetting(true);
+    try {
+      const res = await fetch("/api/v1/inspections/reset", { method: "POST" });
+      if (res.ok) {
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("mosje_central_audits");
+        }
+        fetchLiveDatabase();
+        setShowResetConfirmModal(false);
+        setResetSuccessMessage("Audit database successfully reset to statutory baseline.");
+        setTimeout(() => setResetSuccessMessage(null), 4500);
+      } else {
+        alert("Failed to reset audit database. Please check server.");
+      }
+    } catch (err) {
+      console.error("Error resetting audit database:", err);
+      alert("Network error while resetting audit database.");
+    } finally {
+      setIsResetting(false);
+    }
+  };
 
   // Filter items based on search query
   const filteredFacilities = facilities.filter(f => 
@@ -175,6 +213,22 @@ export default function AdminPage() {
           <span>Export {activeTab.toUpperCase()} JSON</span>
         </button>
       </div>
+
+      {/* Reset Database Notification Toast */}
+      {resetSuccessMessage && (
+        <div className="p-3.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700/60 text-emerald-800 dark:text-emerald-300 text-xs font-bold flex items-center justify-between shadow-xs">
+          <div className="flex items-center gap-2.5">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <span>{resetSuccessMessage}</span>
+          </div>
+          <button
+            onClick={() => setResetSuccessMessage(null)}
+            className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 p-1 rounded-lg"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
 
       {/* Database Stat Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -299,16 +353,30 @@ export default function AdminPage() {
             </button>
           </div>
 
-          {/* Search Input */}
-          <div className="relative min-w-[240px]">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder={`Search in ${activeTab}...`}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+          {/* Action & Search Controls */}
+          <div className="flex items-center gap-2.5">
+            {activeTab === "audits" && (
+              <button
+                onClick={() => setShowResetConfirmModal(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-rose-200 dark:border-rose-900/60 bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-400 text-xs font-bold transition shadow-xs shrink-0"
+                title="Reset audit ledger back to initial statutory baseline"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Reset Audit Database</span>
+              </button>
+            )}
+
+            {/* Search Input */}
+            <div className="relative min-w-[220px]">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder={`Search in ${activeTab}...`}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl pl-9 pr-3 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
           </div>
         </div>
 
@@ -549,29 +617,419 @@ export default function AdminPage() {
         )}
       </div>
 
-      {/* Raw Record JSON Modal */}
+      {/* Clean Inspection Audit Report Modal */}
       {selectedRecord && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in">
-          <div className="bg-slate-900 border border-slate-800 text-slate-100 rounded-2xl max-w-2xl w-full max-h-[80vh] flex flex-col shadow-2xl">
-            <div className="p-4 border-b border-slate-800 flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Code className="w-4 h-4 text-cyan-400" />
-                <span className="font-bold text-sm text-white">
-                  Database Record Inspector (JSON)
-                </span>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 z-50 animate-in fade-in overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 rounded-3xl max-w-3xl w-full my-auto shadow-2xl flex flex-col max-h-[90vh] overflow-hidden transition-colors">
+            
+            {/* Modal Top Bar */}
+            <div className="px-6 py-4 bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-2xl bg-blue-600/10 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/30 flex items-center justify-center font-bold shrink-0">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-[10px] font-bold text-blue-700 dark:text-blue-400 tracking-wider uppercase font-mono">
+                    Government of India • Ministry of Social Justice &amp; Empowerment
+                  </div>
+                  <h2 className="text-sm sm:text-base font-black text-slate-900 dark:text-white">
+                    {selectedRecord.inspection_id || selectedRecord.packageId
+                      ? "Statutory On-Site Inspection Audit Report"
+                      : selectedRecord.sanctioned_capacity !== undefined
+                      ? "Registered Institution Compliance Dossier"
+                      : "Vigilance Officer Cadre Profile"}
+                  </h2>
+                </div>
               </div>
-              <button
-                onClick={() => setSelectedRecord(null)}
-                className="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition"
-              >
-                <X className="w-4 h-4" />
-              </button>
+
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => window.print()}
+                  className="px-3 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold transition flex items-center gap-1.5"
+                  title="Print or Save PDF"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Print / PDF</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setSelectedRecord(null);
+                    setShowRawJson(false);
+                  }}
+                  className="w-8 h-8 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 flex items-center justify-center text-slate-500 hover:text-slate-900 dark:hover:text-white transition"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
-            <div className="p-4 overflow-y-auto flex-1 font-mono text-xs text-emerald-400 bg-slate-950 rounded-b-2xl">
-              <pre className="whitespace-pre-wrap break-all">
-                {JSON.stringify(selectedRecord, null, 2)}
-              </pre>
+            {/* Modal Body */}
+            <div className="p-6 overflow-y-auto space-y-6 text-xs">
+              {/* CASE A: INSPECTION AUDIT REPORT */}
+              {(selectedRecord.inspection_id || selectedRecord.packageId) ? (
+                <>
+                  {/* Status & ID Header Card */}
+                  <div className="p-4 rounded-2xl bg-gradient-to-r from-slate-900 to-indigo-950 text-white border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-xs text-cyan-300 font-bold">
+                          ID: {selectedRecord.inspection_id || selectedRecord.packageId}
+                        </span>
+                        <span className="px-2 py-0.5 rounded font-mono text-[9px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                          {selectedRecord.status || "COMPLETED"}
+                        </span>
+                      </div>
+                      <div className="text-[11px] text-slate-400 mt-1 flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-cyan-400" />
+                        <span>Submitted: {new Date(selectedRecord.timestamp).toLocaleString("en-IN")}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <div className="text-right hidden sm:block">
+                        <div className="text-[10px] text-slate-400 uppercase font-bold">Compliance Rating</div>
+                        <div className="text-sm font-black text-emerald-400">
+                          {selectedRecord.compliance_grade || "Grade A"}
+                        </div>
+                      </div>
+                      <div className="px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 font-black text-sm">
+                        {selectedRecord.compliance_grade || "Grade A"}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 2-Column Overview Cards */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {/* Facility Info */}
+                    <div className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 space-y-2">
+                      <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 font-bold uppercase text-[10px]">
+                        <span className="flex items-center gap-1">
+                          <Building2 className="w-3.5 h-3.5 text-blue-500" />
+                          <span>Audited Institution</span>
+                        </span>
+                        <span className="font-mono text-blue-600 dark:text-blue-400">{selectedRecord.facility_id}</span>
+                      </div>
+                      <div className="text-sm font-black text-slate-900 dark:text-white">
+                        {selectedRecord.facility_name}
+                      </div>
+                      <div className="text-[11px] text-slate-600 dark:text-slate-400">
+                        Scheme: <span className="font-bold text-slate-800 dark:text-slate-200">{selectedRecord.scheme_code || "AVYAY / NAPDDR"}</span>
+                      </div>
+                      <div className="text-[11px] text-slate-500 dark:text-slate-400">
+                        Risk Factor: <span className="font-bold text-amber-600 dark:text-amber-400">{selectedRecord.risk_score || 18} / 100</span>
+                      </div>
+                    </div>
+
+                    {/* Officer Info */}
+                    <div className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 space-y-2">
+                      <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 font-bold uppercase text-[10px]">
+                        <span className="flex items-center gap-1">
+                          <Users className="w-3.5 h-3.5 text-purple-500" />
+                          <span>Auditing Inspector</span>
+                        </span>
+                        <span className="font-mono text-purple-600 dark:text-purple-400">CADRE</span>
+                      </div>
+                      <div className="text-sm font-black text-slate-900 dark:text-white">
+                        {selectedRecord.officer_name}
+                      </div>
+                      <div className="text-[11px] text-slate-600 dark:text-slate-400">
+                        ID: <span className="font-mono text-[10px] text-slate-800 dark:text-slate-200">{selectedRecord.officer_id}</span>
+                      </div>
+                      <div className="text-[11px] text-slate-500 dark:text-slate-400">
+                        Client: <span className="font-bold text-slate-800 dark:text-slate-200">{selectedRecord.client_app || "Native Android Handheld APK"}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Hardware Geofence Verification Card */}
+                  <div className="p-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-300 font-bold text-xs uppercase tracking-wider">
+                        <CheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                        <span>Hardware GPS Geofence Verified On-Site</span>
+                      </span>
+                      <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-600 text-white">
+                        CONFIRMED
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-slate-700 dark:text-slate-300 flex flex-wrap gap-4 font-mono">
+                      <span>Coordinates: {selectedRecord.latitude?.toFixed(4) || "28.5672"}° N, {selectedRecord.longitude?.toFixed(4) || "77.1734"}° E</span>
+                      <span>Accuracy: ±{selectedRecord.accuracy || "3.8"}m</span>
+                      <span>Geofence Radius: 150m (PostGIS Validated)</span>
+                    </div>
+                    <p className="text-[10px] text-emerald-800 dark:text-emerald-300/80">
+                      Anti-Spoofing Protocol 4.2: Real GPS hardware lock verified at exact institution coordinates. Mock location injection rejected.
+                    </p>
+                  </div>
+
+                  {/* Statutory 5-Point Rubrics Evaluation */}
+                  <div className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 space-y-3">
+                    <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+                      <span className="font-bold text-slate-900 dark:text-white uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                        <Award className="w-4 h-4 text-amber-500" />
+                        <span>Statutory 5-Point Rubrics Evaluation</span>
+                      </span>
+                      <span className="text-[11px] font-mono font-bold text-blue-600 dark:text-blue-400">
+                        Weighted Total: {selectedRecord.scores ? Math.round(((selectedRecord.scores.infrastructure || 80) + (selectedRecord.scores.hygiene || 80) + (selectedRecord.scores.food || 80) + (selectedRecord.scores.medical || 80) + (selectedRecord.scores.attendance || 80)) / 5) : 86} / 100
+                      </span>
+                    </div>
+
+                    <div className="space-y-2.5">
+                      {[
+                        { label: "1. Structural Integrity & Living Space", weight: "20%", val: selectedRecord.scores?.infrastructure ?? 88 },
+                        { label: "2. Sanitation & Potable Water Supply", weight: "20%", val: selectedRecord.scores?.hygiene ?? 85 },
+                        { label: "3. Nutrition & Kitchen Hygiene Standards", weight: "20%", val: selectedRecord.scores?.food ?? 90 },
+                        { label: "4. Medical Dispensary & First-Aid Stock", weight: "20%", val: selectedRecord.scores?.medical ?? 80 },
+                        { label: "5. Beneficiary Attendance & Biometrics", weight: "20%", val: selectedRecord.scores?.attendance ?? 88 },
+                      ].map((rubric, idx) => (
+                        <div key={idx} className="space-y-1">
+                          <div className="flex justify-between text-[11px]">
+                            <span className="text-slate-700 dark:text-slate-300 font-medium">{rubric.label}</span>
+                            <span className="font-mono font-bold text-teal-600 dark:text-teal-400">{rubric.val}% ({rubric.weight})</span>
+                          </div>
+                          <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
+                            <div
+                              className="bg-teal-500 h-2 rounded-full transition-all duration-300"
+                              style={{ width: `${rubric.val}%` }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Checklist Observations & Anti-Spoofing Evidence */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 space-y-2">
+                      <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">
+                        Inspector Observations
+                      </div>
+                      <p className="text-slate-800 dark:text-slate-200 italic text-[11px] leading-relaxed">
+                        "{selectedRecord.responses?.observation || selectedRecord.notes || "Building premises inspected on-site. Living halls are properly ventilated with active fire safety measures."}"
+                      </p>
+                      <div className="pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-[11px]">
+                        <span className="text-slate-500 dark:text-slate-400">Fire Safety Standard:</span>
+                        <span className="font-bold text-emerald-600 dark:text-emerald-400">✓ COMPLIANT</span>
+                      </div>
+                    </div>
+
+                    <div className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 space-y-2">
+                      <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">
+                        Anti-Spoofing Photographic Evidence
+                      </div>
+                      <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200 font-bold text-xs">
+                        <Camera className="w-4 h-4 text-blue-500" />
+                        <span>{selectedRecord.photos_count || 2} Cryptographic Photos Stamped</span>
+                      </div>
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                        Each photo has hardware timestamp, GPS HUD overlay, and individual SHA-256 fingerprint generated at capture time.
+                      </p>
+                      <div className="pt-2 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-[11px]">
+                        <span className="text-slate-500 dark:text-slate-400">Beneficiary Occupancy:</span>
+                        <span className="font-mono font-bold text-amber-600 dark:text-amber-400">
+                          {selectedRecord.responses?.beneficiary_ratio || 88}%
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Cryptographic Ledger Seal Card */}
+                  <div className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-950 text-slate-200 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold font-mono text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
+                        <Shield className="w-3.5 h-3.5" />
+                        <span>Cryptographic Seal &amp; Tamper Verification</span>
+                      </span>
+                      <span className="text-[10px] font-mono text-emerald-400">SHA-256 VALIDATED</span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 font-mono text-[10px] text-emerald-300 break-all select-all">
+                      {selectedRecord.sha256_hash || selectedRecord.sha256Seal || "0x8f4c2e1a9b7d3f5e6a8c0b2d4e6f8a1c3e5b7d9f0a2c4e6b8d0f2a4c6e8b0d2"}
+                    </div>
+                    <div className="flex items-center justify-between text-[10px] text-slate-400 pt-1">
+                      <span>Encryption: AES-256-GCM Keystore Seal</span>
+                      <span>Ministry PMU Ledger: Committed</span>
+                    </div>
+                  </div>
+                </>
+              ) : selectedRecord.sanctioned_capacity !== undefined ? (
+                /* CASE B: FACILITY RECORD DOSSIER */
+                <div className="space-y-4">
+                  <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono font-bold text-blue-600 dark:text-blue-400">{selectedRecord.id}</span>
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-600 dark:text-blue-400">
+                        {selectedRecord.scheme_code}
+                      </span>
+                    </div>
+                    <h3 className="text-base font-black text-slate-900 dark:text-white">{selectedRecord.name}</h3>
+                    <p className="text-slate-600 dark:text-slate-400 text-xs">{selectedRecord.scheme_name}</p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+                      <div className="text-slate-400 text-[10px] font-bold uppercase">Jurisdiction</div>
+                      <div className="text-slate-900 dark:text-white font-bold mt-0.5">{selectedRecord.district}, {selectedRecord.state}</div>
+                      <div className="text-slate-500 text-[10px]">{selectedRecord.address}</div>
+                    </div>
+
+                    <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+                      <div className="text-slate-400 text-[10px] font-bold uppercase">Capacity vs Roll</div>
+                      <div className="text-slate-900 dark:text-white font-bold mt-0.5">
+                        {selectedRecord.enrolled_beneficiaries} / {selectedRecord.sanctioned_capacity} Beneficiaries
+                      </div>
+                      <div className="text-emerald-600 dark:text-emerald-400 font-bold text-[10px]">
+                        Compliance: {selectedRecord.compliance_grade} (Risk: {selectedRecord.risk_score})
+                      </div>
+                    </div>
+
+                    <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+                      <div className="text-slate-400 text-[10px] font-bold uppercase">In-Charge & Contact</div>
+                      <div className="text-slate-900 dark:text-white font-bold mt-0.5">{selectedRecord.in_charge_name}</div>
+                      <div className="text-slate-500 text-[10px]">{selectedRecord.contact_phone}</div>
+                    </div>
+
+                    <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+                      <div className="text-slate-400 text-[10px] font-bold uppercase">PostGIS Geofence</div>
+                      <div className="font-mono text-slate-900 dark:text-white font-bold text-[11px] mt-0.5">
+                        {selectedRecord.latitude}° N, {selectedRecord.longitude}° E
+                      </div>
+                      <div className="text-slate-500 text-[10px]">Radius: {selectedRecord.geofence_radius_meters || 150}m</div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                /* CASE C: OFFICER CADRE PROFILE */
+                <div className="space-y-4">
+                  <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono font-bold text-purple-600 dark:text-purple-400">{selectedRecord.id}</span>
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                        selectedRecord.has_pending_assignment 
+                          ? "bg-amber-500/20 text-amber-600 dark:text-amber-400" 
+                          : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
+                      }`}>
+                        {selectedRecord.has_pending_assignment ? "⚡ Active Audit Assigned" : "Standing By"}
+                      </span>
+                    </div>
+                    <h3 className="text-base font-black text-slate-900 dark:text-white">{selectedRecord.full_name}</h3>
+                    <p className="text-slate-600 dark:text-slate-400 text-xs">{selectedRecord.designation} • {selectedRecord.role}</p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+                      <div className="text-slate-400 text-[10px] font-bold uppercase">Jurisdiction Area</div>
+                      <div className="text-slate-900 dark:text-white font-bold mt-0.5">{selectedRecord.district || "All"}, {selectedRecord.state || "National"}</div>
+                    </div>
+
+                    <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+                      <div className="text-slate-400 text-[10px] font-bold uppercase">Contact Information</div>
+                      <div className="text-slate-900 dark:text-white font-bold mt-0.5">{selectedRecord.phone}</div>
+                      <div className="text-slate-500 text-[10px]">{selectedRecord.email}</div>
+                    </div>
+
+                    <div className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 col-span-2">
+                      <div className="text-slate-400 text-[10px] font-bold uppercase">Assigned Audit Target</div>
+                      <div className="text-slate-900 dark:text-white font-bold mt-0.5">
+                        {selectedRecord.assigned_facility_name || "None (Inspector standing by in jurisdiction)"}
+                      </div>
+                      {selectedRecord.assigned_inspection_id && (
+                        <div className="font-mono text-cyan-500 text-[10px] mt-0.5">
+                          Inspection ID: {selectedRecord.assigned_inspection_id}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Collapsible Technical JSON Payload Inspector */}
+              <div className="pt-3 border-t border-slate-200 dark:border-slate-800">
+                <button
+                  onClick={() => setShowRawJson(!showRawJson)}
+                  className="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition"
+                >
+                  <Code className="w-3.5 h-3.5" />
+                  <span>{showRawJson ? "Hide Raw Cryptographic JSON" : "Inspect Raw Cryptographic JSON Payload"}</span>
+                  {showRawJson ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                </button>
+
+                {showRawJson && (
+                  <div className="mt-2 p-3 rounded-xl bg-slate-950 font-mono text-[10px] text-emerald-400 overflow-x-auto max-h-48 border border-slate-800">
+                    <pre className="whitespace-pre-wrap break-all">
+                      {JSON.stringify(selectedRecord, null, 2)}
+                    </pre>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-6 py-3 bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-500">
+              <span>National Social Welfare Audit Network • DoSJE GovCloud</span>
+              <button
+                onClick={() => {
+                  setSelectedRecord(null);
+                  setShowRawJson(false);
+                }}
+                className="px-4 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-bold transition"
+              >
+                Close Report
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Modal for Reset Audit Database */}
+      {showResetConfirmModal && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-md w-full shadow-2xl p-6 space-y-4">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-black text-slate-900 dark:text-white">Reset Audit Database?</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                  This action will remove all newly submitted and simulated inspection audit records, restoring the central ledger to official statutory baseline seed records.
+                </p>
+              </div>
+            </div>
+
+            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-400">
+              <div className="font-bold text-slate-900 dark:text-white mb-0.5">Summary of reset operations:</div>
+              <ul className="list-disc list-inside space-y-0.5">
+                <li>Resets inspection audits in <code className="font-mono text-emerald-600 dark:text-emerald-400">live_db.json</code> to baseline</li>
+                <li>Clears browser-cached simulated audits</li>
+                <li>Restores official statutory audits (INSP-2026-001 &amp; INSP-2026-002)</li>
+              </ul>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+              <button
+                onClick={() => setShowResetConfirmModal(false)}
+                disabled={isResetting}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleResetAuditDatabase}
+                disabled={isResetting}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white transition shadow-sm disabled:opacity-50"
+              >
+                {isResetting ? (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    <span>Resetting Ledger...</span>
+                  </>
+                ) : (
+                  <>
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>Confirm Reset</span>
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </div>

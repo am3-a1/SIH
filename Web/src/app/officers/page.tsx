@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import { 
   Users, 
@@ -22,9 +22,29 @@ import {
 } from "lucide-react";
 import officersSeed from "@/data/officers_seed.json";
 import { Officer } from "@/types";
+import { subscribeToDispatch } from "@/lib/dispatchStore";
 
 export default function OfficersPage() {
-  const allOfficers: Officer[] = officersSeed.officers || [];
+  const [allOfficers, setAllOfficers] = useState<Officer[]>(officersSeed.officers || []);
+
+  const fetchLiveOfficers = () => {
+    fetch("/api/v1/officers")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.officers && Array.isArray(data.officers)) {
+          setAllOfficers(data.officers);
+        }
+      })
+      .catch((err) => console.error("Error fetching live officers:", err));
+  };
+
+  useEffect(() => {
+    fetchLiveOfficers();
+    const unsubscribe = subscribeToDispatch(() => {
+      fetchLiveOfficers();
+    });
+    return () => unsubscribe();
+  }, []);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>("ALL");

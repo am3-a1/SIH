@@ -36,18 +36,33 @@ import {
 
 export default function DashboardPage() {
   const facilities: Facility[] = facilitiesSeed.facilities || [];
-  const officers: Officer[] = officersSeed.officers || [];
+  const [officers, setOfficers] = useState<Officer[]>(officersSeed.officers || []);
 
   const [latestDispatch, setLatestDispatch] = useState<DispatchEvent | null>(null);
   const [showDispatchBanner, setShowDispatchBanner] = useState<boolean>(false);
-  const [dispatchCount, setDispatchCount] = useState<number>(2);
+  const [dispatchCount, setDispatchCount] = useState<number>(() => officers.filter((o) => o.has_pending_assignment).length || 2);
+
+  const refreshOfficers = () => {
+    fetch("/api/v1/officers")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.officers && Array.isArray(data.officers)) {
+          setOfficers(data.officers);
+          const assigned = data.officers.filter((o: Officer) => o.has_pending_assignment).length;
+          setDispatchCount(assigned);
+        }
+      })
+      .catch((err) => console.error("Error refreshing dashboard officers:", err));
+  };
 
   // Aggregates
   const totalCapacity = facilities.reduce((sum, f) => sum + (f.sanctioned_capacity || 0), 0);
   const totalEnrolled = facilities.reduce((sum, f) => sum + (f.enrolled_beneficiaries || 0), 0);
-  const gradeACount = facilities.filter(f => f.compliance_grade === "A").length;
+  const gradeACount = facilities.filter((f) => f.compliance_grade === "A").length;
 
   useEffect(() => {
+    refreshOfficers();
+
     const existing = getLatestDispatch();
     if (existing) {
       setLatestDispatch(existing);
@@ -57,7 +72,7 @@ export default function DashboardPage() {
     const unsubscribe = subscribeToDispatch((event) => {
       setLatestDispatch(event);
       setShowDispatchBanner(true);
-      setDispatchCount((prev) => prev + 1);
+      refreshOfficers();
     });
 
     return () => unsubscribe();

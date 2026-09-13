@@ -1,18 +1,19 @@
 import { NextResponse } from "next/server";
 import { serverDb } from "@/lib/serverDb";
 
-export async function GET() {
-  const officers = serverDb.getOfficers();
+export async function POST() {
+  const audits = serverDb.resetAudits();
   return NextResponse.json(
     {
       status: "SUCCESS",
-      count: officers.length,
-      officers: officers,
+      message: "Inspection audit database successfully reset to statutory baseline.",
+      count: audits.length,
+      audits,
     },
     {
       headers: {
         "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
       },
     }
@@ -24,8 +25,9 @@ export async function OPTIONS() {
     status: 200,
     headers: {
       "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type, Authorization",
     },
   });
 }
+

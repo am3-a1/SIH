@@ -26,9 +26,16 @@ export interface AssignedInspection {
   inspection_id: string;
   facility_id: string;
   facility_name: string;
-  scheme_name: string;
+  scheme_name?: string;
+  district?: string;
+  state?: string;
+  facilityDistrict?: string;
+  facilityState?: string;
   latitude?: number;
   longitude?: number;
+  inspection_type?: string;
+  status?: string;
+  scheduled_date?: string;
 }
 
 export interface Officer {
