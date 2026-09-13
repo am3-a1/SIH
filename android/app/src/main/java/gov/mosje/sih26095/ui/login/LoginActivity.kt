@@ -29,10 +29,14 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var txtOfficerDesignation: TextView
     private lateinit var txtOfficerStatusBadge: TextView
     private lateinit var layoutAssignmentNotice: LinearLayout
+    private lateinit var layoutStandbyNotice: LinearLayout
     private lateinit var txtAssignedFacilityName: TextView
     private lateinit var txtAssignedFacilityScheme: TextView
     private lateinit var editSsoPin: EditText
     private lateinit var btnLogin: Button
+    private lateinit var txtServerConfig: TextView
+    private lateinit var btnTestConnection: Button
+    private lateinit var txtConnectionStatus: TextView
 
     private var officerList: List<Officer> = emptyList()
     private var selectedOfficer: Officer? = null
@@ -51,88 +55,84 @@ class LoginActivity : AppCompatActivity() {
         txtOfficerDesignation = findViewById(R.id.txtOfficerDesignation)
         txtOfficerStatusBadge = findViewById(R.id.txtOfficerStatusBadge)
         layoutAssignmentNotice = findViewById(R.id.layoutAssignmentNotice)
+        layoutStandbyNotice = findViewById(R.id.layoutStandbyNotice)
         txtAssignedFacilityName = findViewById(R.id.txtAssignedFacilityName)
         txtAssignedFacilityScheme = findViewById(R.id.txtAssignedFacilityScheme)
         editSsoPin = findViewById(R.id.editSsoPin)
         btnLogin = findViewById(R.id.btnLogin)
+        txtServerConfig = findViewById(R.id.txtServerConfig)
+        btnTestConnection = findViewById(R.id.btnTestConnection)
+        txtConnectionStatus = findViewById(R.id.txtConnectionStatus)
 
-        val txtServerConfig: TextView = findViewById(R.id.txtServerConfig)
-        val btnTestConnection: Button = findViewById(R.id.btnTestConnection)
-        val txtConnectionStatus: TextView = findViewById(R.id.txtConnectionStatus)
         val app = DoSJEApplication.instance
 
-        // Detect if running on a physical phone with 10.0.2.2 configured
-        val isEmulator = android.os.Build.FINGERPRINT.contains("generic") ||
-                android.os.Build.HARDWARE.contains("goldfish") ||
-                android.os.Build.HARDWARE.contains("ranchu")
-        if (!isEmulator && app.preferences.serverBaseUrl.contains("10.0.2.2")) {
-            app.preferences.serverBaseUrl = "http://localhost:8000"
-        }
-
         txtServerConfig.text = "🌐 ${app.preferences.serverBaseUrl}"
-        txtServerConfig.setOnClickListener {
-            val input = EditText(this)
-            input.setText(app.preferences.serverBaseUrl)
-            AlertDialog.Builder(this)
-                .setTitle("DoSJE Central Server URL")
-                .setMessage("Select connection mode or enter custom URL:\n\n" +
-                        "• Same Wi-Fi LAN: http://192.168.1.89:8000\n" +
-                        "  (Phone and Mac connected to same Wi-Fi)\n\n" +
-                        "• USB Tether: http://localhost:8000\n" +
-                        "  (Requires: adb reverse tcp:8000 tcp:8000)\n\n" +
-                        "• Android Emulator: http://10.0.2.2:8000")
-                .setView(input)
-                .setPositiveButton("Save & Connect") { _, _ ->
-                    val newUrl = input.text.toString().trim().removeSuffix("/")
-                    if (newUrl.isNotEmpty()) {
-                        app.preferences.serverBaseUrl = newUrl
-                        txtServerConfig.text = "🌐 $newUrl"
-                        loadOfficers()
-                    }
-                }
-                .setNeutralButton("Wi-Fi (192.168.1.89)") { _, _ ->
-                    app.preferences.serverBaseUrl = "http://192.168.1.89:8000"
-                    txtServerConfig.text = "🌐 http://192.168.1.89:8000"
-                    loadOfficers()
-                }
-                .setNegativeButton("USB Localhost") { _, _ ->
-                    app.preferences.serverBaseUrl = "http://localhost:8000"
-                    txtServerConfig.text = "🌐 http://localhost:8000"
-                    loadOfficers()
-                }
-                .show()
-        }
 
-        btnTestConnection.setOnClickListener {
-            txtConnectionStatus.text = "● Pinging ${app.preferences.serverBaseUrl}..."
-            txtConnectionStatus.setTextColor(getColor(R.color.slate_500))
-            loadOfficers()
+        val openServerConfig = View.OnClickListener {
+            showServerConfigDialog()
         }
+        txtServerConfig.setOnClickListener(openServerConfig)
+        btnTestConnection.setOnClickListener(openServerConfig)
 
         btnLogin.setOnClickListener {
             performLogin()
         }
     }
 
+    private fun showServerConfigDialog() {
+        val app = DoSJEApplication.instance
+        val input = EditText(this).apply {
+            setText(app.preferences.serverBaseUrl)
+            setSelection(text.length)
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("DoSJE Central Server URL")
+            .setMessage("Select connection mode or enter custom URL:\n\n" +
+                    "• Same Wi-Fi (Next.js): http://192.168.1.111:3000\n" +
+                    "• Same Wi-Fi (Python): http://192.168.1.111:8000\n" +
+                    "• Android Emulator: http://10.0.2.2:3000\n" +
+                    "• USB Reverse: http://localhost:3000")
+            .setView(input)
+            .setPositiveButton("Save & Connect") { _, _ ->
+                val newUrl = input.text.toString().trim().removeSuffix("/")
+                if (newUrl.isNotEmpty()) {
+                    app.preferences.serverBaseUrl = newUrl
+                    txtServerConfig.text = "🌐 $newUrl"
+                    txtConnectionStatus.text = "Connecting..."
+                    loadOfficers()
+                }
+            }
+            .setNeutralButton("Wi-Fi (192.168.1.111:3000)") { _, _ ->
+                app.preferences.serverBaseUrl = "http://192.168.1.111:3000"
+                txtServerConfig.text = "🌐 http://192.168.1.111:3000"
+                txtConnectionStatus.text = "Connecting..."
+                loadOfficers()
+            }
+            .setNegativeButton("Emulator (10.0.2.2:3000)") { _, _ ->
+                app.preferences.serverBaseUrl = "http://10.0.2.2:3000"
+                txtServerConfig.text = "🌐 http://10.0.2.2:3000"
+                txtConnectionStatus.text = "Connecting..."
+                loadOfficers()
+            }
+            .show()
+    }
+
     private fun loadOfficers() {
-        val txtConnectionStatus: TextView? = findViewById(R.id.txtConnectionStatus)
         lifecycleScope.launch {
             val app = DoSJEApplication.instance
             val result = app.apiClient.getOfficers()
             result.onSuccess { officers ->
                 officerList = officers
                 setupSpinner(officers)
-                txtConnectionStatus?.text = "🟢 Online • Connected (${officers.size} Officers)"
-                txtConnectionStatus?.setTextColor(getColor(R.color.emerald_dark))
-                Toast.makeText(this@LoginActivity, "Connected to DoSJE Server (${officers.size} officers synced)", Toast.LENGTH_SHORT).show()
-            }.onFailure { err ->
-                val errSummary = err.message?.let {
-                    if (it.contains("failed to connect") || it.contains("timeout")) "Connection refused/timeout" else it
-                } ?: "Server unreachable"
-                txtConnectionStatus?.text = "🔴 Disconnected: $errSummary"
-                txtConnectionStatus?.setTextColor(getColor(R.color.rose_error))
-                Toast.makeText(this@LoginActivity, "Offline mode: Loading cached officers ($errSummary)", Toast.LENGTH_LONG).show()
-                setupFallbackOfficers()
+                txtConnectionStatus.text = "🟢 Online"
+                txtConnectionStatus.setBackgroundResource(R.drawable.bg_badge_emerald)
+                txtConnectionStatus.setTextColor(getColor(R.color.emerald_300))
+                txtServerConfig.text = "🌐 ${app.preferences.serverBaseUrl}"
+            }.onFailure {
+                txtConnectionStatus.text = "🟡 Local Sync"
+                txtConnectionStatus.setBackgroundResource(R.drawable.bg_badge_amber)
+                txtConnectionStatus.setTextColor(getColor(R.color.amber_300))
             }
         }
     }
@@ -142,7 +142,7 @@ class LoginActivity : AppCompatActivity() {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerOfficerSelect.adapter = adapter
 
-        // Pre-select officer with assignment
+        // Pre-select officer with assignment (e.g. Sunita Rao)
         val assignedIdx = officers.indexOfFirst { it.hasPendingAssignment }
         if (assignedIdx >= 0) {
             spinnerOfficerSelect.setSelection(assignedIdx)
@@ -169,93 +169,39 @@ class LoginActivity : AppCompatActivity() {
         txtOfficerDesignation.text = "${officer.designation} • $loc"
 
         if (officer.hasPendingAssignment && officer.assignedInspections.isNotEmpty()) {
-            txtOfficerStatusBadge.text = "Assigned Audit"
-            txtOfficerStatusBadge.setBackgroundColor(getColor(R.color.amber_bg))
-            txtOfficerStatusBadge.setTextColor(getColor(R.color.saffron_dark))
+            txtOfficerStatusBadge.text = "Active Audit Assigned"
+            txtOfficerStatusBadge.setBackgroundResource(R.drawable.bg_badge_amber)
+            txtOfficerStatusBadge.setTextColor(getColor(R.color.amber_300))
             layoutAssignmentNotice.visibility = View.VISIBLE
+            layoutStandbyNotice.visibility = View.GONE
 
             val insp = officer.assignedInspections.first()
             txtAssignedFacilityName.text = insp.facilityName
-            txtAssignedFacilityScheme.text = "Scheme: ${insp.schemeName} • ${insp.facilityDistrict ?: ""}, ${insp.facilityState ?: ""}"
+            txtAssignedFacilityScheme.text = "${insp.facilityDistrict ?: ""}, ${insp.facilityState ?: ""} • ${insp.schemeName}"
         } else {
-            txtOfficerStatusBadge.text = "Standing by"
-            txtOfficerStatusBadge.setBackgroundColor(getColor(R.color.slate_100))
-            txtOfficerStatusBadge.setTextColor(getColor(R.color.slate_500))
+            txtOfficerStatusBadge.text = "Standing by (Locked)"
+            txtOfficerStatusBadge.setBackgroundResource(R.drawable.bg_badge_slate)
+            txtOfficerStatusBadge.setTextColor(getColor(R.color.slate_300))
             layoutAssignmentNotice.visibility = View.GONE
+            layoutStandbyNotice.visibility = View.VISIBLE
         }
-    }
-
-    private fun setupFallbackOfficers() {
-        try {
-            assets.open("officers_seed.json").use { stream ->
-                val reader = java.io.InputStreamReader(stream, Charsets.UTF_8)
-                val jsonStr = reader.readText()
-                val json = JSONObject(jsonStr)
-                val array = json.optJSONArray("officers")
-                if (array != null && array.length() > 0) {
-                    val list = mutableListOf<Officer>()
-                    for (i in 0 until array.length()) {
-                        list.add(Officer.fromJson(array.getJSONObject(i)))
-                    }
-                    officerList = list
-                    setupSpinner(list)
-                    return
-                }
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-
-        val defaultOfficers = listOf(
-            Officer(
-                id = "33333333-3333-3333-3333-333333333333",
-                username = "inspector_delhi",
-                fullName = "Sunita Rao",
-                designation = "Senior Field Inspection Officer",
-                role = "DISTRICT_INSPECTOR",
-                district = "New Delhi",
-                state = "Delhi",
-                phone = "+91-9810123456",
-                email = "sunita.rao@dosje.gov.in",
-                hasPendingAssignment = true,
-                assignedFacilityIds = listOf("DOSJE-DL-001"),
-                assignedInspections = listOf(
-                    gov.mosje.sih26095.api.models.AssignedInspection(
-                        inspectionId = "INSP-2026-001",
-                        facilityId = "DOSJE-DL-001",
-                        facilityName = "Snehalaya Senior Citizens Home",
-                        schemeName = "AVYAY (Atal Vayo Abhyuday Yojana)",
-                        scheduledDate = "2026-09-12",
-                        inspectionType = "SURPRISE_AUDIT",
-                        status = "ASSIGNED",
-                        facilityDistrict = "New Delhi",
-                        facilityState = "Delhi"
-                    )
-                )
-            ),
-            Officer(
-                id = "OFFICER-002",
-                username = "insp_rajesh",
-                fullName = "Rajesh Nair",
-                designation = "District Welfare Vigilance Officer",
-                role = "DISTRICT_INSPECTOR",
-                district = "Bangalore",
-                state = "Karnataka",
-                phone = "+91-9876543210",
-                email = "rajesh.nair@dosje.gov.in",
-                hasPendingAssignment = false,
-                assignedFacilityIds = emptyList(),
-                assignedInspections = emptyList()
-            )
-        )
-        officerList = defaultOfficers
-        setupSpinner(defaultOfficers)
     }
 
     private fun performLogin() {
         val officer = selectedOfficer
         if (officer == null) {
             Toast.makeText(this, "Please select an onsite field inspector first", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (!officer.hasPendingAssignment || officer.assignedInspections.isEmpty()) {
+            AlertDialog.Builder(this)
+                .setTitle("🔒 Officer on Standby")
+                .setMessage("Field auditors are strictly locked to assigned facilities.\n\n" +
+                        "Officer ${officer.fullName} currently has 0 assigned audits. " +
+                        "Please dispatch an audit from the MoSJE Web Portal Dashboard to unlock this officer.")
+                .setPositiveButton("OK", null)
+                .show()
             return
         }
 

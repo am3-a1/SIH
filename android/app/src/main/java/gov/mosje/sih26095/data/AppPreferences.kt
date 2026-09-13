@@ -10,23 +10,26 @@ class AppPreferences(context: Context) {
         get() {
             var url = prefs.getString("server_base_url", null)
             if (url.isNullOrEmpty()) {
-                // If running on a physical device, 10.0.2.2 does not work. Default to localhost (for adb reverse)
                 val isEmulator = android.os.Build.FINGERPRINT.contains("generic") ||
                         android.os.Build.HARDWARE.contains("goldfish") ||
                         android.os.Build.HARDWARE.contains("ranchu")
-                url = if (isEmulator) "http://10.0.2.2:8000" else "http://localhost:8000"
+                url = if (isEmulator) "http://10.0.2.2:3000" else "http://192.168.1.111:3000"
                 prefs.edit().putString("server_base_url", url).apply()
             }
-            // Auto-migrate any cached 8088 port to 8000
+            // Auto-migrate stale URLs to current Next.js Wi-Fi address
             if (url.contains(":8088")) {
-                url = url.replace(":8088", ":8000")
+                url = url.replace(":8088", ":3000")
+                prefs.edit().putString("server_base_url", url).apply()
+            }
+            if (url.contains("192.168.1.89")) {
+                url = url.replace("192.168.1.89", "192.168.1.111")
                 prefs.edit().putString("server_base_url", url).apply()
             }
             return url.trim().removeSuffix("/")
         }
         set(value) {
             val sanitized = value.trim().removeSuffix("/").let {
-                if (it.contains(":8088")) it.replace(":8088", ":8000") else it
+                if (it.contains(":8088")) it.replace(":8088", ":3000") else it
             }
             prefs.edit().putString("server_base_url", sanitized).apply()
         }

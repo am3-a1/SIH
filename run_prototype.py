@@ -277,10 +277,18 @@ class DoSJEUnifiedHandler(SimpleHTTPRequestHandler):
                 'critical_alerts': alerts
             })
 
+        elif path == "/api/v1/ping":
+            return self.send_json({
+                'status': 'ONLINE',
+                'server': 'DoSJE Unified Python Server (Port 8000)',
+                'timestamp': time.time(),
+                'geofence_engine': 'PostGIS / Haversine Active'
+            })
+
         # ----------------------------------------------------------------------
         # STATIC WEB PORTAL SERVING (Web/ or fallback web_preview/)
         # ----------------------------------------------------------------------
-        web_dir = os.path.join(BASE_DIR, "Web") if os.path.exists(os.path.join(BASE_DIR, "Web")) else os.path.join(BASE_DIR, "web_preview")
+        web_dir = os.path.join(BASE_DIR, "Web") if os.path.exists(os.path.join(BASE_DIR, "Web", "index.html")) else os.path.join(BASE_DIR, "web_preview")
         if path == "" or path == "/":
             self.serve_file(os.path.join(web_dir, "index.html"), "text/html")
         elif path.startswith("/"):

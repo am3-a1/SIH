@@ -1,23 +1,23 @@
 package gov.mosje.sih26095.ui.audit
 
 import android.Manifest
-import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.CheckBox
+import android.widget.EditText
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.SeekBar
-import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -29,6 +29,7 @@ import gov.mosje.sih26095.api.models.Facility
 import gov.mosje.sih26095.api.models.InspectionScores
 import gov.mosje.sih26095.api.models.InspectionSubmission
 import gov.mosje.sih26095.camera.NativeCameraCaptureActivity
+import gov.mosje.sih26095.security.HashUtil
 import gov.mosje.sih26095.util.GeofenceCalculator
 import gov.mosje.sih26095.util.LocationHelper
 import kotlinx.coroutines.launch
@@ -38,66 +39,75 @@ import java.util.UUID
 
 class AuditActivity : AppCompatActivity() {
 
+    // Top Action Bar
     private lateinit var txtHeaderOfficer: TextView
-    private lateinit var txtSyncBadge: TextView
     private lateinit var btnLogout: Button
 
-    // Geofence Banner
-    private lateinit var cardGeofenceBanner: CardView
+    // Main Containers
+    private lateinit var scrollAuditContainer: ScrollView
+    private lateinit var layoutSuccessContainer: LinearLayout
+
+    // GPS Geofence Banner
+    private lateinit var layoutGeofenceBanner: LinearLayout
     private lateinit var imgGeofenceIcon: ImageView
     private lateinit var txtGeofenceTitle: TextView
-    private lateinit var txtRadarStatus: TextView
-    private lateinit var btnRefreshGps: Button
-    private lateinit var txtDeviceCoords: TextView
     private lateinit var chkSimulateOnsite: CheckBox
+    private lateinit var txtDeviceCoords: TextView
+    private lateinit var txtRadarStatus: TextView
 
-    // Facility Selector
-    private lateinit var txtFacilityCountBadge: TextView
-    private lateinit var spinnerAuditFacility: Spinner
+    // Locked Facility Card
     private lateinit var txtAuditTypeBadge: TextView
-    private lateinit var txtAuditId: TextView
     private lateinit var txtFacilityName: TextView
-    private lateinit var txtFacilityScheme: TextView
     private lateinit var txtFacilityLocation: TextView
+    private lateinit var txtFacilityCap: TextView
+    private lateinit var txtFacilityGrade: TextView
 
-    // Rubrics
-    private lateinit var seekInfra: SeekBar
-    private lateinit var seekHygiene: SeekBar
-    private lateinit var seekFood: SeekBar
-    private lateinit var seekMedical: SeekBar
-    private lateinit var seekAttendance: SeekBar
+    // Statutory Checklist Items
+    private lateinit var editObservation: EditText
+    private lateinit var btnCompliant: Button
+    private lateinit var btnBreach: Button
+    private lateinit var layoutBreachAlert: LinearLayout
+    private var isFireSafetyCompliant: Boolean = true
+
+    private lateinit var valRatio: TextView
+    private lateinit var seekRatio: SeekBar
+
+    private lateinit var layoutSnapPhotoPrompt: LinearLayout
+    private lateinit var recyclerEvidenceGallery: RecyclerView
+    private lateinit var photoAdapter: PhotoGalleryAdapter
+
+    // Statutory Rubrics Evaluation
+    private lateinit var txtTotalScore: TextView
+    private lateinit var txtGradeBadge: TextView
     private lateinit var valInfra: TextView
     private lateinit var valHygiene: TextView
     private lateinit var valFood: TextView
     private lateinit var valMedical: TextView
     private lateinit var valAttendance: TextView
-    private lateinit var txtTotalScore: TextView
+    private lateinit var seekInfra: SeekBar
+    private lateinit var seekHygiene: SeekBar
+    private lateinit var seekFood: SeekBar
+    private lateinit var seekMedical: SeekBar
+    private lateinit var seekAttendance: SeekBar
 
-    // Evidence & Camera
-    private lateinit var txtPhotoCount: TextView
-    private lateinit var btnCaptureKitchen: Button
-    private lateinit var btnCaptureDorms: Button
-    private lateinit var btnCaptureMedical: Button
-    private lateinit var btnCaptureSanitation: Button
-    private lateinit var recyclerEvidenceGallery: RecyclerView
-    private lateinit var photoAdapter: PhotoGalleryAdapter
-
-    // Signatures & Submit
-    private lateinit var btnSignInsp: Button
-    private lateinit var btnSignHead: Button
+    // Actions
     private lateinit var btnSubmitCloud: Button
     private lateinit var btnSaveOffline: Button
 
-    // State Variables
+    // Screen 3 Success Elements
+    private lateinit var txtSuccessInspectionId: TextView
+    private lateinit var txtSuccessFacility: TextView
+    private lateinit var txtSuccessAuditor: TextView
+    private lateinit var txtSuccessHash: TextView
+    private lateinit var btnStartAnother: Button
+
+    // State
     private lateinit var locationHelper: LocationHelper
     private var officerId: String = ""
     private var officerName: String = ""
     private var assignedFacilityIds: List<String> = emptyList()
-    private var assignedFacilities: List<Facility> = emptyList()
     private var selectedFacility: Facility? = null
-
-    private var inspectorSigned = true
-    private var headSigned = true
+    private var inspectionId: String = ""
 
     // Camera Result Launcher
     private val cameraResultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -111,14 +121,14 @@ class AuditActivity : AppCompatActivity() {
                 latitude = locationHelper.currentLatitude,
                 longitude = locationHelper.currentLongitude,
                 accuracyMeters = locationHelper.currentAccuracy,
-                timestampUtc = data.getStringExtra("photo_timestamp") ?: "2026-09-12 12:00:00 UTC",
+                timestampUtc = data.getStringExtra("photo_timestamp") ?: "2026-09-13 12:00:00 UTC",
                 watermarkText = data.getStringExtra("photo_watermark") ?: "MoSJE Watermark",
                 sha256Hash = data.getStringExtra("photo_hash") ?: "verified_sha256",
                 officerName = officerName
             )
             photoAdapter.addPhoto(photo)
-            txtPhotoCount.text = "${photoAdapter.itemCount} Evidence Attached"
-            Toast.makeText(this, "📸 ${photo.category} photo captured & cryptographic watermark stamped!", Toast.LENGTH_SHORT).show()
+            recyclerEvidenceGallery.visibility = View.VISIBLE
+            Toast.makeText(this, "📸 On-Site Photo Stamped with Geotag HUD & Cryptographic Seal", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -127,12 +137,10 @@ class AuditActivity : AppCompatActivity() {
         val fineGranted = permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true
         val coarseGranted = permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
         if (fineGranted || coarseGranted) {
-            Toast.makeText(this, "📍 Real GPS hardware access granted", Toast.LENGTH_SHORT).show()
             chkSimulateOnsite.isChecked = false
             locationHelper.setSimulatedOnsite(false)
             locationHelper.startLocationUpdates()
         } else {
-            Toast.makeText(this, "⚠️ Location permission denied. Operating in Onsite Simulation mode.", Toast.LENGTH_LONG).show()
             chkSimulateOnsite.isChecked = true
             val fac = selectedFacility
             locationHelper.setSimulatedOnsite(true, fac?.latitude ?: 28.5672, fac?.longitude ?: 77.1734)
@@ -147,11 +155,165 @@ class AuditActivity : AppCompatActivity() {
         readIntentExtras()
         initViews()
         initLocation()
-        loadFacilitiesAndLock()
-        checkAndPromptLocationPermissions()
+        loadAssignedFacility()
+        checkLocationPermissions()
     }
 
-    private fun checkAndPromptLocationPermissions() {
+    private fun readIntentExtras() {
+        officerId = intent.getStringExtra("officer_id") ?: "OFFICER-001"
+        officerName = intent.getStringExtra("officer_name") ?: "Sunita Rao"
+
+        val idsStr = intent.getStringExtra("assigned_facility_ids")
+        if (!idsStr.isNullOrEmpty()) {
+            try {
+                val jsonArray = JSONArray(idsStr)
+                val list = mutableListOf<String>()
+                for (i in 0 until jsonArray.length()) {
+                    list.add(jsonArray.getString(i))
+                }
+                assignedFacilityIds = list
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    private fun initViews() {
+        txtHeaderOfficer = findViewById(R.id.txtHeaderOfficer)
+        btnLogout = findViewById(R.id.btnLogout)
+        scrollAuditContainer = findViewById(R.id.scrollAuditContainer)
+        layoutSuccessContainer = findViewById(R.id.layoutSuccessContainer)
+
+        layoutGeofenceBanner = findViewById(R.id.layoutGeofenceBanner)
+        imgGeofenceIcon = findViewById(R.id.imgGeofenceIcon)
+        txtGeofenceTitle = findViewById(R.id.txtGeofenceTitle)
+        chkSimulateOnsite = findViewById(R.id.chkSimulateOnsite)
+        txtDeviceCoords = findViewById(R.id.txtDeviceCoords)
+        txtRadarStatus = findViewById(R.id.txtRadarStatus)
+
+        txtAuditTypeBadge = findViewById(R.id.txtAuditTypeBadge)
+        txtFacilityName = findViewById(R.id.txtFacilityName)
+        txtFacilityLocation = findViewById(R.id.txtFacilityLocation)
+        txtFacilityCap = findViewById(R.id.txtFacilityCap)
+        txtFacilityGrade = findViewById(R.id.txtFacilityGrade)
+
+        editObservation = findViewById(R.id.editObservation)
+        btnCompliant = findViewById(R.id.btnCompliant)
+        btnBreach = findViewById(R.id.btnBreach)
+        layoutBreachAlert = findViewById(R.id.layoutBreachAlert)
+
+        valRatio = findViewById(R.id.valRatio)
+        seekRatio = findViewById(R.id.seekRatio)
+
+        layoutSnapPhotoPrompt = findViewById(R.id.layoutSnapPhotoPrompt)
+        recyclerEvidenceGallery = findViewById(R.id.recyclerEvidenceGallery)
+
+        txtTotalScore = findViewById(R.id.txtTotalScore)
+        txtGradeBadge = findViewById(R.id.txtGradeBadge)
+        valInfra = findViewById(R.id.valInfra)
+        valHygiene = findViewById(R.id.valHygiene)
+        valFood = findViewById(R.id.valFood)
+        valMedical = findViewById(R.id.valMedical)
+        valAttendance = findViewById(R.id.valAttendance)
+
+        seekInfra = findViewById(R.id.seekInfra)
+        seekHygiene = findViewById(R.id.seekHygiene)
+        seekFood = findViewById(R.id.seekFood)
+        seekMedical = findViewById(R.id.seekMedical)
+        seekAttendance = findViewById(R.id.seekAttendance)
+
+        btnSubmitCloud = findViewById(R.id.btnSubmitCloud)
+        btnSaveOffline = findViewById(R.id.btnSaveOffline)
+
+        txtSuccessInspectionId = findViewById(R.id.txtSuccessInspectionId)
+        txtSuccessFacility = findViewById(R.id.txtSuccessFacility)
+        txtSuccessAuditor = findViewById(R.id.txtSuccessAuditor)
+        txtSuccessHash = findViewById(R.id.txtSuccessHash)
+        btnStartAnother = findViewById(R.id.btnStartAnother)
+
+        txtHeaderOfficer.text = "$officerName (Field Inspector)"
+        btnLogout.setOnClickListener { finish() }
+
+        // Fire safety buttons toggle
+        btnCompliant.setOnClickListener {
+            isFireSafetyCompliant = true
+            btnCompliant.backgroundTintList = ColorStateList.valueOf(getColor(R.color.emerald_dark))
+            btnCompliant.setTextColor(getColor(R.color.white))
+            btnBreach.backgroundTintList = ColorStateList.valueOf(getColor(R.color.slate_800))
+            btnBreach.setTextColor(getColor(R.color.slate_300))
+            layoutBreachAlert.visibility = View.GONE
+        }
+
+        btnBreach.setOnClickListener {
+            isFireSafetyCompliant = false
+            btnBreach.backgroundTintList = ColorStateList.valueOf(getColor(R.color.rose_error))
+            btnBreach.setTextColor(getColor(R.color.white))
+            btnCompliant.backgroundTintList = ColorStateList.valueOf(getColor(R.color.slate_800))
+            btnCompliant.setTextColor(getColor(R.color.slate_300))
+            layoutBreachAlert.visibility = View.VISIBLE
+        }
+
+        // Beneficiary Ratio SeekBar
+        seekRatio.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                valRatio.text = "$progress%"
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
+
+        // Direct Camera prompt
+        layoutSnapPhotoPrompt.setOnClickListener {
+            triggerCameraCapture("Dining & Kitchen Sanitation")
+        }
+
+        // Photo Gallery RecyclerView
+        photoAdapter = PhotoGalleryAdapter()
+        recyclerEvidenceGallery.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        recyclerEvidenceGallery.adapter = photoAdapter
+
+        // Rubrics SeekBars
+        val rubricListener = object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                updateRubricsUI()
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        }
+        seekInfra.setOnSeekBarChangeListener(rubricListener)
+        seekHygiene.setOnSeekBarChangeListener(rubricListener)
+        seekFood.setOnSeekBarChangeListener(rubricListener)
+        seekMedical.setOnSeekBarChangeListener(rubricListener)
+        seekAttendance.setOnSeekBarChangeListener(rubricListener)
+
+        // GPS Simulator CheckBox
+        chkSimulateOnsite.setOnCheckedChangeListener { _, isChecked ->
+            val fac = selectedFacility
+            locationHelper.setSimulatedOnsite(isChecked, fac?.latitude ?: 28.5672, fac?.longitude ?: 77.1734)
+            evaluateGeofence()
+        }
+
+        // Submission Actions
+        btnSubmitCloud.setOnClickListener { submitAudit(isOffline = false) }
+        btnSaveOffline.setOnClickListener { submitAudit(isOffline = true) }
+
+        // Start Another Inspection
+        btnStartAnother.setOnClickListener { finish() }
+
+        updateRubricsUI()
+    }
+
+    private fun initLocation() {
+        locationHelper = LocationHelper(this)
+        locationHelper.setLocationListener { loc ->
+            updateLocationUI(loc.latitude, loc.longitude, loc.accuracy)
+            evaluateGeofence()
+        }
+        locationHelper.setSimulatedOnsite(true)
+        updateLocationUI(locationHelper.currentLatitude, locationHelper.currentLongitude, locationHelper.currentAccuracy)
+    }
+
+    private fun checkLocationPermissions() {
         val fineGranted = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
         val coarseGranted = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
         if (!fineGranted && !coarseGranted) {
@@ -166,271 +328,43 @@ class AuditActivity : AppCompatActivity() {
         }
     }
 
-    private fun readIntentExtras() {
-        officerId = intent.getStringExtra("officer_id") ?: "OFFICER-001"
-        officerName = intent.getStringExtra("officer_name") ?: "Sunita Rao"
-
-        val idsStr = intent.getStringExtra("assigned_facility_ids")
-        if (!idsStr.isNullOrEmpty()) {
-            val jsonArray = JSONArray(idsStr)
-            val list = mutableListOf<String>()
-            for (i in 0 until jsonArray.length()) {
-                list.add(jsonArray.getString(i))
-            }
-            assignedFacilityIds = list
-        }
-    }
-
-    private fun initViews() {
-        txtHeaderOfficer = findViewById(R.id.txtHeaderOfficer)
-        txtSyncBadge = findViewById(R.id.txtSyncBadge)
-        btnLogout = findViewById(R.id.btnLogout)
-
-        cardGeofenceBanner = findViewById(R.id.cardGeofenceBanner)
-        imgGeofenceIcon = findViewById(R.id.imgGeofenceIcon)
-        txtGeofenceTitle = findViewById(R.id.txtGeofenceTitle)
-        txtRadarStatus = findViewById(R.id.txtRadarStatus)
-        btnRefreshGps = findViewById(R.id.btnRefreshGps)
-        txtDeviceCoords = findViewById(R.id.txtDeviceCoords)
-        chkSimulateOnsite = findViewById(R.id.chkSimulateOnsite)
-
-        txtFacilityCountBadge = findViewById(R.id.txtFacilityCountBadge)
-        val btnSyncAssignments: TextView? = findViewById(R.id.btnSyncAssignments)
-        btnSyncAssignments?.setOnClickListener {
-            Toast.makeText(this, "🔄 Syncing assignments with Central Server...", Toast.LENGTH_SHORT).show()
-            loadFacilitiesAndLock(isSilent = false)
-        }
-
-        spinnerAuditFacility = findViewById(R.id.spinnerAuditFacility)
-        txtAuditTypeBadge = findViewById(R.id.txtAuditTypeBadge)
-        txtAuditId = findViewById(R.id.txtAuditId)
-        txtFacilityName = findViewById(R.id.txtFacilityName)
-        txtFacilityScheme = findViewById(R.id.txtFacilityScheme)
-        txtFacilityLocation = findViewById(R.id.txtFacilityLocation)
-
-        seekInfra = findViewById(R.id.seekInfra)
-        seekHygiene = findViewById(R.id.seekHygiene)
-        seekFood = findViewById(R.id.seekFood)
-        seekMedical = findViewById(R.id.seekMedical)
-        seekAttendance = findViewById(R.id.seekAttendance)
-        valInfra = findViewById(R.id.valInfra)
-        valHygiene = findViewById(R.id.valHygiene)
-        valFood = findViewById(R.id.valFood)
-        valMedical = findViewById(R.id.valMedical)
-        valAttendance = findViewById(R.id.valAttendance)
-        txtTotalScore = findViewById(R.id.txtTotalScore)
-
-        txtPhotoCount = findViewById(R.id.txtPhotoCount)
-        btnCaptureKitchen = findViewById(R.id.btnCaptureKitchen)
-        btnCaptureDorms = findViewById(R.id.btnCaptureDorms)
-        btnCaptureMedical = findViewById(R.id.btnCaptureMedical)
-        btnCaptureSanitation = findViewById(R.id.btnCaptureSanitation)
-        recyclerEvidenceGallery = findViewById(R.id.recyclerEvidenceGallery)
-
-        btnSignInsp = findViewById(R.id.btnSignInsp)
-        btnSignHead = findViewById(R.id.btnSignHead)
-        btnSubmitCloud = findViewById(R.id.btnSubmitCloud)
-        btnSaveOffline = findViewById(R.id.btnSaveOffline)
-
-        txtHeaderOfficer.text = "$officerName (Field Inspector)"
-
-        btnLogout.setOnClickListener { finish() }
-
-        // Setup Evidence RecyclerView
-        photoAdapter = PhotoGalleryAdapter()
-        recyclerEvidenceGallery.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        recyclerEvidenceGallery.adapter = photoAdapter
-
-        // Setup Rubrics SeekBars
-        val seekListener = object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                updateScoreUI()
-            }
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-        }
-
-        seekInfra.setOnSeekBarChangeListener(seekListener)
-        seekHygiene.setOnSeekBarChangeListener(seekListener)
-        seekFood.setOnSeekBarChangeListener(seekListener)
-        seekMedical.setOnSeekBarChangeListener(seekListener)
-        seekAttendance.setOnSeekBarChangeListener(seekListener)
-
-        // Setup Camera Buttons
-        btnCaptureKitchen.setOnClickListener { triggerCameraCapture("Dining Hall & Kitchen Sanitation") }
-        btnCaptureDorms.setOnClickListener { triggerCameraCapture("Dormitory & Living Quarters") }
-        btnCaptureMedical.setOnClickListener { triggerCameraCapture("Medical Dispensary & First Aid") }
-        btnCaptureSanitation.setOnClickListener { triggerCameraCapture("Sanitation & Washroom Hygiene") }
-
-        // Setup Signatures
-        btnSignInsp.setOnClickListener {
-            inspectorSigned = !inspectorSigned
-            btnSignInsp.setBackgroundColor(if (inspectorSigned) getColor(R.color.emerald_bg) else getColor(R.color.slate_100))
-            btnSignInsp.setTextColor(if (inspectorSigned) getColor(R.color.emerald_dark) else getColor(R.color.slate_700))
-            Toast.makeText(this, if (inspectorSigned) "Inspector Digital Signature Generated" else "Signature cleared", Toast.LENGTH_SHORT).show()
-        }
-
-        btnSignHead.setOnClickListener {
-            headSigned = !headSigned
-            btnSignHead.setBackgroundColor(if (headSigned) getColor(R.color.emerald_bg) else getColor(R.color.slate_100))
-            btnSignHead.setTextColor(if (headSigned) getColor(R.color.emerald_dark) else getColor(R.color.slate_700))
-            Toast.makeText(this, if (headSigned) "NGO In-Charge Signature Generated" else "Signature cleared", Toast.LENGTH_SHORT).show()
-        }
-
-        // Setup GPS Simulator Toggle
-        chkSimulateOnsite.setOnCheckedChangeListener { _, isChecked ->
-            val fac = selectedFacility
-            locationHelper.setSimulatedOnsite(isChecked, fac?.latitude ?: 28.5672, fac?.longitude ?: 77.1734)
-            evaluateGeofence()
-        }
-
-        btnRefreshGps.setOnClickListener {
-            val fineGranted = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-            val coarseGranted = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
-            if (!fineGranted && !coarseGranted) {
-                locationPermissionLauncher.launch(
-                    arrayOf(
-                        Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
-                    )
-                )
-            } else {
-                chkSimulateOnsite.isChecked = false
-                locationHelper.setSimulatedOnsite(false)
-                locationHelper.startLocationUpdates()
-                evaluateGeofence()
-                Toast.makeText(this, "Acquiring live hardware GPS fix...", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        // Submit Actions
-        btnSubmitCloud.setOnClickListener { submitAudit(isOffline = false) }
-        btnSaveOffline.setOnClickListener { submitAudit(isOffline = true) }
-    }
-
-    private fun initLocation() {
-        locationHelper = LocationHelper(this)
-        locationHelper.setLocationListener { loc ->
-            updateLocationUI(loc.latitude, loc.longitude, loc.accuracy)
-            evaluateGeofence()
-        }
-        locationHelper.setSimulatedOnsite(true)
-        updateLocationUI(locationHelper.currentLatitude, locationHelper.currentLongitude, locationHelper.currentAccuracy)
-    }
-
     private fun updateLocationUI(lat: Double, lon: Double, acc: Float) {
         val latDir = if (lat >= 0) "N" else "S"
         val lonDir = if (lon >= 0) "E" else "W"
-        val mode = if (locationHelper.isSimulatedOnsite) " [Simulated Onsite]" else if (locationHelper.isRealGpsFixed) " [Live GPS]" else ""
-        txtDeviceCoords.text = String.format(Locale.US, "DEVICE: %.4f° %s, %.4f° %s (±%dm)%s", Math.abs(lat), latDir, Math.abs(lon), lonDir, Math.round(acc), mode)
+        txtDeviceCoords.text = String.format(Locale.US, "%.4f° %s, %.4f° %s (±%dm)", Math.abs(lat), latDir, Math.abs(lon), lonDir, Math.round(acc))
     }
 
-    override fun onResume() {
-        super.onResume()
-        loadFacilitiesAndLock(isSilent = true)
-    }
-
-    private fun loadFacilitiesAndLock(isSilent: Boolean = false) {
+    private fun loadAssignedFacility() {
         lifecycleScope.launch {
             val app = DoSJEApplication.instance
+            val result = app.apiClient.getOfficerAssignments(officerId)
+            val assigned = result.getOrNull()
 
-            // 1. Fetch live assigned facilities specifically for this officer from central server
-            val assignResult = app.apiClient.getOfficerAssignments(officerId)
-            val liveAssigned = assignResult.getOrNull()
-
-            if (!liveAssigned.isNullOrEmpty()) {
-                val liveIds = liveAssigned.map { it.id }
-                val isNew = assignedFacilityIds.isNotEmpty() && liveIds != assignedFacilityIds
-                assignedFacilityIds = liveIds
-                assignedFacilities = liveAssigned
-
-                if (isNew && !isSilent) {
-                    val targetFac = liveAssigned.first()
-                    AlertDialog.Builder(this@AuditActivity)
-                        .setTitle("⚡ New Audit Assigned from Web Portal")
-                        .setMessage("A new statutory inspection has been assigned:\n\n" +
-                                "• Facility: ${targetFac.name}\n" +
-                                "• Scheme: ${targetFac.schemeName} (${targetFac.schemeCode})\n" +
-                                "• Jurisdiction: ${targetFac.district}, ${targetFac.state}\n\n" +
-                                "The app has locked to this facility and updated geofence coordinates.")
-                        .setPositiveButton("Proceed", null)
-                        .show()
+            if (!assigned.isNullOrEmpty()) {
+                bindFacility(assigned.first())
+            } else {
+                val facResult = app.apiClient.getFacilities()
+                val allFacs = facResult.getOrNull() ?: emptyList()
+                val matched = allFacs.find { assignedFacilityIds.contains(it.id) } ?: allFacs.firstOrNull()
+                if (matched != null) {
+                    bindFacility(matched)
                 }
-            }
-
-            // 2. Fetch all facilities or fallback
-            val result = app.apiClient.getFacilities()
-            val allFacilities = result.getOrDefault(getDefaultFacilities())
-
-            // STRICT FACILITY LOCK: Filter to only facilities assigned to this officer
-            if (liveAssigned.isNullOrEmpty()) {
-                assignedFacilities = allFacilities.filter { assignedFacilityIds.contains(it.id) }
-            }
-
-            if (assignedFacilities.isEmpty()) {
-                // Officer on Standby - 0 Assigned
-                txtFacilityCountBadge.text = "0 Assigned (Locked)"
-                txtFacilityCountBadge.setBackgroundColor(getColor(R.color.slate_100))
-                txtFacilityCountBadge.setTextColor(getColor(R.color.slate_700))
-
-                val lockedAdapter = ArrayAdapter(this@AuditActivity, android.R.layout.simple_spinner_item, listOf("🔒 0 Assigned Facilities (Officer on Standby)"))
-                spinnerAuditFacility.adapter = lockedAdapter
-                spinnerAuditFacility.isEnabled = false
-
-                selectedFacility = null
-                txtFacilityName.text = "No Active Facility Assigned"
-                txtFacilityScheme.text = "Officer Status: Standing by in Jurisdiction"
-                txtFacilityLocation.text = "Awaiting surprise dispatch or statutory schedule"
-                txtAuditId.text = "INSP-STANDBY-NONE"
-
-                btnSubmitCloud.isEnabled = false
-                btnSubmitCloud.alpha = 0.5f
-
-                cardGeofenceBanner.setCardBackgroundColor(getColor(R.color.slate_100))
-                txtGeofenceTitle.text = getString(R.string.geofence_locked)
-                txtGeofenceTitle.setTextColor(getColor(R.color.slate_700))
-                txtRadarStatus.text = "Officer is on standby. Submissions are locked."
-                return@launch
-            }
-
-            // Officer has assigned facilities
-            btnSubmitCloud.isEnabled = true
-            btnSubmitCloud.alpha = 1.0f
-            txtFacilityCountBadge.text = "${assignedFacilities.size} Assigned (Locked)"
-            txtFacilityCountBadge.setBackgroundColor(getColor(R.color.amber_bg))
-            txtFacilityCountBadge.setTextColor(getColor(R.color.saffron_dark))
-
-            val facilityTitles = assignedFacilities.map { "🔒 [ASSIGNED] ${it.name} (${it.district}, ${it.state})" }
-            val adapter = ArrayAdapter(this@AuditActivity, android.R.layout.simple_spinner_item, facilityTitles)
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            spinnerAuditFacility.adapter = adapter
-            spinnerAuditFacility.isEnabled = true
-
-            spinnerAuditFacility.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                    if (position in assignedFacilities.indices) {
-                        selectFacility(assignedFacilities[position])
-                    }
-                }
-                override fun onNothingSelected(parent: AdapterView<*>?) {}
-            }
-
-            selectFacility(assignedFacilities[0])
-            if (!isSilent) {
-                Toast.makeText(this@AuditActivity, "✅ Synced with Web: ${assignedFacilities.size} assigned audit(s) active", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    private fun selectFacility(facility: Facility) {
-        selectedFacility = facility
-        txtFacilityName.text = facility.name
-        txtFacilityScheme.text = "Scheme: ${facility.schemeName} (${facility.schemeCode})"
-        txtFacilityLocation.text = "${facility.address}, ${facility.district}, ${facility.state} • Cap: ${facility.enrolledBeneficiaries}/${facility.sanctionedCapacity}"
-        txtAuditId.text = "INSP-2026-${facility.id.replace("DOSJE-", "")}"
+    private fun bindFacility(fac: Facility) {
+        selectedFacility = fac
+        inspectionId = "INSP-2026-${fac.id.replace("DOSJE-", "").take(6)}"
+
+        txtAuditTypeBadge.text = fac.schemeCode
+        txtFacilityName.text = fac.name
+        txtFacilityLocation.text = "${fac.district}, ${fac.state} • Code: ${fac.id}"
+        txtFacilityCap.text = "Cap: ${fac.enrolledBeneficiaries}/${fac.sanctionedCapacity}"
+        txtFacilityGrade.text = "Grade: ${fac.complianceGrade} (Risk: ${fac.riskScore.toInt()})"
 
         if (chkSimulateOnsite.isChecked) {
-            locationHelper.setSimulatedOnsite(true, facility.latitude, facility.longitude)
+            locationHelper.setSimulatedOnsite(true, fac.latitude, fac.longitude)
         }
         evaluateGeofence()
     }
@@ -446,37 +380,61 @@ class AuditActivity : AppCompatActivity() {
 
         val isVerified = distMeters <= target.geofenceRadiusMeters
         if (isVerified) {
-            cardGeofenceBanner.setCardBackgroundColor(getColor(R.color.emerald_bg))
+            layoutGeofenceBanner.setBackgroundResource(R.drawable.bg_radar_verified)
             imgGeofenceIcon.setImageResource(R.drawable.ic_check)
-            txtGeofenceTitle.text = getString(R.string.geofence_verified)
-            txtGeofenceTitle.setTextColor(getColor(R.color.emerald_dark))
-            txtRadarStatus.text = "${Math.round(distMeters)}m from boundary • Verified On-site"
-            txtRadarStatus.setTextColor(getColor(R.color.emerald_dark))
+            txtGeofenceTitle.text = "GPS GEOFENCE VERIFIED"
+            txtGeofenceTitle.setTextColor(getColor(R.color.emerald_300))
+            txtRadarStatus.text = "Within ${Math.round(target.geofenceRadiusMeters)}m Perimeter"
+            txtRadarStatus.setTextColor(getColor(R.color.emerald_400))
         } else {
-            cardGeofenceBanner.setCardBackgroundColor(getColor(R.color.rose_bg))
+            layoutGeofenceBanner.setBackgroundResource(R.drawable.bg_radar_breach)
             imgGeofenceIcon.setImageResource(R.drawable.ic_shield)
-            txtGeofenceTitle.text = getString(R.string.geofence_breached)
-            txtGeofenceTitle.setTextColor(getColor(R.color.rose_dark))
-            txtRadarStatus.text = "${Math.round(distMeters)}m from facility • Outside ${Math.round(target.geofenceRadiusMeters)}m Perimeter"
-            txtRadarStatus.setTextColor(getColor(R.color.rose_dark))
+            txtGeofenceTitle.text = "GPS GEOFENCE BREACH"
+            txtGeofenceTitle.setTextColor(getColor(R.color.rose_300))
+            txtRadarStatus.text = "${Math.round(distMeters)}m from boundary • Outside Perimeter"
+            txtRadarStatus.setTextColor(getColor(R.color.rose_error))
         }
     }
 
-    private fun updateScoreUI(): InspectionScores {
+    private fun updateRubricsUI(): InspectionScores {
         val infra = seekInfra.progress
         val hygiene = seekHygiene.progress
         val food = seekFood.progress
         val medical = seekMedical.progress
         val attendance = seekAttendance.progress
 
-        valInfra.text = "$infra%"
-        valHygiene.text = "$hygiene%"
-        valFood.text = "$food%"
-        valMedical.text = "$medical%"
-        valAttendance.text = "$attendance%"
+        valInfra.text = "$infra% (20%)"
+        valHygiene.text = "$hygiene% (20%)"
+        valFood.text = "$food% (20%)"
+        valMedical.text = "$medical% (20%)"
+        valAttendance.text = "$attendance% (20%)"
 
         val scores = InspectionScores(infra, hygiene, food, medical, attendance)
-        txtTotalScore.text = "${scores.totalScore} / 100 (${scores.grade})"
+        txtTotalScore.text = "${scores.totalScore}/100"
+
+        when {
+            scores.totalScore >= 80 -> {
+                txtGradeBadge.text = "Grade A"
+                txtGradeBadge.setBackgroundResource(R.drawable.bg_badge_emerald)
+                txtGradeBadge.setTextColor(getColor(R.color.emerald_300))
+            }
+            scores.totalScore >= 60 -> {
+                txtGradeBadge.text = "Grade B"
+                txtGradeBadge.setBackgroundResource(R.drawable.bg_badge_teal)
+                txtGradeBadge.setTextColor(getColor(R.color.teal_300))
+            }
+            scores.totalScore >= 40 -> {
+                txtGradeBadge.text = "Grade C"
+                txtGradeBadge.setBackgroundResource(R.drawable.bg_badge_amber)
+                txtGradeBadge.setTextColor(getColor(R.color.amber_300))
+            }
+            else -> {
+                txtGradeBadge.text = "Grade D"
+                txtGradeBadge.setBackgroundResource(R.drawable.bg_badge_slate)
+                txtGradeBadge.setTextColor(getColor(R.color.rose_error))
+            }
+        }
+
         return scores
     }
 
@@ -506,11 +464,7 @@ class AuditActivity : AppCompatActivity() {
             return
         }
 
-        if (chkSimulateOnsite.isChecked) {
-            locationHelper.setSimulatedOnsite(true, target.latitude, target.longitude)
-        }
-
-        // GEOFENCE VALIDATION: Strict blocking when outside perimeter and not in simulated mode
+        // Geofence verification
         val distMeters = GeofenceCalculator.calculateDistanceMeters(
             locationHelper.currentLatitude,
             locationHelper.currentLongitude,
@@ -519,26 +473,21 @@ class AuditActivity : AppCompatActivity() {
         )
 
         if (distMeters > target.geofenceRadiusMeters && !isOffline && !chkSimulateOnsite.isChecked) {
-            val latDir = if (locationHelper.currentLatitude >= 0) "N" else "S"
-            val lonDir = if (locationHelper.currentLongitude >= 0) "E" else "W"
-            val coordsStr = String.format(Locale.US, "%.4f° %s, %.4f° %s", Math.abs(locationHelper.currentLatitude), latDir, Math.abs(locationHelper.currentLongitude), lonDir)
-
             AlertDialog.Builder(this)
-                .setTitle("❌ GEOFENCE BREACH ERROR")
+                .setTitle("❌ GPS GEOFENCE BREACH ERROR")
                 .setMessage("Audit Submission Rejected!\n\n" +
-                        "• Current Off-site Location: $coordsStr\n" +
                         "• Target Facility: ${target.name}\n" +
                         "• Measured Distance: ${Math.round(distMeters)} meters (Allowed Radius: ${Math.round(target.geofenceRadiusMeters)}m)\n" +
                         "• Policy Violation: On-site physical verification is strictly mandatory for DoSJE field audits.\n\n" +
-                        "Inspectors outside the designated geofence perimeter cannot submit encrypted compliance audits. Please move within the facility boundary or toggle 'Simulate Onsite' for testing.")
+                        "Please move within the facility boundary or toggle 'Simulate Onsite'.")
                 .setPositiveButton("Dismiss", null)
                 .show()
             return
         }
 
-        val scores = updateScoreUI()
+        val scores = updateRubricsUI()
         val submission = InspectionSubmission(
-            inspectionId = txtAuditId.text.toString(),
+            inspectionId = inspectionId,
             facilityId = target.id,
             facilityName = target.name,
             inspectorId = officerId,
@@ -547,8 +496,8 @@ class AuditActivity : AppCompatActivity() {
             inspectorLongitude = locationHelper.currentLongitude,
             scores = scores,
             photos = photoAdapter.getPhotos(),
-            inspectorSigned = inspectorSigned,
-            headSigned = headSigned,
+            inspectorSigned = true,
+            headSigned = true,
             clientNonce = "android_" + System.currentTimeMillis() + "_" + UUID.randomUUID().toString().take(6),
             isSimulatedOnsite = chkSimulateOnsite.isChecked
         )
@@ -556,14 +505,15 @@ class AuditActivity : AppCompatActivity() {
         if (isOffline) {
             val app = DoSJEApplication.instance
             app.offlineQueue.enqueueAudit(submission)
-            txtSyncBadge.text = "${app.offlineQueue.getQueueCount()} Queued Offline"
-            txtSyncBadge.setBackgroundColor(getColor(R.color.saffron_dark))
+            val generatedHash = "0x" + HashUtil.sha256(submission.toJson().toString()).take(40)
 
-            AlertDialog.Builder(this)
-                .setTitle("📦 Offline Package Saved")
-                .setMessage("Inspection audit package encrypted with AES-256-GCM and stored in secure offline queue.\n\nWill automatically synchronize with DoSJE Cloud when network connectivity resumes.")
-                .setPositiveButton("OK", null)
-                .show()
+            showSuccessScreen(
+                inspectionId = "ENC-OFFLINE-" + System.currentTimeMillis().toString(36).uppercase(),
+                facilityName = target.name,
+                auditorName = officerName,
+                hash = generatedHash
+            )
+            Toast.makeText(this, "📦 Encrypted Package Stored in Offline Enclave", Toast.LENGTH_LONG).show()
             return
         }
 
@@ -575,91 +525,36 @@ class AuditActivity : AppCompatActivity() {
 
             val result = app.apiClient.submitInspection(submission)
             btnSubmitCloud.isEnabled = true
-            btnSubmitCloud.text = getString(R.string.btn_submit_cloud)
+            btnSubmitCloud.text = "Submit Encrypted Audit to DoSJE"
 
             result.onSuccess { resp ->
-                AlertDialog.Builder(this@AuditActivity)
-                    .setTitle("✅ Field Audit Successfully Submitted")
-                    .setMessage("• Inspection ID: ${resp.inspectionId}\n" +
-                            "• Target Facility: ${target.name} (${target.id})\n" +
-                            "• Inspector: $officerName\n" +
-                            "• Calculated Compliance Score: ${resp.totalComplianceScore}/100 (${scores.grade})\n" +
-                            "• Geofence Status: ${if (resp.geofenceVerified) "VERIFIED ON-SITE" else "PERIMETER WARNING"}\n" +
-                            "• Unique AES-256 Package Hash:\n  ${resp.aes256PackageHash}\n\n" +
-                            "Central database record updated, pending status cleared, and audit registered successfully.")
-                    .setPositiveButton("Finish Audit") { _, _ ->
-                        finish()
-                    }
-                    .show()
+                showSuccessScreen(
+                    inspectionId = resp.inspectionId.ifEmpty { inspectionId },
+                    facilityName = target.name,
+                    auditorName = officerName,
+                    hash = resp.aes256PackageHash
+                )
             }.onFailure { err ->
-                val msg = err.message ?: "Unknown error"
-                val isConnError = msg.contains("failed to connect") ||
-                        msg.contains("timeout") ||
-                        msg.contains("ConnectException") ||
-                        msg.contains("SocketTimeoutException")
-
-                if (isConnError) {
-                    AlertDialog.Builder(this@AuditActivity)
-                        .setTitle("❌ Server Connection Failed")
-                        .setMessage("Cannot reach Central Server at:\n${app.preferences.serverBaseUrl}\n\n" +
-                                "Troubleshooting Steps:\n" +
-                                "• Wi-Fi: Ensure phone is on same Wi-Fi and use http://10.254.3.98:8000\n" +
-                                "• USB: Run 'adb reverse tcp:8000 tcp:8000' and use http://localhost:8000\n\n" +
-                                "Tip: You can also tap 'Save Offline Package (AES-256-GCM)' below to save this audit locally until reconnected.")
-                        .setPositiveButton("OK", null)
-                        .show()
-                } else {
-                    AlertDialog.Builder(this@AuditActivity)
-                        .setTitle("❌ Submission Rejected by Server")
-                        .setMessage("Server response error:\n\n$msg\n\nVerify that you are within the facility geofence or check 'Simulate On-Site'.")
-                        .setPositiveButton("OK", null)
-                        .show()
-                }
+                AlertDialog.Builder(this@AuditActivity)
+                    .setTitle("⚠️ Submission Notice")
+                    .setMessage("${err.message}\n\nWould you like to save this audit locally in the encrypted offline package queue?")
+                    .setPositiveButton("Save Offline Package") { _, _ ->
+                        submitAudit(isOffline = true)
+                    }
+                    .setNegativeButton("Retry", null)
+                    .show()
             }
         }
     }
 
-    private fun getDefaultFacilities(): List<Facility> {
-        try {
-            assets.open("facilities_seed.json").use { stream ->
-                val reader = java.io.InputStreamReader(stream, Charsets.UTF_8)
-                val jsonStr = reader.readText()
-                val json = org.json.JSONObject(jsonStr)
-                val array = json.optJSONArray("facilities")
-                if (array != null && array.length() > 0) {
-                    val list = mutableListOf<Facility>()
-                    for (i in 0 until array.length()) {
-                        list.add(Facility.fromJson(array.getJSONObject(i)))
-                    }
-                    return list
-                }
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+    private fun showSuccessScreen(inspectionId: String, facilityName: String, auditorName: String, hash: String) {
+        scrollAuditContainer.visibility = View.GONE
+        layoutSuccessContainer.visibility = View.VISIBLE
 
-        return listOf(
-            Facility(
-                id = "DOSJE-DL-001",
-                name = "Snehalaya Senior Citizens Home",
-                schemeCode = "AVYAY",
-                schemeName = "Atal Vayo Abhyuday Yojana",
-                organizationName = "AgeCare Foundation India",
-                address = "Sector 4, R.K. Puram",
-                district = "New Delhi",
-                state = "Delhi",
-                pincode = "110022",
-                latitude = 28.5672,
-                longitude = 77.1734,
-                geofenceRadiusMeters = 500.0,
-                sanctionedCapacity = 100,
-                enrolledBeneficiaries = 88,
-                complianceGrade = "A",
-                riskScore = 14.5,
-                inChargeName = "Anil Verma",
-                contactPhone = "+91-9811223344"
-            )
-        )
+        txtSuccessInspectionId.text = inspectionId
+        txtSuccessFacility.text = facilityName
+        txtSuccessAuditor.text = auditorName
+        txtSuccessHash.text = "SHA-256 SEAL: $hash"
     }
 
     override fun onDestroy() {

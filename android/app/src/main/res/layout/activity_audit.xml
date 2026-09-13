@@ -4,21 +4,21 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/slate_50">
+    android:background="@color/slate_900">
 
     <!-- Top Action Bar -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:background="@color/gov_blue_dark"
+        android:layout_height="52dp"
+        android:background="@color/slate_800"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp">
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp">
 
         <ImageView
-            android:layout_width="28dp"
-            android:layout_height="28dp"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
             android:src="@drawable/ic_shield"
             android:contentDescription="Emblem" />
 
@@ -32,46 +32,35 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/app_name"
+                android:text="MoSJE HANDHELD CLIENT"
                 android:textColor="@color/white"
                 android:textStyle="bold"
-                android:textSize="13sp" />
+                android:letterSpacing="0.05"
+                android:textSize="11sp" />
 
             <TextView
                 android:id="@+id/txtHeaderOfficer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Sunita Rao (Inspector)"
-                android:textColor="@color/slate_300"
-                android:textSize="10sp" />
+                android:textColor="@color/blue_200"
+                android:textSize="9sp" />
         </LinearLayout>
-
-        <TextView
-            android:id="@+id/txtSyncBadge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@color/emerald_dark"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:paddingTop="3dp"
-            android:paddingBottom="3dp"
-            android:text="Online"
-            android:textColor="@color/white"
-            android:textStyle="bold"
-            android:textSize="10sp" />
 
         <Button
             android:id="@+id/btnLogout"
             android:layout_width="wrap_content"
-            android:layout_height="36dp"
-            android:layout_marginStart="8dp"
-            android:backgroundTint="@color/gov_blue_primary"
+            android:layout_height="32dp"
+            android:backgroundTint="@color/slate_700"
             android:text="Switch"
             android:textColor="@color/white"
-            android:textSize="10sp" />
+            android:textSize="9sp"
+            android:paddingHorizontal="10dp" />
     </LinearLayout>
 
+    <!-- CONTAINER 1: AUDIT STATION FORM -->
     <ScrollView
+        android:id="@+id/scrollAuditContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true">
@@ -82,599 +71,641 @@
             android:orientation="vertical"
             android:padding="14dp">
 
-            <!-- 1. GPS GEOFENCE RADAR BANNER -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardGeofenceBanner"
+            <!-- 1. GPS GEOFENCE RADAR STATUS -->
+            <LinearLayout
+                android:id="@+id/layoutGeofenceBanner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/emerald_bg"
+                android:background="@drawable/bg_radar_verified"
+                android:orientation="vertical"
+                android:padding="12dp"
                 android:layout_marginBottom="12dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="12dp">
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-
-                        <ImageView
-                            android:id="@+id/imgGeofenceIcon"
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:src="@drawable/ic_check"
-                            android:contentDescription="Geofence Icon" />
-
-                        <LinearLayout
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:layout_marginStart="8dp"
-                            android:orientation="vertical">
-
-                            <TextView
-                                android:id="@+id/txtGeofenceTitle"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/geofence_verified"
-                                android:textColor="@color/emerald_dark"
-                                android:textStyle="bold"
-                                android:textSize="11sp" />
-
-                            <TextView
-                                android:id="@+id/txtRadarStatus"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="35m from facility boundary • Verified On-site"
-                                android:textColor="@color/emerald_dark"
-                                android:textSize="10sp" />
-                        </LinearLayout>
-
-                        <Button
-                            android:id="@+id/btnRefreshGps"
-                            android:layout_width="wrap_content"
-                            android:layout_height="32dp"
-                            android:backgroundTint="@color/emerald_dark"
-                            android:text="@string/btn_refresh_gps"
-                            android:textColor="@color/white"
-                            android:textSize="9sp" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:background="#15000000"
-                        android:padding="6dp"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:id="@+id/txtDeviceCoords"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="DEVICE: 28.5675° N, 77.1736° E"
-                            android:textColor="@color/slate_900"
-                            android:fontFamily="monospace"
-                            android:textSize="9sp" />
-
-                        <CheckBox
-                            android:id="@+id/chkSimulateOnsite"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:checked="true"
-                            android:text="@string/simulate_onsite_label"
-                            android:textSize="9sp" />
-                    </LinearLayout>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <!-- 2. FACILITY SELECTOR (LOCKED TO ASSIGNED) -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/white"
-                android:layout_marginBottom="12dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="12dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Assigned Facility to Audit:"
-                            android:textColor="@color/slate_900"
-                            android:textStyle="bold"
-                            android:textSize="11sp" />
-
-                        <TextView
-                            android:id="@+id/btnSyncAssignments"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/bg_rounded_card"
-                            android:paddingStart="6dp"
-                            android:paddingEnd="6dp"
-                            android:paddingTop="2dp"
-                            android:paddingBottom="2dp"
-                            android:layout_marginEnd="6dp"
-                            android:text="🔄 Sync Web"
-                            android:textColor="@color/gov_blue_primary"
-                            android:textStyle="bold"
-                            android:textSize="9sp" />
-
-                        <TextView
-                            android:id="@+id/txtFacilityCountBadge"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="@color/gov_blue_bg"
-                            android:paddingStart="6dp"
-                            android:paddingEnd="6dp"
-                            android:paddingTop="2dp"
-                            android:paddingBottom="2dp"
-                            android:text="1 Assigned (Locked)"
-                            android:textColor="@color/gov_blue_primary"
-                            android:textStyle="bold"
-                            android:textSize="9sp" />
-                    </LinearLayout>
-
-                    <Spinner
-                        android:id="@+id/spinnerAuditFacility"
-                        android:layout_width="match_parent"
-                        android:layout_height="44dp"
-                        android:layout_marginTop="6dp"
-                        android:background="@drawable/bg_rounded_card" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:id="@+id/txtAuditTypeBadge"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="@color/rose_bg"
-                            android:paddingStart="6dp"
-                            android:paddingEnd="6dp"
-                            android:paddingTop="2dp"
-                            android:paddingBottom="2dp"
-                            android:text="SURPRISE AUDIT"
-                            android:textColor="@color/rose_dark"
-                            android:textStyle="bold"
-                            android:textSize="8sp" />
-
-                        <TextView
-                            android:id="@+id/txtAuditId"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:gravity="end"
-                            android:text="INSP-2026-DL001"
-                            android:textColor="@color/slate_500"
-                            android:fontFamily="monospace"
-                            android:textSize="9sp" />
-                    </LinearLayout>
+                    <ImageView
+                        android:id="@+id/imgGeofenceIcon"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:src="@drawable/ic_check"
+                        android:contentDescription="Status" />
 
                     <TextView
-                        android:id="@+id/txtFacilityName"
-                        android:layout_width="match_parent"
+                        android:id="@+id/txtGeofenceTitle"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Snehalaya Senior Citizens Home"
-                        android:textColor="@color/slate_900"
+                        android:layout_weight="1"
+                        android:layout_marginStart="8dp"
+                        android:text="GPS GEOFENCE VERIFIED"
+                        android:textColor="@color/emerald_300"
                         android:textStyle="bold"
-                        android:textSize="13sp" />
+                        android:letterSpacing="0.04"
+                        android:textSize="11sp" />
 
-                    <TextView
-                        android:id="@+id/txtFacilityScheme"
-                        android:layout_width="match_parent"
+                    <CheckBox
+                        android:id="@+id/chkSimulateOnsite"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Scheme: AVYAY (Atal Vayo Abhyuday Yojana)"
-                        android:textColor="@color/gov_blue_primary"
-                        android:textSize="10sp" />
-
-                    <TextView
-                        android:id="@+id/txtFacilityLocation"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Sector 4, R.K. Puram, New Delhi • Cap: 88/100"
-                        android:textColor="@color/slate_500"
-                        android:textSize="10sp" />
+                        android:checked="true"
+                        android:text="Simulate Onsite"
+                        android:textColor="@color/slate_200"
+                        android:buttonTint="@color/blue_500"
+                        android:textSize="9sp" />
                 </LinearLayout>
-            </androidx.cardview.widget.CardView>
 
-            <!-- 3. STATUTORY INSPECTION CHECKLIST (5 RUBRICS) -->
-            <androidx.cardview.widget.CardView
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="#25000000"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="6dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/txtDeviceCoords"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="28.5672° N, 77.1734° E"
+                        android:textColor="@color/white"
+                        android:fontFamily="monospace"
+                        android:textSize="9sp" />
+
+                    <TextView
+                        android:id="@+id/txtRadarStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Within 150m Perimeter"
+                        android:textColor="@color/emerald_400"
+                        android:fontFamily="monospace"
+                        android:textStyle="bold"
+                        android:textSize="9sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- 2. TARGET FACILITY CARD (LOCKED) -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/white"
+                android:background="@drawable/bg_dark_card"
+                android:orientation="vertical"
+                android:padding="12dp"
                 android:layout_marginBottom="12dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="12dp">
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="🔒 ASSIGNED FACILITY (LOCKED)"
+                        android:textColor="@color/amber_400"
+                        android:textStyle="bold"
+                        android:letterSpacing="0.04"
+                        android:textSize="10sp" />
+
+                    <TextView
+                        android:id="@+id/txtAuditTypeBadge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_badge_teal"
+                        android:paddingHorizontal="6dp"
+                        android:paddingVertical="2dp"
+                        android:text="AVYAY"
+                        android:textColor="@color/teal_300"
+                        android:fontFamily="monospace"
+                        android:textStyle="bold"
+                        android:textSize="8sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/txtFacilityName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="Snehalaya Senior Citizens Home"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/txtFacilityLocation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:text="New Delhi, Delhi • Code: DOSJE-DL-001"
+                    android:textColor="@color/slate_400"
+                    android:textSize="9sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/txtFacilityCap"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Cap: 88/100"
+                        android:textColor="@color/slate_400"
+                        android:textSize="9sp" />
+
+                    <TextView
+                        android:id="@+id/txtFacilityGrade"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Grade: A (Risk: 15)"
+                        android:textColor="@color/emerald_400"
+                        android:textStyle="bold"
+                        android:textSize="9sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- 3. CHECKLIST SECTION HEADER -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:layout_marginBottom="8dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="✨ Statutory Checklist"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="5 Items"
+                    android:textColor="@color/slate_400"
+                    android:fontFamily="monospace"
+                    android:textSize="9sp" />
+            </LinearLayout>
+
+            <!-- ITEM 1: TEXT OBSERVATION -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_dark_card"
+                android:orientation="vertical"
+                android:padding="12dp"
+                android:layout_marginBottom="10dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1. Infrastructure &amp; Premises Observation"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Record on-site building integrity and general layout."
+                    android:textColor="@color/slate_400"
+                    android:textSize="9sp" />
+
+                <EditText
+                    android:id="@+id/editObservation"
+                    android:layout_width="match_parent"
+                    android:layout_height="42dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_dark_input"
+                    android:hint="Enter inspector observation..."
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/slate_500"
+                    android:paddingHorizontal="10dp"
+                    android:textSize="10sp" />
+            </LinearLayout>
+
+            <!-- ITEM 2: YES/NO COMPLIANCE -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_dark_card"
+                android:orientation="vertical"
+                android:padding="12dp"
+                android:layout_marginBottom="10dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="2. Fire Safety &amp; Emergency Compliance *"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Verify extinguishers, smoke alarms, and exit routes."
+                    android:textColor="@color/slate_400"
+                    android:textSize="9sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnCompliant"
+                        android:layout_width="0dp"
+                        android:layout_height="38dp"
+                        android:layout_weight="1"
+                        android:layout_marginEnd="4dp"
+                        android:backgroundTint="@color/emerald_dark"
+                        android:text="✓ Compliant"
+                        android:textColor="@color/white"
+                        android:textStyle="bold"
+                        android:textSize="9sp" />
+
+                    <Button
+                        android:id="@+id/btnBreach"
+                        android:layout_width="0dp"
+                        android:layout_height="38dp"
+                        android:layout_weight="1"
+                        android:layout_marginStart="4dp"
+                        android:backgroundTint="@color/slate_800"
+                        android:text="✕ Breach"
+                        android:textColor="@color/slate_300"
+                        android:textSize="9sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layoutBreachAlert"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:background="@drawable/bg_radar_breach"
+                    android:padding="8dp"
+                    android:visibility="gone">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Statutory Inspection Checklist"
-                        android:textColor="@color/slate_900"
-                        android:textStyle="bold"
-                        android:textSize="12sp"
-                        android:layout_marginBottom="8dp" />
-
-                    <!-- Rubric 1: Infra -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/rubric_infra"
-                            android:textColor="@color/slate_700"
-                            android:textSize="10sp" />
-                        <TextView
-                            android:id="@+id/valInfra"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="85%"
-                            android:textColor="@color/gov_blue_dark"
-                            android:textStyle="bold"
-                            android:textSize="10sp" />
-                    </LinearLayout>
-                    <SeekBar
-                        android:id="@+id/seekInfra"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:max="100"
-                        android:progress="85"
-                        android:layout_marginBottom="6dp" />
-
-                    <!-- Rubric 2: Hygiene -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/rubric_hygiene"
-                            android:textColor="@color/slate_700"
-                            android:textSize="10sp" />
-                        <TextView
-                            android:id="@+id/valHygiene"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="90%"
-                            android:textColor="@color/gov_blue_dark"
-                            android:textStyle="bold"
-                            android:textSize="10sp" />
-                    </LinearLayout>
-                    <SeekBar
-                        android:id="@+id/seekHygiene"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:max="100"
-                        android:progress="90"
-                        android:layout_marginBottom="6dp" />
-
-                    <!-- Rubric 3: Food -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/rubric_food"
-                            android:textColor="@color/slate_700"
-                            android:textSize="10sp" />
-                        <TextView
-                            android:id="@+id/valFood"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="80%"
-                            android:textColor="@color/gov_blue_dark"
-                            android:textStyle="bold"
-                            android:textSize="10sp" />
-                    </LinearLayout>
-                    <SeekBar
-                        android:id="@+id/seekFood"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:max="100"
-                        android:progress="80"
-                        android:layout_marginBottom="6dp" />
-
-                    <!-- Rubric 4: Medical -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/rubric_medical"
-                            android:textColor="@color/slate_700"
-                            android:textSize="10sp" />
-                        <TextView
-                            android:id="@+id/valMedical"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="85%"
-                            android:textColor="@color/gov_blue_dark"
-                            android:textStyle="bold"
-                            android:textSize="10sp" />
-                    </LinearLayout>
-                    <SeekBar
-                        android:id="@+id/seekMedical"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:max="100"
-                        android:progress="85"
-                        android:layout_marginBottom="6dp" />
-
-                    <!-- Rubric 5: Attendance -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/rubric_attendance"
-                            android:textColor="@color/slate_700"
-                            android:textSize="10sp" />
-                        <TextView
-                            android:id="@+id/valAttendance"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="90%"
-                            android:textColor="@color/gov_blue_dark"
-                            android:textStyle="bold"
-                            android:textSize="10sp" />
-                    </LinearLayout>
-                    <SeekBar
-                        android:id="@+id/seekAttendance"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:max="100"
-                        android:progress="90"
-                        android:layout_marginBottom="10dp" />
-
-                    <!-- Total Score Summary Banner -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@color/gov_blue_bg"
-                        android:padding="8dp"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/total_compliance_label"
-                            android:textColor="@color/gov_blue_dark"
-                            android:textStyle="bold"
-                            android:textSize="11sp" />
-
-                        <TextView
-                            android:id="@+id/txtTotalScore"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="86 / 100 (GRADE A)"
-                            android:textColor="@color/gov_blue_dark"
-                            android:textStyle="bold"
-                            android:textSize="12sp" />
-                    </LinearLayout>
+                        android:text="⚠️ Statutory Breach: Dispatches high-priority PMU alert"
+                        android:textColor="@color/rose_300"
+                        android:textSize="8sp" />
                 </LinearLayout>
-            </androidx.cardview.widget.CardView>
+            </LinearLayout>
 
-            <!-- 4. CAMERA PHOTO CAPTURE & WATERMARKED EVIDENCE -->
-            <androidx.cardview.widget.CardView
+            <!-- ITEM 3: NUMBER RANGE -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/white"
-                android:layout_marginBottom="12dp">
+                android:background="@drawable/bg_dark_card"
+                android:orientation="vertical"
+                android:padding="12dp"
+                android:layout_marginBottom="10dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="3. Beneficiary Ratio"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:textSize="11sp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="12dp">
+                    android:layout_marginTop="4dp"
+                    android:orientation="horizontal">
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
+                        android:layout_weight="1"
+                        android:text="Recorded Occupancy:"
+                        android:textColor="@color/slate_400"
+                        android:textSize="10sp" />
 
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="@string/evidence_section_title"
-                            android:textColor="@color/slate_900"
-                            android:textStyle="bold"
-                            android:textSize="11sp" />
-
-                        <TextView
-                            android:id="@+id/txtPhotoCount"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0 Evidence Attached"
-                            android:textColor="@color/emerald_dark"
-                            android:textStyle="bold"
-                            android:textSize="9sp" />
-                    </LinearLayout>
-
-                    <!-- Camera Trigger Buttons Grid -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:id="@+id/valRatio"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:orientation="horizontal">
-
-                        <Button
-                            android:id="@+id/btnCaptureKitchen"
-                            android:layout_width="0dp"
-                            android:layout_height="36dp"
-                            android:layout_weight="1"
-                            android:layout_marginEnd="4dp"
-                            android:backgroundTint="@color/slate_100"
-                            android:text="@string/btn_capture_kitchen"
-                            android:textColor="@color/slate_800"
-                            android:textSize="8sp" />
-
-                        <Button
-                            android:id="@+id/btnCaptureDorms"
-                            android:layout_width="0dp"
-                            android:layout_height="36dp"
-                            android:layout_weight="1"
-                            android:layout_marginStart="4dp"
-                            android:backgroundTint="@color/slate_100"
-                            android:text="@string/btn_capture_dorms"
-                            android:textColor="@color/slate_800"
-                            android:textSize="8sp" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:orientation="horizontal">
-
-                        <Button
-                            android:id="@+id/btnCaptureMedical"
-                            android:layout_width="0dp"
-                            android:layout_height="36dp"
-                            android:layout_weight="1"
-                            android:layout_marginEnd="4dp"
-                            android:backgroundTint="@color/slate_100"
-                            android:text="@string/btn_capture_medical"
-                            android:textColor="@color/slate_800"
-                            android:textSize="8sp" />
-
-                        <Button
-                            android:id="@+id/btnCaptureSanitation"
-                            android:layout_width="0dp"
-                            android:layout_height="36dp"
-                            android:layout_weight="1"
-                            android:layout_marginStart="4dp"
-                            android:backgroundTint="@color/slate_100"
-                            android:text="@string/btn_capture_sanitation"
-                            android:textColor="@color/slate_800"
-                            android:textSize="8sp" />
-                    </LinearLayout>
-
-                    <!-- Horizontal Evidence Gallery -->
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/recyclerEvidenceGallery"
-                        android:layout_width="match_parent"
-                        android:layout_height="160dp"
-                        android:layout_marginTop="8dp"
-                        android:orientation="horizontal" />
+                        android:text="85%"
+                        android:textColor="@color/amber_300"
+                        android:fontFamily="monospace"
+                        android:textStyle="bold"
+                        android:textSize="10sp" />
                 </LinearLayout>
-            </androidx.cardview.widget.CardView>
 
-            <!-- 5. DUAL DIGITAL SIGNATURES -->
-            <androidx.cardview.widget.CardView
+                <SeekBar
+                    android:id="@+id/seekRatio"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:max="100"
+                    android:progress="85"
+                    android:thumbTint="@color/amber_400"
+                    android:progressTint="@color/amber_400" />
+            </LinearLayout>
+
+            <!-- ITEM 4: DIRECT CAMERA ON-SITE EVIDENCE PHOTO -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/white"
+                android:background="@drawable/bg_dark_card"
+                android:orientation="vertical"
+                android:padding="12dp"
+                android:layout_marginBottom="10dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="4. Mandatory On-Site Evidence Photo"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:textSize="11sp" />
+
+                <LinearLayout
+                    android:id="@+id/layoutSnapPhotoPrompt"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_dark_input"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:paddingVertical="14dp"
+                    android:paddingHorizontal="10dp">
+
+                    <ImageView
+                        android:layout_width="36dp"
+                        android:layout_height="36dp"
+                        android:src="@drawable/ic_camera"
+                        android:contentDescription="Camera" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="Snap Direct On-Site Camera Photo"
+                        android:textColor="@color/white"
+                        android:textStyle="bold"
+                        android:textSize="11sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:text="GPS Geotag HUD &amp; SHA-256 Watermark Stamped Directly"
+                        android:textColor="@color/amber_300"
+                        android:fontFamily="monospace"
+                        android:textSize="8sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:text="🔒 Device gallery upload disabled per DoSJE Anti-Spoofing Rule 4.2"
+                        android:textColor="@color/slate_500"
+                        android:textSize="8sp" />
+                </LinearLayout>
+
+                <!-- Attached Photos Gallery -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerEvidenceGallery"
+                    android:layout_width="match_parent"
+                    android:layout_height="140dp"
+                    android:layout_marginTop="8dp"
+                    android:visibility="gone"
+                    android:orientation="horizontal" />
+            </LinearLayout>
+
+            <!-- ITEM 5: STATUTORY RUBRICS EVALUATION -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_dark_card"
+                android:orientation="vertical"
+                android:padding="12dp"
                 android:layout_marginBottom="14dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="12dp">
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="8dp">
 
                     <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="🎖️ Statutory Rubrics Evaluation"
+                        android:textColor="@color/teal_300"
+                        android:textStyle="bold"
+                        android:textSize="11sp" />
+
+                    <TextView
+                        android:id="@+id/txtTotalScore"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/dual_signatures_title"
-                        android:textColor="@color/slate_900"
+                        android:text="86/100"
+                        android:textColor="@color/white"
+                        android:fontFamily="monospace"
                         android:textStyle="bold"
-                        android:textSize="11sp"
-                        android:layout_marginBottom="6dp" />
+                        android:textSize="10sp"
+                        android:layout_marginEnd="6dp" />
 
-                    <LinearLayout
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:id="@+id/txtGradeBadge"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <Button
-                            android:id="@+id/btnSignInsp"
-                            android:layout_width="0dp"
-                            android:layout_height="38dp"
-                            android:layout_weight="1"
-                            android:layout_marginEnd="4dp"
-                            android:backgroundTint="@color/emerald_bg"
-                            android:text="@string/sig_inspector"
-                            android:textColor="@color/emerald_dark"
-                            android:textStyle="bold"
-                            android:textSize="9sp" />
-
-                        <Button
-                            android:id="@+id/btnSignHead"
-                            android:layout_width="0dp"
-                            android:layout_height="38dp"
-                            android:layout_weight="1"
-                            android:layout_marginStart="4dp"
-                            android:backgroundTint="@color/emerald_bg"
-                            android:text="@string/sig_head"
-                            android:textColor="@color/emerald_dark"
-                            android:textStyle="bold"
-                            android:textSize="9sp" />
-                    </LinearLayout>
+                        android:background="@drawable/bg_badge_emerald"
+                        android:paddingHorizontal="6dp"
+                        android:paddingVertical="2dp"
+                        android:text="Grade A"
+                        android:textColor="@color/emerald_300"
+                        android:textStyle="bold"
+                        android:textSize="8sp" />
                 </LinearLayout>
-            </androidx.cardview.widget.CardView>
 
-            <!-- 6. SUBMISSION BUTTONS -->
+                <!-- Rubric 1 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Structural Integrity &amp; Living Space"
+                        android:textColor="@color/slate_300"
+                        android:textSize="9sp" />
+                    <TextView
+                        android:id="@+id/valInfra"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="85% (20%)"
+                        android:textColor="@color/teal_300"
+                        android:fontFamily="monospace"
+                        android:textSize="9sp" />
+                </LinearLayout>
+                <SeekBar
+                    android:id="@+id/seekInfra"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:max="100"
+                    android:progress="85"
+                    android:thumbTint="@color/teal_400"
+                    android:progressTint="@color/teal_400"
+                    android:layout_marginBottom="6dp" />
+
+                <!-- Rubric 2 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Sanitation &amp; Potable Water Supply"
+                        android:textColor="@color/slate_300"
+                        android:textSize="9sp" />
+                    <TextView
+                        android:id="@+id/valHygiene"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="80% (20%)"
+                        android:textColor="@color/teal_300"
+                        android:fontFamily="monospace"
+                        android:textSize="9sp" />
+                </LinearLayout>
+                <SeekBar
+                    android:id="@+id/seekHygiene"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:max="100"
+                    android:progress="80"
+                    android:thumbTint="@color/teal_400"
+                    android:progressTint="@color/teal_400"
+                    android:layout_marginBottom="6dp" />
+
+                <!-- Rubric 3 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Nutrition &amp; Kitchen Hygiene Standards"
+                        android:textColor="@color/slate_300"
+                        android:textSize="9sp" />
+                    <TextView
+                        android:id="@+id/valFood"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="90% (20%)"
+                        android:textColor="@color/teal_300"
+                        android:fontFamily="monospace"
+                        android:textSize="9sp" />
+                </LinearLayout>
+                <SeekBar
+                    android:id="@+id/seekFood"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:max="100"
+                    android:progress="90"
+                    android:thumbTint="@color/teal_400"
+                    android:progressTint="@color/teal_400"
+                    android:layout_marginBottom="6dp" />
+
+                <!-- Rubric 4 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Medical Dispensary &amp; First-Aid Stock"
+                        android:textColor="@color/slate_300"
+                        android:textSize="9sp" />
+                    <TextView
+                        android:id="@+id/valMedical"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="75% (20%)"
+                        android:textColor="@color/teal_300"
+                        android:fontFamily="monospace"
+                        android:textSize="9sp" />
+                </LinearLayout>
+                <SeekBar
+                    android:id="@+id/seekMedical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:max="100"
+                    android:progress="75"
+                    android:thumbTint="@color/teal_400"
+                    android:progressTint="@color/teal_400"
+                    android:layout_marginBottom="6dp" />
+
+                <!-- Rubric 5 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Beneficiary Attendance &amp; Biometrics"
+                        android:textColor="@color/slate_300"
+                        android:textSize="9sp" />
+                    <TextView
+                        android:id="@+id/valAttendance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="85% (20%)"
+                        android:textColor="@color/teal_300"
+                        android:fontFamily="monospace"
+                        android:textSize="9sp" />
+                </LinearLayout>
+                <SeekBar
+                    android:id="@+id/seekAttendance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:max="100"
+                    android:progress="85"
+                    android:thumbTint="@color/teal_400"
+                    android:progressTint="@color/teal_400" />
+            </LinearLayout>
+
+            <!-- SUBMISSION ACTION BUTTONS -->
             <Button
                 android:id="@+id/btnSubmitCloud"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:backgroundTint="@color/gov_blue_dark"
-                android:text="@string/btn_submit_cloud"
+                android:layout_height="48dp"
+                android:backgroundTint="@color/blue_600"
+                android:text="Submit Encrypted Audit to DoSJE"
                 android:textColor="@color/white"
                 android:textStyle="bold"
                 android:textSize="12sp"
@@ -684,12 +715,199 @@
                 android:id="@+id/btnSaveOffline"
                 android:layout_width="match_parent"
                 android:layout_height="44dp"
-                android:backgroundTint="@color/slate_300"
-                android:text="@string/btn_save_offline"
-                android:textColor="@color/slate_800"
+                android:backgroundTint="@color/slate_800"
+                android:text="Save Offline Package (.enc)"
+                android:textColor="@color/cyan_400"
                 android:textSize="11sp"
-                android:layout_marginBottom="24dp" />
+                android:layout_marginBottom="12dp" />
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Geofenced Digital Signature • Central GovCloud Ledger"
+                android:textColor="@color/slate_500"
+                android:fontFamily="monospace"
+                android:textSize="8sp"
+                android:gravity="center"
+                android:layout_marginBottom="24dp" />
         </LinearLayout>
     </ScrollView>
+
+    <!-- CONTAINER 2: SCREEN 3 AUDIT SUBMITTED SUCCESS VIEW -->
+    <LinearLayout
+        android:id="@+id/layoutSuccessContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/slate_900"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="20dp"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:background="@drawable/bg_badge_emerald"
+            android:gravity="center"
+            android:layout_marginBottom="16dp">
+
+            <ImageView
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:src="@drawable/ic_check"
+                android:contentDescription="Success" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Audit Submitted Successfully!"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:gravity="center" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="Encrypted &amp; Logged to Central MoSJE PMU"
+            android:textColor="@color/emerald_300"
+            android:textStyle="bold"
+            android:textSize="10sp"
+            android:gravity="center" />
+
+        <!-- Success Details Card -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/bg_dark_card"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Inspection ID:"
+                    android:textColor="@color/slate_400"
+                    android:textSize="10sp" />
+                <TextView
+                    android:id="@+id/txtSuccessInspectionId"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="INSP-2026-SUBMITTED"
+                    android:textColor="@color/white"
+                    android:fontFamily="monospace"
+                    android:textStyle="bold"
+                    android:textSize="10sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Audited Facility:"
+                    android:textColor="@color/slate_400"
+                    android:textSize="10sp" />
+                <TextView
+                    android:id="@+id/txtSuccessFacility"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Snehalaya Senior Citizens Home"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:textSize="10sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Auditor:"
+                    android:textColor="@color/slate_400"
+                    android:textSize="10sp" />
+                <TextView
+                    android:id="@+id/txtSuccessAuditor"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Sunita Rao"
+                    android:textColor="@color/white"
+                    android:textSize="10sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Geofence Status:"
+                    android:textColor="@color/slate_400"
+                    android:textSize="10sp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="VERIFIED ON-SITE"
+                    android:textColor="@color/emerald_400"
+                    android:textStyle="bold"
+                    android:textSize="10sp" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:background="@color/slate_700" />
+
+            <TextView
+                android:id="@+id/txtSuccessHash"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="SHA-256 SEAL: 0x8f4c2e1a9b7d3f5e..."
+                android:textColor="@color/slate_400"
+                android:fontFamily="monospace"
+                android:textSize="8sp" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnStartAnother"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="20dp"
+            android:backgroundTint="@color/blue_600"
+            android:text="Start Another Inspection"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:textSize="12sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="GovCloud Synchronization Complete"
+            android:textColor="@color/slate_500"
+            android:fontFamily="monospace"
+            android:textSize="8sp"
+            android:gravity="center" />
+    </LinearLayout>
 </LinearLayout>

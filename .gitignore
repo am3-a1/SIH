@@ -19,12 +19,16 @@ android/local.properties
 
 # Node & Next.js
 node_modules/
+Web/node_modules/
 .next/
+Web/.next/
 out/
 next-env.d.ts
+Web/next-env.d.ts
 seeds_backup/
 
 # IDEs & System
 .idea/
 .DS_Store
 Thumbs.db
+
